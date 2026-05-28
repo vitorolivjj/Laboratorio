@@ -23,9 +23,14 @@ concurrency:
 jobs:
   snapshot:
     runs-on: ubuntu-latest
+    # Evita loop quando o próprio bot faz commit do snapshot
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[automated]')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate snapshot
         run: python3 scripts/update_dashboard_snapshot.py
@@ -39,10 +44,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dashboard/metricas_operacionais.md
-          git commit -m "$(cat <<'EOF'
-chore(dashboard): update operational snapshot [automated]
-
-Regenerate metrics snapshot from TASKs and CRM via GitHub Actions.
-EOF
-)"
-          git push
+          git commit -m "chore(dashboard): update operational snapshot [automated]"
+          git push origin HEAD:main

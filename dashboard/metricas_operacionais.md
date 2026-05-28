@@ -15,7 +15,7 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-05-28 23:04 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-05-28 23:18 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
