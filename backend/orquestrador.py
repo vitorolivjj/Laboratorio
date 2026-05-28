@@ -2,6 +2,8 @@
 """
 Orquestrador multiagente — Ronaldo Maestro coordena Juarez, Dev e Caio Manteiga.
 
+Fluxo: Juarez → Dev → Caio → Ronaldo (consolidação final) → Ronaldo (priorização executiva)
+
 Uso:
   .venv/bin/python orquestrador.py "seu objetivo"
   ./run.sh orquestrar
@@ -14,7 +16,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# backend/ na path para importar laboratorio
 _BACKEND = Path(__file__).resolve().parent
 sys.path.insert(0, str(_BACKEND / "src"))
 
@@ -36,12 +37,75 @@ OBJETIVO_EXEMPLO = (
 EVENTOS_FILE = LOGS_DIR / "eventos.md"
 HISTORICO_FILE = MEMORIA_RONALDO_DIR / "historico_de_orquestracao.md"
 
+# Frases proibidas na consolidação (reforço no prompt)
+_PROIBIDO_RONALDO = (
+    "aguardar retorno", "aguardar entregas", "coletar entregas", "quando os agentes "
+    "retornarem", "solicitar que", "os agentes devem entregar", "irá integrar quando"
+)
+
+_CONSOLIDACAO_INSTRUCOES = """
+Você é diretor operacional fechando uma reunião entre Juarez, Dev e Caio Manteiga.
+As três análises JÁ ESTÃO no contexto — NÃO peça novas entregas.
+
+Faça:
+1. Compare as três respostas lado a lado
+2. Remova redundâncias
+3. Liste convergências (o que todos apontam)
+4. Liste divergências e DECIDA qual caminho seguir (preço, stack, prazo — escolha um)
+5. Monte UM plano operacional único (máx. 7 passos numerados, com dono e prazo)
+
+PROIBIDO usar frases como: aguardar retorno, coletar entregas, quando os agentes entregarem.
+
+Formato obrigatório:
+
+## CONSOLIDAÇÃO FINAL
+
+### Convergências
+- (bullets)
+
+### Divergências e decisão do Ronaldo
+- (conflito → decisão tomada)
+
+### Plano operacional único
+| # | Ação | Dono | Prazo |
+"""
+
+_PRIORIZACAO_INSTRUCOES = """
+Você é diretor operacional. Use a CONSOLIDAÇÃO FINAL do passo anterior.
+Transforme em decisão executável para o Vitor — não reexplique o que os agentes disseram.
+
+Faça:
+1. Top 3 ações por impacto (hoje / esta semana / depois)
+2. Uma decisão clara que o Vitor toma agora
+3. Uma TASK-XXX sugerida para registrar em tasks/backlog.md
+4. Métrica simples de sucesso (1 KPI)
+
+PROIBIDO: texto genérico, repetir tabela de delegação futura, pedir mais análises.
+
+Formato obrigatório:
+
+## PRIORIZAÇÃO EXECUTIVA
+
+| Prioridade | Ação | Dono | Prazo |
+|------------|------|------|-------|
+
+## DECISÃO DE HOJE
+(uma frase imperativa)
+
+## PRÓXIMO PASSO
+(ação única para as próximas 24h)
+
+## TASK SUGERIDA
+TASK-XXX — título — critério de pronto
+
+## KPI DE SUCESSO
+(indicador — meta)
+"""
+
 
 def _require_llm_key() -> None:
     load_env()
-    if os.getenv("OPENAI_API_KEY"):
-        return
-    if os.getenv("ANTHROPIC_API_KEY"):
+    if os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY"):
         return
     print(
         "Erro: nenhuma API key de LLM encontrada.\n"
@@ -60,38 +124,32 @@ def _load_contexto_extra() -> str:
 
 
 def build_orchestration_crew(objective: str) -> Crew:
-    """Fluxo sequencial: Juarez → Dev → Caio → Ronaldo consolida."""
+    """Especialistas em sequência; Ronaldo consolida e prioriza em duas etapas."""
     contexto = _load_contexto_extra()
     briefing = f"Objetivo do Vitor:\n{objective}{contexto}"
 
     juarez = build_agent("juarez", verbose=True)
     dev = build_agent("dev", verbose=True)
     caio = build_agent("caio_manteiga", verbose=True)
-    ronaldo = build_agent("ronaldo_maestro", verbose=True)
+    ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=False)
 
     task_juarez = Task(
         description=(
             f"{briefing}\n\n"
-            "Como Juarez, analise operação e processo: gargalos, KPIs sugeridos, "
-            "plano de ação objetivo. Máximo ~15 linhas."
+            "Como Juarez: análise operacional — situação, gargalos, plano, KPIs. "
+            "Máximo 15 linhas. Seja específico para o objetivo."
         ),
-        expected_output=(
-            "Análise operacional em português: situação, gargalos, plano de ação "
-            "e KPIs (bullets ou tabela curta)."
-        ),
+        expected_output="Análise operacional objetiva em português (bullets ou tabela curta).",
         agent=juarez,
     )
 
     task_dev = Task(
         description=(
             f"{briefing}\n\n"
-            "Como Dev, proponha solução técnica simples (MVP): stack, estrutura de pastas, "
-            "passos de implementação. Sem over-engineering. Máximo ~15 linhas."
+            "Como Dev: MVP técnico — stack simples, pastas, passos, testes. "
+            "Sem over-engineering. Máximo 15 linhas."
         ),
-        expected_output=(
-            "Proposta técnica em português: diagnóstico, arquivos/pastas, "
-            "passos e testes recomendados (formato Dev)."
-        ),
+        expected_output="Proposta técnica objetiva (formato Dev resumido).",
         agent=dev,
         context=[task_juarez],
     )
@@ -99,50 +157,50 @@ def build_orchestration_crew(objective: str) -> Crew:
     task_caio = Task(
         description=(
             f"{briefing}\n\n"
-            "Como Caio Manteiga, defina oferta low ticket, CTA, copy curta WhatsApp "
-            "e follow-up. Baixa fricção. Máximo ~15 linhas."
+            "Como Caio Manteiga: oferta low ticket, preço, CTA, copy WhatsApp, 2 follow-ups. "
+            "Máximo 15 linhas."
         ),
-        expected_output=(
-            "Pacote comercial em português: oferta, preço sugerido, CTA, "
-            "script curto e 2 follow-ups."
-        ),
+        expected_output="Pacote comercial objetivo (oferta, CTA, script, follow-ups).",
         agent=caio,
         context=[task_juarez],
     )
 
-    task_ronaldo = Task(
+    task_consolidacao = Task(
         description=(
             f"{briefing}\n\n"
-            "Como Ronaldo Maestro (pipeline: workflows/pipeline_operacional.md), "
-            "consolide as entregas JÁ FEITAS de Juarez, Dev e Caio Manteiga.\n"
-            "NÃO peça para aguardar retornos — use o conteúdo das tarefas anteriores.\n"
-            "Critérios: objetivo, aplicável, simples, monetizável, baixo custo, rápido.\n"
-            "Seções obrigatórias:\n"
-            "1. Objetivo identificado\n"
-            "2. Agentes envolvidos\n"
-            "3. Plano de execução\n"
-            "4. Distribuição de tarefas (tabela)\n"
-            "5. Consolidação (síntese acionável)\n"
-            "6. Próximo passo (uma ação + TASK sugerida)"
+            f"{_CONSOLIDACAO_INSTRUCOES}\n"
+            f"Evite estas expressões: {', '.join(_PROIBIDO_RONALDO)}"
         ),
         expected_output=(
-            "Resposta final consolidada em português, com as 6 seções acima, "
-            "sem texto vago, pronta para o Vitor executar."
+            "Seção CONSOLIDAÇÃO FINAL completa: convergências, divergências com decisão, "
+            "plano operacional único em tabela."
         ),
         agent=ronaldo,
         context=[task_juarez, task_dev, task_caio],
     )
 
+    task_priorizacao = Task(
+        description=(
+            f"Objetivo do Vitor:\n{objective}\n\n"
+            f"{_PRIORIZACAO_INSTRUCOES}"
+        ),
+        expected_output=(
+            "Seções PRIORIZAÇÃO EXECUTIVA, DECISÃO DE HOJE, PRÓXIMO PASSO, "
+            "TASK SUGERIDA e KPI DE SUCESSO — pronto para executar."
+        ),
+        agent=ronaldo,
+        context=[task_juarez, task_dev, task_caio, task_consolidacao],
+    )
+
     return Crew(
         agents=[juarez, dev, caio, ronaldo],
-        tasks=[task_juarez, task_dev, task_caio, task_ronaldo],
+        tasks=[task_juarez, task_dev, task_caio, task_consolidacao, task_priorizacao],
         process=Process.sequential,
         verbose=True,
     )
 
 
 def _insert_after_section(path: Path, section_title: str, entry: str) -> None:
-    """Insere entrada logo após ## section_title (abaixo do comentário placeholder se houver)."""
     text = path.read_text(encoding="utf-8")
     anchor = f"## {section_title}\n\n"
     if anchor not in text:
@@ -163,15 +221,11 @@ def _insert_after_section(path: Path, section_title: str, entry: str) -> None:
 
 
 def registrar_ciclo(objective: str, resultado: str) -> None:
-    """Registra em logs/eventos.md e historico_de_orquestracao.md."""
     now = datetime.now()
     stamp = now.strftime("%Y-%m-%d %H:%M")
     date = now.strftime("%Y-%m-%d")
     resumo = resultado.strip()
-    if len(resumo) > 400:
-        resumo_evento = resumo[:400] + "…"
-    else:
-        resumo_evento = resumo
+    resumo_evento = resumo[:400] + "…" if len(resumo) > 400 else resumo
 
     evento = f"""### {stamp} — [orquestracao] Ciclo multiagente
 - **Agente(s):** Ronaldo Maestro, Juarez, Dev, Caio Manteiga
@@ -181,13 +235,13 @@ def registrar_ciclo(objective: str, resultado: str) -> None:
 
     historico = f"""### {date} — Orquestração multiagente
 - **Objetivo:** {objective}
-- **Agentes acionados:** Ronaldo Maestro (consolidação), Juarez, Dev, Caio Manteiga
-- **Tarefas distribuídas:** Operação → Técnico → Comercial → Consolidação
+- **Agentes acionados:** Juarez, Dev, Caio Manteiga → Ronaldo (consolidação + priorização)
+- **Tarefas distribuídas:** Operação → Técnico → Comercial → Consolidação final → Priorização executiva
 - **Resultado consolidado:**
 
 {resultado.strip()}
 
-- **Próximo passo:** Revisar consolidação com o Vitor e mover tarefas em `tasks/`.
+- **Próximo passo:** Executar DECISÃO DE HOJE e registrar TASK em `tasks/`.
 """
 
     _insert_after_section(EVENTOS_FILE, "Log", evento)
@@ -198,7 +252,10 @@ def registrar_ciclo(objective: str, resultado: str) -> None:
 def run(objective: str) -> str:
     _require_llm_key()
     print(f"Objetivo:\n{objective}\n")
-    print("Iniciando orquestração (Juarez → Dev → Caio → Ronaldo)…\n")
+    print(
+        "Iniciando orquestração:\n"
+        "  Juarez → Dev → Caio → Ronaldo (consolidação final → priorização executiva)\n"
+    )
 
     crew = build_orchestration_crew(objective)
     result = crew.kickoff()
@@ -212,7 +269,7 @@ def main() -> None:
         objective = " ".join(sys.argv[1:])
     else:
         objective = OBJETIVO_EXEMPLO
-        print(f"(objetivo padrão de exemplo)\n")
+        print("(objetivo padrão de exemplo)\n")
 
     try:
         output = run(objective)
@@ -220,7 +277,7 @@ def main() -> None:
         print(f"Erro ao registrar ciclo: {e}")
         sys.exit(1)
 
-    print("\n" + "=" * 60 + "\nRESULTADO FINAL\n" + "=" * 60 + "\n")
+    print("\n" + "=" * 60 + "\nRESULTADO FINAL (PRIORIZAÇÃO EXECUTIVA)\n" + "=" * 60 + "\n")
     print(output)
 
 

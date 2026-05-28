@@ -25,7 +25,12 @@ _AGENT_META: dict[str, dict[str, str]] = {
 }
 
 
-def build_agent(agent_id: str, *, verbose: bool = True) -> Agent:
+def build_agent(
+    agent_id: str,
+    *,
+    verbose: bool = True,
+    allow_delegation: bool | None = None,
+) -> Agent:
     """Instancia um Agent CrewAI usando o markdown em agentes/{agent_id}.md."""
     meta = _AGENT_META.get(agent_id)
     if meta is None:
@@ -33,10 +38,13 @@ def build_agent(agent_id: str, *, verbose: bool = True) -> Agent:
 
     backstory = load_agent_prompt(agent_id)
 
+    if allow_delegation is None:
+        allow_delegation = agent_id == "ronaldo_maestro"
+
     return Agent(
         role=meta["role"],
         goal=meta["goal"],
         backstory=backstory,
         verbose=verbose,
-        allow_delegation=agent_id == "ronaldo_maestro",
+        allow_delegation=allow_delegation,
     )

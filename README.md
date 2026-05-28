@@ -142,9 +142,10 @@ Documento completo: [workflows/pipeline_operacional.md](workflows/pipeline_opera
 2. **Contexto + memória** — Ronaldo lê `contexto/` + `memoria/`
 3. **Priorização** — ordena fila; escala se urgente
 4. **Delegação** — `planejando` → `executando` → especialista (Juarez / Dev / Caio)
-5. **Consolidação** — Ronaldo nas 6 seções padrão
-6. **Registro** — `logs/eventos.md`, `historico_de_orquestracao.md`, decisões/aprendizados
-7. **Acompanhamento** — `concluidas` → próximo `TASK-XXX` ou `arquivado`
+5. **Consolidação final** — Ronaldo compara, decide, plano único
+6. **Priorização executiva** — top 3, decisão de hoje, TASK, KPI
+7. **Registro** — `logs/eventos.md`, `historico_de_orquestracao.md`, decisões/aprendizados
+8. **Acompanhamento** — executar próximo passo 24h → `tasks/`
 
 ## Como começar
 

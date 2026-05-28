@@ -14,10 +14,10 @@ Fluxo contínuo do ecossistema multiagente: do objetivo do Vitor até registro, 
 flowchart TD
   A[Entrada de objetivos] --> B[Leitura de contexto]
   B --> C[Consulta de memória]
-  C --> D[Priorização]
-  D --> E[Delegação]
-  E --> F[Execução pelos especialistas]
-  F --> G[Consolidação]
+  C --> D[Delegação]
+  D --> E[Juarez / Dev / Caio executam]
+  E --> F[CONSOLIDAÇÃO FINAL]
+  F --> G[PRIORIZAÇÃO EXECUTIVA]
   G --> H[Registro]
   H --> I[Acompanhamento]
   I --> A
@@ -27,12 +27,13 @@ flowchart TD
 |-------|-------------|------|------|
 | **Entrada de objetivos** | Vitor | Define pedido, meta ou problema | Conversa, `tasks/backlog.md`, `./run.sh orquestrar "..."` |
 | **Leitura de contexto** | Ronaldo | Lê foco e restrições atuais | `contexto/contexto_global.md` |
-| **Consulta de memória** | Ronaldo (+ especialistas se necessário) | Decisões, projetos, aprendizados, mapa de agentes | `memoria/*.md`, `memoria/ronaldo_maestro/` |
-| **Priorização** | Ronaldo | Ordena fila, define WIP, escala se urgente | `tasks/backlog.md`, `contexto/contexto_global.md` |
-| **Delegação** | Ronaldo | Escolhe agente(s), briefing, ordem | Plano + `tasks/planejando.md` → `executando.md` |
-| **Consolidação** | Ronaldo | Une entregas, remove duplicação, 6 seções padrão | Resposta final |
-| **Registro** | Ronaldo | Histórico, evento, decisão/aprendizado se couber | `historico_de_orquestracao.md`, `logs/eventos.md`, `memoria/` |
-| **Acompanhamento** | Ronaldo / Vitor | Próximo passo, tarefas abertas, revisão de KPI | `tasks/`, `concluidas.md`, novo ciclo |
+| **Consulta de memória** | Ronaldo | Decisões, projetos, aprendizados | `memoria/*.md`, `memoria/ronaldo_maestro/` |
+| **Delegação** | Ronaldo | Briefing e ordem dos especialistas | `tasks/planejando.md` → `executando.md` |
+| **Execução** | Juarez, Dev, Caio | Análises de domínio | Saída do crew / conversa |
+| **CONSOLIDAÇÃO FINAL** | Ronaldo | Comparar, decidir divergências, plano único | Etapa 1 do Ronaldo — ver abaixo |
+| **PRIORIZAÇÃO EXECUTIVA** | Ronaldo | Top 3, decisão de hoje, TASK, KPI | Etapa 2 do Ronaldo — saída final |
+| **Registro** | Ronaldo | Histórico + evento | `historico_de_orquestracao.md`, `logs/eventos.md` |
+| **Acompanhamento** | Vitor / Ronaldo | Executar próximo passo 24h | `tasks/` |
 
 ### Ciclo contínuo
 
@@ -119,13 +120,35 @@ backlog → planejando → executando → concluído → arquivado
 - Risco de perda de receita ou operação parada (Juarez/Caio sinalizam).
 - Ação: atualizar `contexto/contexto_global.md` + mover tarefa ao topo do backlog + informar Vitor.
 
-### Como consolidar respostas
+### CONSOLIDAÇÃO FINAL (etapa 1 — após especialistas)
 
-1. Ler **todas** as entregas dos especialistas (não pedir “aguardar retorno” se já executaram).
-2. Remover repetição; manter só o acionável.
-3. Entregar as **6 seções** padrão (objetivo → agentes → plano → tabela → consolidação → próximo passo).
-4. Próximo passo = **uma** ação concreta + `TASK-XXX` sugerida se faltar.
-5. Validar contra [critérios de qualidade](#4-critérios-de-qualidade) abaixo.
+Ronaldo age como **diretor fechando reunião**. Os três já falaram — **não pedir mais nada**.
+
+| Passo | Ação |
+|-------|------|
+| 1 | Ler Juarez, Dev e Caio lado a lado |
+| 2 | Extrair **convergências** (preço, prazo, canal, MVP) |
+| 3 | Listar **divergências** e **decidir** (uma escolha por conflito) |
+| 4 | Montar **plano operacional único** (máx. 7 linhas, dono + prazo) |
+| 5 | Remover redundância e jargão |
+
+**Proibido:** “aguardar retornos”, “coletar entregas”, “os agentes devem…”.
+
+### PRIORIZAÇÃO EXECUTIVA (etapa 2 — saída para o Vitor)
+
+| Passo | Ação |
+|-------|------|
+| 1 | Top 3 ações por impacto (hoje / semana / depois) |
+| 2 | **Decisão de hoje** — uma frase imperativa |
+| 3 | **Próximo passo** — ação única em 24h |
+| 4 | **TASK-XXX** sugerida para `tasks/backlog.md` |
+| 5 | **KPI** simples com meta |
+
+**Proibido:** repetir o que especialistas disseram; tabela de “futuras delegações”.
+
+Implementação programática: `orquestrador.py` — duas tasks sequenciais do Ronaldo após Juarez, Dev e Caio.
+
+Validar contra [critérios de qualidade](#4-critérios-de-qualidade).
 
 ---
 
@@ -142,7 +165,7 @@ Toda entrega consolidada pelo Ronaldo deve ser avaliada nestes eixos:
 | **Baixo custo operacional** | Evita ferramenta/custo desnecessário? |
 | **Velocidade de execução** | Próximo passo alcançável em curto prazo? |
 
-**Reprovação:** texto vago, “aguardar análises”, arquitetura pesada sem MVP, promessa sem teste, oferta complexa.
+**Reprovação:** texto vago, “aguardar análises/entregas”, “coletar quando agentes retornarem”, arquitetura pesada sem MVP, promessa sem teste, oferta complexa, consolidação sem decisão em divergências.
 
 ---
 
@@ -192,7 +215,9 @@ Template rápido (aprendizado):
 - [ ] Consultei `memoria/decisoes.md` e `projetos.md` (e estratégico se necessário)
 - [ ] Priorizei / criei `TASK-XXX`
 - [ ] Deleguei ao agente certo com briefing completo
-- [ ] Consolidei com as 6 seções (sem “aguardar retornos” fantasmas)
+- [ ] CONSOLIDAÇÃO FINAL: convergências, decisões, plano único
+- [ ] PRIORIZAÇÃO EXECUTIVA: top 3, decisão de hoje, TASK, KPI
+- [ ] Nenhuma frase pedindo entregas já feitas
 - [ ] Registrei em `historico_de_orquestracao.md` + `logs/eventos.md`
 - [ ] Atualizei status da tarefa nos arquivos corretos
 - [ ] Aprendizado ou decisão registrado se relevante

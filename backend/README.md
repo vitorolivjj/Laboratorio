@@ -54,8 +54,10 @@ chmod +x run.sh   # uma vez
 ```
 
 `orquestrar` sem argumentos usa o objetivo de exemplo (pintores autônomos).  
-Registra o ciclo em `../logs/eventos.md` e `../memoria/ronaldo_maestro/historico_de_orquestracao.md`.  
-Fluxo operacional: [../workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md).
+
+Fluxo: **Juarez → Dev → Caio → Ronaldo (consolidação final → priorização executiva)**.  
+Registra em `../logs/eventos.md` e `../memoria/ronaldo_maestro/historico_de_orquestracao.md`.  
+Pipeline: [../workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md).
 
 Equivalente manual:
 
