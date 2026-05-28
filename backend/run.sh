@@ -10,4 +10,14 @@ if [[ ! -x "$PY" ]]; then
 fi
 
 export PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
+
+if [[ "${1:-}" == "orquestrar" ]]; then
+  shift
+  if [[ $# -eq 0 ]]; then
+    exec "$PY" "$ROOT/orquestrador.py"
+  else
+    exec "$PY" "$ROOT/orquestrador.py" "$@"
+  fi
+fi
+
 exec "$PY" -m laboratorio "$@"

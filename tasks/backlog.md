@@ -2,6 +2,8 @@
 
 Tarefas **ainda não iniciadas**, priorizadas de cima para baixo.
 
+**Estado:** `backlog` · Pipeline: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
+
 ## Como usar
 
 1. Nova tarefa entra aqui com ID único `TASK-XXX`.
@@ -10,14 +12,19 @@ Tarefas **ainda não iniciadas**, priorizadas de cima para baixo.
 
 ## Template
 
+Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operacional.md#5-estrutura-padrão-das-tasks).
+
 ```markdown
 ### TASK-XXX — [Título]
+- **Objetivo:**
+- **Contexto:** PROJ-XXX
 - **Prioridade:** alta | media | baixa
-- **Projeto:** PROJ-XXX
-- **Agente:** ronaldo_maestro | juarez | dev | caio_manteiga
-- **Descrição:**
-- **Critério de pronto:**
+- **Agente responsável:**
+- **Status:** backlog
+- **Dependências:**
+- **Resultado esperado:**
 - **Criada em:** YYYY-MM-DD
+- **Atualizada em:** YYYY-MM-DD
 ```
 
 ---

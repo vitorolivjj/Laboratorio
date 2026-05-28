@@ -16,6 +16,7 @@ CONTEXTO_DIR = REPO_ROOT / "contexto"
 TASKS_DIR = REPO_ROOT / "tasks"
 LOGS_DIR = REPO_ROOT / "logs"
 WORKFLOWS_DIR = REPO_ROOT / "workflows"
+PIPELINE_OPERACIONAL = WORKFLOWS_DIR / "pipeline_operacional.md"
 
 # Memória compartilhada (arquivos na raiz de memoria/)
 MEMORIA_SHARED_FILES = {

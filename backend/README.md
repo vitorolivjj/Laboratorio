@@ -5,7 +5,26 @@ API e runtime Python para orquestrar os agentes definidos em `../agentes/`.
 ## Requisitos
 
 - Python **3.10 – 3.13** (testado com 3.12)
-- Chave de LLM no `.env` (ex.: `OPENAI_API_KEY`) para executar crews
+- Chave de LLM no `.env` para orquestração (obrigatório em `orquestrar`)
+
+### API key (LLM)
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+Edite `.env` e defina **uma** das variáveis:
+
+```env
+OPENAI_API_KEY=sk-...
+# ou
+ANTHROPIC_API_KEY=...
+```
+
+Opcional: `MODEL=gpt-4o-mini` (conforme suporte do CrewAI/LiteLLM).
+
+Sem key, `./run.sh orquestrar` encerra com mensagem clara — não tenta chamar a API.
 
 ## Setup
 
@@ -28,7 +47,15 @@ chmod +x run.sh   # uma vez
 ./run.sh check
 ./run.sh run-sample
 ./run.sh orchestrate "seu objetivo aqui"
+
+# Orquestrador real: Juarez + Dev + Caio → Ronaldo consolida
+./run.sh orquestrar
+./run.sh orquestrar "seu objetivo customizado"
 ```
+
+`orquestrar` sem argumentos usa o objetivo de exemplo (pintores autônomos).  
+Registra o ciclo em `../logs/eventos.md` e `../memoria/ronaldo_maestro/historico_de_orquestracao.md`.  
+Fluxo operacional: [../workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md).
 
 Equivalente manual:
 
@@ -42,6 +69,8 @@ Com `PYTHONPATH=src` se não usar `run.sh`.
 
 ```
 backend/
+├── orquestrador.py      # Orquestração multiagente (Ronaldo + especialistas)
+├── run.sh
 ├── requirements.txt
 ├── .env.example
 └── src/laboratorio/

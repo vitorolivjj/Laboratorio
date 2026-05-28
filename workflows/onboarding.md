@@ -29,9 +29,9 @@ Como **iniciar** um novo projeto, agente ou ciclo de trabalho no ecossistema.
 
 1. [ ] Ler `contexto/contexto_global.md`
 2. [ ] Ler `memoria/decisoes.md` (últimas entradas)
-3. [ ] Ver `tasks/executando.md` e `backlog.md`
+3. [ ] Ver `tasks/` (backlog, executando, aguardando)
 4. [ ] Especialista: ler seu `.md` em `agentes/`
-5. [ ] Ronaldo: ler `memoria/ronaldo_maestro/` (contexto + regras + mapa)
+5. [ ] Ronaldo: ler [pipeline_operacional.md](pipeline_operacional.md) + `memoria/ronaldo_maestro/`
 
 ## Tempo alvo
 

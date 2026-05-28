@@ -2,6 +2,8 @@
 
 Como o ecossistema **coordena** trabalho do pedido à entrega.
 
+> Pipeline contínuo e estados de tarefa: [pipeline_operacional.md](pipeline_operacional.md)
+
 ## Visão geral
 
 ```mermaid

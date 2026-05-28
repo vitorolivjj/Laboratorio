@@ -1,6 +1,8 @@
 # Executando
 
-Tarefas **em andamento agora**. Manter poucas (WIP baixo).
+Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
+
+**Estado:** `executando` · Pipeline: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
 
 ## Regra
 

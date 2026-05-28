@@ -25,7 +25,8 @@ Ronaldo Maestro ──delega──► Juarez | Dev | Caio Manteiga
 | Software | Dev | `agentes/dev.md` |
 | Comercial | Caio Manteiga | `agentes/caio_manteiga.md` |
 
-Fluxo detalhado: [workflows/fluxo_agentes.md](workflows/fluxo_agentes.md)  
+**Pipeline contínuo (Ronaldo):** [workflows/pipeline_operacional.md](workflows/pipeline_operacional.md)  
+Fluxo entre agentes: [workflows/fluxo_agentes.md](workflows/fluxo_agentes.md)  
 Primeira sessão: [workflows/onboarding.md](workflows/onboarding.md)
 
 ## Estrutura do projeto
@@ -41,13 +42,17 @@ Laboratorio/
 │   └── ronaldo_maestro/        # Memória estratégica (orquestrador)
 ├── contexto/                   # Verdade do momento
 │   └── contexto_global.md
-├── tasks/                      # Fila de trabalho
+├── tasks/                      # Fila de trabalho (6 estados)
 │   ├── backlog.md
+│   ├── planejando.md
 │   ├── executando.md
-│   └── concluidas.md
+│   ├── aguardando.md
+│   ├── concluidas.md
+│   └── arquivado.md
 ├── logs/                       # Linha do tempo de eventos
 │   └── eventos.md
 ├── workflows/                  # Processos do ecossistema
+│   ├── pipeline_operacional.md # Fluxo contínuo do Ronaldo Maestro
 │   ├── onboarding.md
 │   └── fluxo_agentes.md
 ├── backend/                    # Runtime Python + CrewAI
@@ -90,15 +95,18 @@ Complementa (não substitui) `memoria/ronaldo_maestro/contexto_estrategico.md`, 
 
 ### `tasks/`
 
-**Fila de trabalho** do ecossistema — Kanban em markdown.
+**Fila de trabalho** — Kanban em markdown, gerido pelo Ronaldo Maestro.
 
 | Arquivo | Estado |
 |---------|--------|
 | `backlog.md` | A fazer |
-| `executando.md` | Em andamento (WIP baixo) |
-| `concluidas.md` | Histórico |
+| `planejando.md` | Ronaldo define plano e delegação |
+| `executando.md` | Em execução (máx. 3 WIP) |
+| `aguardando.md` | Bloqueada |
+| `concluidas.md` | Concluída |
+| `arquivado.md` | Histórico inativo |
 
-IDs: `TASK-XXX`. Vincular a `PROJ-XXX` em `memoria/projetos.md`.
+IDs: `TASK-XXX`. Estrutura padrão e transições: [workflows/pipeline_operacional.md](workflows/pipeline_operacional.md).
 
 ### `logs/`
 
@@ -106,7 +114,13 @@ IDs: `TASK-XXX`. Vincular a `PROJ-XXX` em `memoria/projetos.md`.
 
 ### `workflows/`
 
-**Como operar** — onboarding de projeto/agente/sessão e fluxo entre agentes.
+**Como operar** o ecossistema.
+
+| Arquivo | Função |
+|---------|--------|
+| `pipeline_operacional.md` | Fluxo contínuo do Ronaldo: contexto → memória → delegação → registro |
+| `fluxo_agentes.md` | Handoff entre Juarez, Dev e Caio |
+| `onboarding.md` | Primeira sessão, novo projeto ou agente |
 
 ### `agentes/`
 
@@ -122,11 +136,15 @@ Código de produto e documentação técnica extensa (ADRs, setup). Fatos operac
 
 ## Ciclo operacional (resumo)
 
-1. Vitor define objetivo → `tasks/backlog.md`
-2. Ronaldo lê `contexto/contexto_global.md` + memória estratégica → plano e delegação
-3. Especialista executa → move tarefa para `executando.md` → `concluidas.md`
-4. Registrar evento em `logs/eventos.md`; decisão relevante em `memoria/decisoes.md`
-5. Aprendizado → `memoria/aprendizados.md`
+Documento completo: [workflows/pipeline_operacional.md](workflows/pipeline_operacional.md).
+
+1. **Entrada** — Vitor define objetivo → `tasks/backlog.md` ou `./run.sh orquestrar`
+2. **Contexto + memória** — Ronaldo lê `contexto/` + `memoria/`
+3. **Priorização** — ordena fila; escala se urgente
+4. **Delegação** — `planejando` → `executando` → especialista (Juarez / Dev / Caio)
+5. **Consolidação** — Ronaldo nas 6 seções padrão
+6. **Registro** — `logs/eventos.md`, `historico_de_orquestracao.md`, decisões/aprendizados
+7. **Acompanhamento** — `concluidas` → próximo `TASK-XXX` ou `arquivado`
 
 ## Como começar
 

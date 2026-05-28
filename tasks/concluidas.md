@@ -2,6 +2,8 @@
 
 Histórico de tarefas **finalizadas** (mais recentes no topo).
 
+**Estado:** `concluido` · Arquivar depois em `arquivado.md` · Pipeline: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
+
 ## Template
 
 ```markdown

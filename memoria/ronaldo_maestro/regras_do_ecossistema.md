@@ -19,7 +19,8 @@ Princípios que todos os agentes devem respeitar. Ronaldo Maestro mantém e apli
 | **Memória compartilhada** | `memoria/*.md` | Todos | Decisões, aprendizados, projetos, estado dos agentes |
 | **Tarefas** | `tasks/` | Todos | Backlog, executando, concluídas |
 | **Logs** | `logs/eventos.md` | Todos | Linha do tempo de eventos |
-| **Workflows** | `workflows/` | Todos | Onboarding e fluxo entre agentes |
+| **Workflows** | `workflows/` | Todos | Pipeline operacional, onboarding, fluxo entre agentes |
+| **Pipeline** | `workflows/pipeline_operacional.md` | Ronaldo (obrigatório) | Fluxo contínuo: contexto → delegação → registro |
 | **Memória estratégica** | `memoria/ronaldo_maestro/` | Ronaldo (prioritário) | Coordenação, decisões críticas, histórico de orquestração |
 
 Ronaldo registra aqui o que orienta **coordenação e fluxo**. Fatos operacionais vão em `memoria/decisoes.md` (compartilhado); espelhar em `decisoes_criticas.md` só se mudar direção do ecossistema.
