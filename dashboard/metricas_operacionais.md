@@ -36,7 +36,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | `planejando` | 0 | — |
 | `aguardando` | 0 | — |
 | `backlog` | 1 | TASK-004 |
-| `concluído` (kanban) | 3 | TASK-002, TASK-003, TASK-000 |
+| `concluído` (kanban) | 2 | TASK-003, TASK-000 |
 
 ### TASKs (arquivos persistentes)
 
