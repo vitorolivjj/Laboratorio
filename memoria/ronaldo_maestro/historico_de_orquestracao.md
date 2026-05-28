@@ -95,6 +95,37 @@ Aguardar os retornos de Juarez, Dev e Caio Manteiga e depois consolidar suas an�
 
 ---
 
+### 2026-05-28 — Rodada operacional 2 — TASK-001 HTML v0
+- **Objetivo:** Transformar `frontend/LANDING.md` em landing HTML funcional v0
+- **Agentes acionados:** Ronaldo Maestro (orquestração + auditoria), Dev
+- **Tarefas distribuídas:** Dev → `index.html`, `styles.css`, `README.md`
+- **Resultado consolidado:**
+  - HTML estático com 5 seções, CTA WhatsApp (hero + preço), MP comentado
+  - E2 ✅ · E5 🔄 (deploy e número WA pendentes)
+  - Veredito técnico: **E5 parcial aprovado**
+- **Próximo passo:** Vitor executa deploy; WA e E7 quando disponível
+
+---
+
+### 2026-05-28 — Rodada operacional 4 — TASK-001 deploy pipeline
+- **Objetivo:** Desacoplar deploy do número WA
+- **Agentes acionados:** Ronaldo Maestro, Dev
+- **Resultado:** GitHub Actions Pages + netlify.toml + deploy.sh
+- **Decisão Vitor:** número WA depois
+- **Próximo passo:** Vitor publica e registra URL
+
+---
+- **Objetivo:** Copy final + checklist operacional v0; preparar deploy
+- **Agentes acionados:** Ronaldo Maestro, Caio Manteiga, Juarez, Dev
+- **Tarefas distribuídas:** Caio → E3 · Juarez → E4 · Dev → aplicar copy + vercel.json
+- **Resultado consolidado:**
+  - E3 ✅ copy no HTML + scripts WA
+  - E4 ✅ dois checklists (pré-fechamento + pós-pagamento)
+  - E5 🔄 deploy bloqueado — número WA
+- **Próximo passo:** Vitor desbloqueia deploy + E7 contatos
+
+---
+
 ## Estatísticas (opcional)
 
 | Período | Ciclos | Agentes mais usados | Observação |

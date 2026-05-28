@@ -2,7 +2,7 @@
 
 Tarefas **ainda não iniciadas**, priorizadas de cima para baixo.
 
-**Estado:** `backlog` · Pipeline: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
+**Estado:** `backlog` · Ciclo de vida: [docs/ciclo-de-vida-tasks.md](../docs/ciclo-de-vida-tasks.md) · Modelo: [docs/modelo-task.md](../docs/modelo-task.md)
 
 ## Como usar
 
@@ -31,23 +31,19 @@ Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operac
 
 ## Fila
 
-### TASK-001 — Validar crew de exemplo no backend
+> **TASK-001–003** em execução → [executando.md](executando.md)
 
-- **Prioridade:** media
-- **Projeto:** PROJ-001
-- **Agente:** dev
-- **Descrição:** Configurar `.env`, rodar `python -m laboratorio check` e `run-sample`.
-- **Critério de pronto:** Comando executa sem erro de import; LLM responde (se key configurada).
+### TASK-004 — Validar crew de exemplo no backend
+
+- **Objetivo:** Confirmar ambiente Python/CrewAI
+- **Contexto:** PROJ-001
+- **Prioridade:** baixa
+- **Agente responsável:** dev
+- **Status:** backlog
+- **Dependências:** nenhuma
+- **Resultado esperado:** `./run.sh check` OK; `run-sample` com API key
 - **Criada em:** 2026-05-28
-
-### TASK-002 — Primeiro ciclo de orquestração documentado
-
-- **Prioridade:** media
-- **Projeto:** PROJ-001
-- **Agente:** ronaldo_maestro
-- **Descrição:** Pedido real do Vitor → plano → delegação → registro em `historico_de_orquestracao.md`.
-- **Critério de pronto:** Entrada completa no histórico + tarefa em `concluidas.md`.
-- **Criada em:** 2026-05-28
+- **Atualizada em:** 2026-05-28
 
 ---
 

@@ -1,35 +1,50 @@
 # Agentes (memória compartilhada)
 
-Estado operacional do ecossistema: quem existe, quando usar e links.
+Índice do ecossistema: quem existe, memória de domínio e quando acionar.
 
-> Definições completas (prompt, personalidade, regras): pasta `agentes/*.md`  
-> Mapa de delegação e fluxos: `memoria/ronaldo_maestro/mapa_dos_agentes.md`
+> Definições completas: `agentes/*.md`  
+> Arquitetura de memória: [docs/arquitetura-agentes.md](../docs/arquitetura-agentes.md)
 
-## Agentes ativos
+## Agentes permanentes
 
-| ID | Nome | Arquivo | Domínio | Acionar quando |
-|----|------|---------|---------|----------------|
-| `ronaldo_maestro` | Ronaldo Maestro | `agentes/ronaldo_maestro.md` | Orquestração | Coordenar, priorizar, consolidar, registrar decisão estratégica |
-| `juarez` | Juarez | `agentes/juarez.md` | Operação | Processos, KPIs, gargalos, logística, obras |
-| `dev` | Dev | `agentes/dev.md` | Software | Código, arquitetura, APIs, deploy, MVP técnico |
-| `caio_manteiga` | Caio Manteiga | `agentes/caio_manteiga.md` | Comercial | Vendas, WhatsApp, funis, copy, conversão |
+| ID | Agente | Memória de domínio | Escopo | Definição |
+|----|--------|-------------------|--------|-----------|
+| `ronaldo_maestro` | Ronaldo Maestro | `memoria_estrategica_ronaldo.md` + `ronaldo_maestro/` | Longa (estratégica) | `agentes/ronaldo_maestro.md` |
+| `juarez` | Juarez | `memoria_operacional_juarez.md` | Média (operacional) | `agentes/juarez.md` |
+| `dev` | Dev | `memoria_tecnica_dev.md` | Por projeto | `agentes/dev.md` |
+| `caio_manteiga` | Caio Manteiga | `memoria_comercial_caio.md` | Por oferta | `agentes/caio_manteiga.md` |
+| `donizete_social` | Donizete Social | `crm/leads.md` | Por campanha / TASK | `agentes/donizete_social.md` |
+
+## Subagentes temporários
+
+- **Memória:** curta (sessão / TASK)
+- **Entrada:** briefing enxuto produzido pelo Ronaldo
+- **Saída:** entrega ao Ronaldo para auditoria — sem escrita em memória longa
+
+## Memória compartilhada (todos leem)
+
+| Arquivo | Função |
+|---------|--------|
+| `decisoes.md` | Decisões globais |
+| `aprendizados.md` | Lições auditadas |
+| `hipoteses_testadas.md` | Hipóteses H-XXX |
+| `projetos.md` | Portfólio PROJ-XXX |
+
+## Fluxo de memória (resumo)
+
+1. Ronaldo lê memória **longa** + contexto + TASK
+2. Ronaldo produz **briefing curto** para especialista ou subagente
+3. Especialista executa usando memória de **domínio**
+4. Ronaldo **audita** → `aprendizados`, `decisoes`, `hipoteses_testadas`
 
 ## Status
 
-| Agente | Status | Observação |
-|--------|--------|------------|
-| Ronaldo Maestro | Ativo | Orquestrador central |
-| Juarez | Ativo | — |
-| Dev | Ativo | Backend CrewAI em `backend/` |
-| Caio Manteiga | Ativo | — |
+| Agente | Status |
+|--------|--------|
+| Ronaldo Maestro | Ativo |
+| Juarez | Ativo |
+| Dev | Ativo |
+| Caio Manteiga | Ativo |
+| Donizete Social | Ativo |
 
-## Convenções
-
-- **Orquestrador primeiro** em pedidos que cruzam domínios.
-- **Um especialista por vez** quando possível; Ronaldo consolida depois.
-- Atualizar esta tabela se entrar ou sair agente.
-
-## Última atualização
-
-- **Data:** 2026-05-28
-- **Por:** Dev
+**Última atualização:** 2026-05-28

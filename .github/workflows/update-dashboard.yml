@@ -1,0 +1,48 @@
+name: Update operational dashboard snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tasks/**"
+      - "crm/**"
+      - "dashboard/**"
+      - "scripts/update_dashboard_snapshot.py"
+      - ".github/workflows/update-dashboard.yml"
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dashboard-snapshot
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate snapshot
+        run: python3 scripts/update_dashboard_snapshot.py
+
+      - name: Commit snapshot if changed
+        run: |
+          if git diff --quiet dashboard/metricas_operacionais.md; then
+            echo "Nenhuma alteração no dashboard."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard/metricas_operacionais.md
+          git commit -m "$(cat <<'EOF'
+chore(dashboard): update operational snapshot [automated]
+
+Regenerate metrics snapshot from TASKs and CRM via GitHub Actions.
+EOF
+)"
+          git push

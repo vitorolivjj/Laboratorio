@@ -30,9 +30,10 @@ Portfólio de iniciativas do Laboratório e do ecossistema do Vitor.
 - **ID:** PROJ-001
 - **Status:** em_andamento
 - **Objetivo:** Agentes coordenados com memória, contexto, tarefas e workflows compartilhados.
-- **Agentes principais:** Ronaldo Maestro, Dev, Juarez, Caio Manteiga
-- **Stack / pasta:** `agentes/`, `backend/`, `memoria/`, `contexto/`, `tasks/`, `workflows/`
-- **Próximo passo:** Primeiro ciclo de orquestração real com tarefa no backlog.
+- **Agentes principais:** Ronaldo Maestro, Dev, Juarez, Caio Manteiga, Donizete Social
+- **Stack / pasta:** `agentes/`, `backend/`, `memoria/`, `contexto/`, `tasks/`, `workflows/`, `crm/`
+- **Próximo passo:** TASK-001 landing · TASK-002 captação · TASK-003 snapshot dashboard
+- **Tarefas ativas:** TASK-001, TASK-002, TASK-003
 - **Última atualização:** 2026-05-28
 
 ---

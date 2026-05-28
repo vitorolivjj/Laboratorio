@@ -41,4 +41,32 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 
 ---
 
+### TASK-002 — Validação captação orgânica Donizete → Caio
+
+- **Iniciada em:** 2026-05-28
+- **Agente:** ronaldo_maestro (coord.) · donizete_social · caio_manteiga
+- **Projeto:** PROJ-001
+- **Status:** em_progresso
+- **Documento oficial:** [TASK-002.md](TASK-002.md)
+- **Rodada ativa:** 1 — captação + abordagem (máx. 3 leads)
+- **Entregáveis:** E1 ✅ · E2–E5 ⬜
+- **Bloqueio:** nenhum
+- **Próxima ação:** Donizete → captar leads CRM · Caio → aguardar handoff
+
+---
+
+### TASK-003 — Automação snapshot dashboard operacional
+
+- **Iniciada em:** 2026-05-28
+- **Agente:** ronaldo_maestro (coord.) · dev · juarez
+- **Projeto:** PROJ-001
+- **Status:** em_progresso
+- **Documento oficial:** [TASK-003.md](TASK-003.md)
+- **Rodada ativa:** 1 — script + workflow (2026-05-28)
+- **Entregáveis:** E1–E4 ✅ · E5 🔄
+- **Bloqueio:** nenhum — aguarda push Actions
+- **Próxima ação:** Push main → validar workflow
+
+---
+
 <!-- Tarefas ativas abaixo -->

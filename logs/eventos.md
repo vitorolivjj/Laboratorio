@@ -25,6 +25,21 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-28 — [tarefa] TASK-003 criada — automação snapshot dashboard
+- **Agente(s):** Ronaldo Maestro, Dev, Juarez
+- **Detalhe:** script stdlib + workflow GitHub Actions; snapshot seção 0
+- **Ref:** TASK-003
+
+### 2026-05-28 — [marco] Dashboard operacional criado
+- **Agente(s):** Ronaldo Maestro
+- **Detalhe:** dashboard/metricas_operacionais.md — visão TASKs, leads, SLA, gargalos
+- **Ref:** PROJ-001
+
+### 2026-05-28 — [tarefa] TASK-002 criada — validação captação orgânica
+- **Agente(s):** Ronaldo Maestro
+- **Detalhe:** Fluxo Donizete → CRM → Caio → feedback; máx. 3 leads pintores Grande SP
+- **Ref:** TASK-002, docs/workflow-captacao-comercial.md
+
 ### 2026-05-28 — [deploy] TASK-001 landing publicada — GitHub Pages
 - **Agente(s):** Dev, Ronaldo Maestro
 - **Detalhe:** Push main → Action `deploy-pages.yml` success; URL https://vitorolivjj.github.io/Laboratorio/ · E5 ✅
