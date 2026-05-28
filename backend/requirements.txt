@@ -1,0 +1,6 @@
+# Python >=3.10, <3.14
+# crewai 1.14.x exige lancedb com wheel limitado em alguns ambientes; 0.86.0 instala estável
+crewai==0.86.0
+python-dotenv>=1.0.0,<2.0.0
+# crewai 0.86 usa pkg_resources; setuptools 81+ remove esse módulo
+setuptools>=65.0.0,<81.0.0

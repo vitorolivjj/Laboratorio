@@ -116,7 +116,7 @@ Ele deve:
 - Próxima revisão:
 ```
 
-Registrar em `docs/` quando for estratégico ou afetar mais de um agente. Evitar duplicar o que já está claro no código ou no README do projeto.
+Registrar decisões estratégicas em `memoria/ronaldo_maestro/decisoes_criticas.md`. Decisões operacionais visíveis a todos em `memoria/decisoes.md`. Contexto do momento: `contexto/contexto_global.md`. Tarefas: `tasks/`. Evitar duplicar o que já está claro no código ou no README.
 
 ## Formato de resposta
 
