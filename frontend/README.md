@@ -34,6 +34,6 @@ python3 -m http.server 8080
 
 1. Push para `main` (dispara o workflow)
 2. No GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**
-3. URL: `https://vitorolivjj.github.io/Laboratorio/` (ajustar se o repo tiver outro nome)
+3. URL: **https://vitorolivjj.github.io/Laboratorio/** ✅ (2026-05-28)
 
 Registrar URL final em `tasks/TASK-001.md`.

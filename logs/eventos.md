@@ -25,6 +25,41 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-28 — [deploy] TASK-001 landing publicada — GitHub Pages
+- **Agente(s):** Dev, Ronaldo Maestro
+- **Detalhe:** Push main → Action `deploy-pages.yml` success; URL https://vitorolivjj.github.io/Laboratorio/ · E5 ✅
+- **Ref:** TASK-001 · [Action run](https://github.com/vitorolivjj/Laboratorio/actions/runs/26605297208)
+
+### 2026-05-28 — [decisao] TASK-001 WA adiado — deploy desacoplado
+- **Agente(s):** Vitor, Ronaldo Maestro
+- **Detalhe:** Landing pode publicar com placeholder; número WA entra depois
+- **Ref:** TASK-001, memoria/decisoes.md
+
+### 2026-05-28 — [tarefa] TASK-001 Rodada 4 — pipeline deploy
+- **Agente(s):** Ronaldo Maestro, Dev
+- **Detalhe:** GitHub Actions Pages, netlify.toml, deploy.sh; URL pendente execução Vitor
+- **Ref:** TASK-001
+
+### 2026-05-28 — [tarefa] TASK-001 Rodada 3 — E3 + E4
+- **Agente(s):** Ronaldo Maestro, Caio Manteiga, Juarez, Dev
+- **Detalhe:** Copy aplicada no HTML; checklists pré/pós-fechamento; vercel.json; deploy pendente
+- **Ref:** TASK-001
+
+### 2026-05-28 — [tarefa] TASK-001 Rodada 2 — HTML v0
+- **Agente(s):** Ronaldo Maestro, Dev
+- **Detalhe:** frontend/index.html + styles.css; CTA WhatsApp; MP comentado; E5 parcial — deploy pendente
+- **Ref:** TASK-001
+
+### 2026-05-28 — [decisao] TASK-001 gateway v0 WhatsApp only
+- **Agente(s):** Vitor, Ronaldo Maestro
+- **Detalhe:** v0 sem checkout; validar interesse/conversão; Dev reserva Mercado Pago em frontend/LANDING.md para v1
+- **Ref:** TASK-001
+
+### 2026-05-28 — [tarefa] TASK-001 Rodada operacional 1
+- **Agente(s):** Ronaldo Maestro
+- **Detalhe:** Plano 48h; briefings Dev (E2), Caio (E3), Juarez (E4); decisão MVP R$ 49 HTML estático em decisoes.md; status mantido executando
+- **Ref:** TASK-001
+
 ### 2026-05-28 16:50 — [orquestracao] Ciclo multiagente
 - **Agente(s):** Ronaldo Maestro, Juarez, Dev, Caio Manteiga
 - **Detalhe:** Objetivo: Criar uma oferta low ticket de página simples para pintores autônomos. | Resumo: ```

@@ -5,7 +5,7 @@
 **Status:** `executando`  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
-**Atualizada em:** 2026-05-28 (Rodada 4 — deploy preparado; WA adiado)
+**Atualizada em:** 2026-05-28 (E5 — landing publicada GitHub Pages)
 
 > Task persistente oficial · Modelo: [docs/modelo-task.md](../docs/modelo-task.md) · Ciclo de vida: [docs/ciclo-de-vida-tasks.md](../docs/ciclo-de-vida-tasks.md) · Runtime: [runtime/ronaldo_runtime.md](../runtime/ronaldo_runtime.md)
 
@@ -88,7 +88,7 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 | E2 | Wireframe / estrutura da landing (seções) | Dev | ✅ |
 | E3 | Copy final (headline, bullets, CTA WhatsApp) | Caio | ✅ |
 | E4 | Fluxo operacional de entrega (checklist) | Juarez | ✅ |
-| E5 | Landing HTML v0 + deploy URL pública | Dev | 🔄 deploy pronto |
+| E5 | Landing HTML v0 + deploy URL pública | Dev | ✅ |
 | E6 | Link Mercado Pago (CTA secundário) | Dev | ⏸ v1 — após validação v0 |
 | E7 | 3 contatos de pintores para teste | Vitor | ⬜ |
 | E8 | 1 ciclo `orquestrar` pós-deploy com métricas | Ronaldo | ⬜ |
@@ -254,9 +254,8 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 
 ### Como publicar (escolha uma)
 
-1. **GitHub Pages** — push `main` → Settings → Pages → Source: GitHub Actions
-2. **Vercel/Netlify** — arrastar pasta `frontend/` no dashboard
-3. **CLI local** — `./frontend/deploy.sh`
+1. **GitHub Pages** — push `main` → Settings → Pages → Source: **GitHub Actions**
+2. Workflow: `.github/workflows/deploy-pages.yml`
 
 **WhatsApp:** editar `WHATSAPP_NUMBER` em `index.html` a qualquer momento (antes ou depois do deploy).
 
@@ -268,6 +267,32 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 | **Dev** | Atualizar TASK-001 com URL |
 | **Caio** | Primeiro teste de funil após URL |
 | **Ronaldo** | Fechar E5 na auditoria quando URL existir |
+
+---
+
+## Rodada operacional 5 — 2026-05-28
+
+**Orquestrador:** Ronaldo Maestro · **Dev:** deploy GitHub Pages  
+**Objetivo:** Publicar `frontend/` e validar URL pública
+
+### Resultado
+
+| Item | Status |
+|------|--------|
+| Push `main` (commit `25eaae3`) | ✅ |
+| Workflow `deploy-pages.yml` | ✅ [Action #26605297208](https://github.com/vitorolivjj/Laboratorio/actions/runs/26605297208) |
+| URL pública | ✅ **https://vitorolivjj.github.io/Laboratorio/** |
+| HTTP 200 + conteúdo landing | ✅ validado |
+| Número WhatsApp real | ⬜ placeholder (Vitor) |
+
+### Próxima ação pós-deploy
+
+| Agente | Ação |
+|--------|------|
+| **Vitor** | Configurar `WHATSAPP_NUMBER` + E7 contatos pintores |
+| **Caio** | Testar funil com lead real |
+| **Juarez** | Handoff na 1ª venda |
+| **Ronaldo** | E8 — ciclo orquestrar pós-métricas |
 
 ---
 
@@ -327,9 +352,9 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 |-------|-------|
 | **Status** | `executando` |
 | **Arquivo Kanban** | [executando.md](executando.md) |
-| **Bloqueios** | Nenhum crítico — deploy aguarda ação Vitor |
-| **Rodada ativa** | Rodada operacional 4 — deploy preparado |
-| **URL pública** | _pendente_ |
+| **Bloqueios** | Nenhum crítico — WA placeholder |
+| **Rodada ativa** | Rodada 5 — deploy concluído |
+| **URL pública** | https://vitorolivjj.github.io/Laboratorio/ |
 | **Último ciclo orquestração** | 2026-05-28 — pintores autônomos |
 
 ---
@@ -337,7 +362,7 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 ## Registro de agentes (atualizar a cada sessão)
 
 ### Ronaldo Maestro
-- **Última ação:** Rodada 4 — pipeline deploy; WA desacoplado do deploy
+- **Última ação:** Rodada 5 — E5 deploy validado; URL registrada
 - **Data:** 2026-05-28
 
 ### Juarez
@@ -346,13 +371,13 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 - **Data:** 2026-05-28
 
 ### Dev
-- **Última ação:** GitHub Actions + netlify.toml + deploy.sh
-- **Próxima:** Registrar URL pós-deploy Vitor
+- **Última ação:** Push + GitHub Pages live (`deploy-pages.yml`)
+- **Próxima:** Atualizar WA quando Vitor informar número
 - **Data:** 2026-05-28
 
 ### Caio Manteiga
 - **Última ação:** E3 — copy landing + scripts WA + follow-ups
-- **Próxima:** Testar funil com lead real pós-deploy
+- **Próxima:** Testar funil com URL pública
 - **Data:** 2026-05-28
 
 ---
@@ -377,7 +402,7 @@ Follow-up D+3: A oferta de R$ 49 ainda tá valendo. Quer garantir sua página es
 - [x] CTA WhatsApp funcional (estrutura — número placeholder)
 - [x] Copy validada por Caio (E3 — aplicada no HTML)
 - [x] Checklist entrega pós-fechamento WhatsApp (Juarez — E4)
-- [ ] Landing publicada (URL pública — E5; pipeline pronto)
+- [x] Landing publicada (URL pública — E5)
 - [ ] Número WhatsApp real configurado (Vitor — quando disponível)
 - [ ] ≥ 5% cliques WhatsApp / visitas OU 10 conversas iniciadas (meta v0)
 - [ ] _v1:_ Mercado Pago + 5 vendas online
@@ -385,6 +410,16 @@ Follow-up D+3: A oferta de R$ 49 ainda tá valendo. Quer garantir sua página es
 ---
 
 ## Auditoria do Ronaldo
+
+### Auditoria operacional — Rodada 5 — 2026-05-28
+
+| Campo | Valor |
+|-------|-------|
+| **Entregáveis** | E5 ✅ |
+| **URL** | https://vitorolivjj.github.io/Laboratorio/ |
+| **Action** | completed success — [run #26605297208](https://github.com/vitorolivjj/Laboratorio/actions/runs/26605297208) |
+| **Critérios de aceite** | 4/7 parcial (WA real + métricas pendentes) |
+| **Veredito** | **E5 aprovado** — landing no ar |
 
 ### Auditoria operacional — Rodada 4 — 2026-05-28
 
@@ -441,6 +476,7 @@ Follow-up D+3: A oferta de R$ 49 ainda tá valendo. Quer garantir sua página es
 | Data | De → Para | Evento |
 |------|-----------|--------|
 | 2026-05-28 | — → backlog | TASK-001 criada |
+| 2026-05-28 | — | E5 ✅ — landing publicada GitHub Pages |
 | 2026-05-28 | — | Rodada 4 — pipeline deploy; WA adiado por Vitor |
 | 2026-05-28 | — | Rodada 3 — E3 copy + E4 checklist; E5 deploy pendente |
 | 2026-05-28 | — | Rodada 2 — HTML v0 entregue (Dev); auditoria técnica E5 parcial |
