@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Página de vendas simples para pintores autônomos. R$ 49 — um link pro seu serviço, cliente chama no WhatsApp.">
+  <title>Sua página de pintor — R$ 49</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <span class="logo">PáginaPintor</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Hero -->
+    <section class="hero" id="inicio">
+      <div class="container">
+        <p class="eyebrow">Pra quem pinta e vive de obra</p>
+        <h1>Sua página no ar em poucos dias — sem complicação</h1>
+        <p class="lead">
+          Um link só pro cartão, Instagram e grupos. Cliente vê seu serviço e manda mensagem.
+          Sem app, sem mensalidade — R$ 49 único.
+        </p>
+        <a class="btn btn-whatsapp" href="#" id="cta-whatsapp-hero" target="_blank" rel="noopener noreferrer">
+          Quero minha página — falar no WhatsApp
+        </a>
+      </div>
+    </section>
+
+    <!-- 2. Serviços / benefícios -->
+    <section class="beneficios" id="beneficios">
+      <div class="container">
+        <h2>O que você ganha</h2>
+        <ul class="beneficios-lista">
+          <li>
+            <strong>Um link pro seu serviço</strong>
+            <span>Nome, serviços e WhatsApp num lugar só — fácil de mandar.</span>
+          </li>
+          <li>
+            <strong>Funciona no celular</strong>
+            <span>Cliente abre, vê e chama. Sem baixar nada.</span>
+          </li>
+          <li>
+            <strong>R$ 49 — paga uma vez</strong>
+            <span>Sem mensalidade de R$ 150. Oferta de lançamento pra validar.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. Prova social -->
+    <section class="social-proof" id="prova-social">
+      <div class="container">
+        <h2>Feito pra quem trabalha na prática</h2>
+        <blockquote class="depoimento">
+          <p>“Antes só tinha indicação. Agora mando o link e o cliente já sabe o que eu faço.”</p>
+          <footer>— Pintor autônomo, região metropolitana</footer>
+        </blockquote>
+        <p class="nota-v0">Depoimentos reais entram após os primeiros clientes.</p>
+      </div>
+    </section>
+
+    <!-- 4. Preço -->
+    <section class="preco" id="preco">
+      <div class="container">
+        <h2>Oferta de lançamento</h2>
+        <div class="preco-card">
+          <p class="preco-item">Página de vendas personalizada</p>
+          <p class="preco-valor"><span>R$</span> 49</p>
+          <ul class="preco-inclui">
+            <li>Página publicada na internet</li>
+            <li>1 rodada de ajuste</li>
+            <li>Suporte por WhatsApp</li>
+          </ul>
+          <a class="btn btn-whatsapp" href="#" id="cta-whatsapp-preco" target="_blank" rel="noopener noreferrer">
+            Quero minha página — falar no WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. CTA final — Mercado Pago reservado v1 (inativo) -->
+    <!--
+    <section id="cta-pagamento" class="cta-pagamento" data-enabled="false" hidden>
+      <div class="container">
+        <a href="" class="btn btn-pagar">Pagar R$ 49 — Mercado Pago</a>
+      </div>
+    </section>
+    -->
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>PáginaPintor · TASK-001 · v0 validação</p>
+    </div>
+  </footer>
+
+  <script>
+    // Configurar número WhatsApp (DDI + DDD + número, só dígitos). Ex.: 5511999999999
+    var WHATSAPP_NUMBER = "5511999999999";
+    var WHATSAPP_TEXT = "Oi! Vi a página de R$49 pro pintor. Quero saber como funciona.";
+
+    var url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(WHATSAPP_TEXT);
+    document.getElementById("cta-whatsapp-hero").href = url;
+    document.getElementById("cta-whatsapp-preco").href = url;
+  </script>
+</body>
+</html>
