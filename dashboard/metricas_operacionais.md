@@ -8,14 +8,14 @@ Visão centralizada da operação do Laboratório multiagente.
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização:** 2026-05-28  
-**Última atualização automática:** 2026-05-28 (GitHub Actions)
+**Última atualização automática:** 2026-05-29 (GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-05-28 23:18 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-05-29 15:27 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
