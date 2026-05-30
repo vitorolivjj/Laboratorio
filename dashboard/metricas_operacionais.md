@@ -15,7 +15,7 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-05-30 13:27 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-05-30 21:39 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
@@ -36,7 +36,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | `planejando` | 0 | — |
 | `aguardando` | 0 | — |
 | `backlog` | 1 | TASK-004 |
-| `concluído` (kanban) | 2 | TASK-003, TASK-000 |
+| `concluído` (kanban) | 4 | TASK-006, TASK-005, TASK-003, TASK-000 |
 
 ### TASKs (arquivos persistentes)
 
@@ -45,6 +45,9 @@ Visão centralizada da operação do Laboratório multiagente.
 | [TASK-001](../tasks/TASK-001.md) | `executando` | 5/8 | 62% |
 | [TASK-002](../tasks/TASK-002.md) | `executando` | 1/5 | 20% |
 | [TASK-003](../tasks/TASK-003.md) | `executando` | 4/5 | 80% |
+| [TASK-005-relatorio-modelos](../tasks/TASK-005-relatorio-modelos.md) | `desconhecido` | 0/0 | — |
+| [TASK-005](../tasks/TASK-005.md) | `concluido` | 6/6 | 100% |
+| [TASK-006](../tasks/TASK-006.md) | `concluido` | 6/6 | 100% |
 
 ### Funil CRM
 
