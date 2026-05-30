@@ -1,10 +1,10 @@
-name: Deploy TASK-001 landing (GitHub Pages)
+name: Deploy site institucional (GitHub Pages)
 
 on:
   push:
     branches: [main]
     paths:
-      - "frontend/**"
+      - "frontend/institucional/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -14,7 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-task-001
+  group: pages-institucional
   cancel-in-progress: true
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend
+          path: frontend/institucional
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -1,39 +1,28 @@
-# Frontend — Landing TASK-001
+# Frontend
 
-Landing v0 para pintores autônomos. HTML estático, CTA WhatsApp only.
+Dois sites estáticos no repositório:
 
-## Arquivos
+| Pasta | Site | Deploy |
+|-------|------|--------|
+| [`institucional/`](institucional/) | Laboratório de Agentes IA | **GitHub Pages** → [laboratorioagentes.com.br](https://laboratorioagentes.com.br) |
+| [`landing/`](landing/) | Landing TASK-001 — pintores R$49 | Deploy separado (Vercel/Netlify/manual) |
 
-| Arquivo | Função |
-|---------|--------|
-| `index.html` | Landing v0 |
-| `styles.css` | Estilos responsivos |
+## GitHub Pages (institucional)
 
-Deploy automático: `.github/workflows/deploy-pages.yml` → GitHub Pages.
+Workflow: [`.github/workflows/deploy-pages.yml`](../.github/workflows/deploy-pages.yml)
 
-## Configurar WhatsApp (quando quiser)
+- **Artifact publicado:** `frontend/institucional/`
+- **Domínio:** `laboratorioagentes.com.br` (arquivo `institucional/CNAME`)
+- **URL GitHub:** `https://vitorolivjj.github.io/Laboratorio/`
 
-Em `index.html`:
-
-```javascript
-var WHATSAPP_NUMBER = "5511999999999";  // DDI + DDD + número
-var WHATSAPP_TEXT = "Oi! Vi a página de R$49 pro pintor. Quero saber como funciona.";
-```
-
-Push em `main` redeploya automaticamente.
+Push em `main` que altere `frontend/institucional/**` dispara redeploy.
 
 ## Testar localmente
 
 ```bash
-cd frontend
-python3 -m http.server 8080
-# http://localhost:8080
+# Institucional
+cd frontend/institucional && python3 -m http.server 8080
+
+# Landing pintores
+cd frontend/landing && python3 -m http.server 8081
 ```
-
-## Publicar (GitHub Pages)
-
-1. Push para `main` (dispara o workflow)
-2. No GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**
-3. URL: **https://vitorolivjj.github.io/Laboratorio/** ✅ (2026-05-28)
-
-Registrar URL final em `tasks/TASK-001.md`.

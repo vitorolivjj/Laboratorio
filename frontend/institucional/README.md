@@ -1,6 +1,9 @@
 # Site institucional — Laboratório de Agentes IA
 
-Site institucional do Laboratório (separado da landing TASK-001 em `frontend/index.html`).
+Site institucional do Laboratório — publicado via GitHub Pages.
+
+**Domínio:** [laboratorioagentes.com.br](https://laboratorioagentes.com.br)  
+**Landing TASK-001 (pintores):** [`../landing/`](../landing/) — deploy separado
 
 ## Arquivos
 
@@ -59,4 +62,10 @@ Referência no HTML (quando o site existir):
 
 ## Deploy
 
-Quando o site institucional for publicado, pode compartilhar o mesmo GitHub Pages (`frontend/`) ou ter workflow próprio. As imagens já ficam versionadas no repositório.
+Workflow: [`.github/workflows/deploy-pages.yml`](../../.github/workflows/deploy-pages.yml)
+
+| Item | Valor |
+|------|-------|
+| Pasta publicada | `frontend/institucional/` |
+| Domínio customizado | `laboratorioagentes.com.br` (`CNAME`) |
+| Trigger | push em `main` · `frontend/institucional/**` |
