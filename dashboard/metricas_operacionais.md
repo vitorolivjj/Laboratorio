@@ -7,7 +7,7 @@ Visão centralizada da operação do Laboratório multiagente.
 > Fontes: `tasks/` · `crm/leads.md` · `memoria/aprendizados.md` · `memoria/hipoteses_testadas.md` · `logs/eventos.md`  
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
-**Última atualização:** 2026-05-28  
+**Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
 **Última atualização automática:** 2026-05-30 (GitHub Actions)
 
 ---
@@ -78,6 +78,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | Leads no CRM | 0 | ⚪ |
 | Landing no ar | ✅ | 🟢 |
 | Bloqueios críticos | 0 | 🟢 |
+| Automação LLM por agente | ✅ TASK-006 v1 | 🟢 |
 | Hipóteses em teste | 2 | 🟡 |
 | Taxa conversão operacional | — (sem leads) | ⚪ |
 
@@ -212,7 +213,25 @@ Fórmulas simples — atualizar quando houver volume:
 | Caio | E3 (001) | E3–E4 (002) |
 | Juarez | E4 (001) | — |
 | Donizete | — | E2 (002) |
-| Vitor | decisão gateway | E7 (001) |
+| Vitor | decisão gateway; TASK-005 LLM | E7 (001) |
+
+### 5.1 Configuração LLM (TASK-006 — arquitetura v1)
+
+> Verificação: `cd backend && ./run.sh llm-config` · Decisão: [memoria/decisoes.md](../memoria/decisoes.md)
+
+| Agente | Camada | Provider | Model | Status |
+|--------|--------|----------|-------|--------|
+| Ronaldo | Estratégica | openai | gpt-5 | ✅ v1 |
+| Caio | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
+| Donizete | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
+| Dev | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
+| Juarez | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
+
+**Princípio:** camada estratégica = padrão Ronaldo (OpenAI) · especialistas = Anthropic Sonnet (evidência operacional).
+
+**Fallback:** `DEFAULT_PROVIDER=anthropic` · `DEFAULT_MODEL=claude-sonnet-4-20250514`
+
+**Fase:** aprender · validar · medir · acumular histórico
 
 ---
 
@@ -286,6 +305,8 @@ Fórmulas simples — atualizar quando houver volume:
 
 | Data | Tipo | Evento |
 |------|------|--------|
+| 2026-05-30 | decisao | TASK-006 — arquitetura modelos v1 (Ronaldo gpt-5) |
+| 2026-05-30 | deploy | TASK-005 E6 — LLM anthropic/sonnet por agente |
 | 2026-05-28 | tarefa | TASK-002 criada |
 | 2026-05-28 | deploy | Landing GitHub Pages live |
 | 2026-05-28 | decisao | WA adiado — deploy desacoplado |

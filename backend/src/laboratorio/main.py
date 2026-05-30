@@ -41,6 +41,22 @@ def cmd_check() -> int:
     return 0
 
 
+def cmd_llm_config() -> int:
+    """Exibe provider/model carregado por agente (sem chamar LLM)."""
+    from laboratorio.agents.llm_config import log_all_agent_llm_configs
+
+    log_all_agent_llm_configs(
+        [
+            "ronaldo_maestro",
+            "caio_manteiga",
+            "donizete_social",
+            "dev",
+            "juarez",
+        ]
+    )
+    return 0
+
+
 def cmd_run_sample() -> int:
     """Executa crew de exemplo (requer API key no .env)."""
     load_env()
@@ -71,6 +87,11 @@ def main() -> None:
 
     sub.add_parser("check", help="Verifica instalação e paths dos agentes")
 
+    sub.add_parser(
+        "llm-config",
+        help="Exibe provider/model por agente (TASK-005)",
+    )
+
     sub.add_parser("run-sample", help="Roda crew de exemplo com o agente Dev")
 
     p_orch = sub.add_parser("orchestrate", help="Roda orquestrador (Ronaldo Maestro)")
@@ -84,6 +105,8 @@ def main() -> None:
 
     if args.command == "check":
         sys.exit(cmd_check())
+    if args.command == "llm-config":
+        sys.exit(cmd_llm_config())
     if args.command == "run-sample":
         sys.exit(cmd_run_sample())
     if args.command == "orchestrate":

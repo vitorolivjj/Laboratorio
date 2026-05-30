@@ -25,6 +25,26 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-30 — [decisao] TASK-006 — Arquitetura oficial modelos v1
+- **Agente(s):** ronaldo_maestro, vitor
+- **Detalhe:** Ronaldo openai/gpt-5 · especialistas anthropic/sonnet · `./run.sh llm-config` validado
+- **Ref:** TASK-006, memoria/decisoes.md
+
+### 2026-05-30 — [deploy] TASK-005 E6 — roteamento LLM por agente
+- **Agente(s):** dev, ronaldo_maestro
+- **Detalhe:** builder.py + llm_config.py · todos anthropic/sonnet · `./run.sh llm-config` · decisão memoria/decisoes.md
+- **Ref:** TASK-005
+
+### 2026-05-30 — [orquestracao] TASK-005 — relatório modelos entregue
+- **Agente(s):** ronaldo_maestro
+- **Detalhe:** E1–E4 concluídos · recomenda anthropic/sonnet · Dev+Ronaldo alterar · Caio/Juarez manter · `*_PROVIDER` não wired no backend
+- **Ref:** TASK-005, TASK-005-relatorio-modelos.md
+
+### 2026-05-30 — [tarefa] TASK-005 criada — Revisão Estratégica dos Modelos
+- **Agente(s):** ronaldo_maestro
+- **Detalhe:** Vitor solicita análise crítica de providers por agente · relatório E1–E4 · `.env` bloqueado até aprovação
+- **Ref:** TASK-005, backend/.env
+
 ### 2026-05-28 — [tarefa] TASK-003 criada — automação snapshot dashboard
 - **Agente(s):** Ronaldo Maestro, Dev, Juarez
 - **Detalhe:** script stdlib + workflow GitHub Actions; snapshot seção 0

@@ -33,6 +33,7 @@ AGENT_FILES: dict[str, Path] = {
     "juarez": AGENTES_DIR / "juarez.md",
     "dev": AGENTES_DIR / "dev.md",
     "caio_manteiga": AGENTES_DIR / "caio_manteiga.md",
+    "donizete_social": AGENTES_DIR / "donizete_social.md",
 }
 
 

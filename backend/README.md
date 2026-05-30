@@ -14,15 +14,25 @@ cd backend
 cp .env.example .env
 ```
 
-Edite `.env` e defina **uma** das variáveis:
+Edite `.env` — API keys + provider/model por agente (TASK-005):
 
 ```env
 OPENAI_API_KEY=sk-...
-# ou
-ANTHROPIC_API_KEY=...
+ANTHROPIC_API_KEY=sk-ant-...
+
+DEFAULT_PROVIDER=anthropic
+DEFAULT_MODEL=claude-sonnet-4-20250514
+
+MAESTRO_PROVIDER=anthropic
+MAESTRO_MODEL=claude-sonnet-4-20250514
+# ... CAIO, JUAREZ, DEV, DONIZETE — ver .env.example
 ```
 
-Opcional: `MODEL=gpt-4o-mini` (conforme suporte do CrewAI/LiteLLM).
+Verificar config carregada (sem chamar LLM):
+
+```bash
+./run.sh llm-config
+```
 
 Sem key, `./run.sh orquestrar` encerra com mensagem clara — não tenta chamar a API.
 
@@ -45,6 +55,7 @@ cd backend
 chmod +x run.sh   # uma vez
 
 ./run.sh check
+./run.sh llm-config
 ./run.sh run-sample
 ./run.sh orchestrate "seu objetivo aqui"
 

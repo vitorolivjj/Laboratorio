@@ -27,6 +27,34 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### TASK-006 — Arquitetura oficial de modelos v1 — 2026-05-30
+
+- **Contexto:** TASK-005 implementou roteamento LLM; Vitor aprovou ajuste final antes dos testes operacionais reais.
+- **Decisão:**
+  - **Princípio:** camada estratégica do Grupo = padrão **Ronaldo** (OpenAI); especialistas = modelos distintos conforme função e evidência.
+  - **Ronaldo Maestro:** `openai` / `gpt-5` — estratégia, coordenação, priorização, governança.
+  - **Caio, Juarez, Dev, Donizete:** `anthropic` / `claude-sonnet-4-20250514`.
+  - Fase atual: aprender, validar, medir, acumular histórico — não otimizar custo.
+  - Verificação: `./run.sh llm-config`.
+- **Responsável:** Vitor (aprovação) · Ronaldo Maestro (consolidação) · Dev (E6 TASK-005)
+- **Agentes impactados:** Todos
+- **Validade / revisar em:** Após ciclo de testes operacionais reais ou nova evidência por agente
+
+### TASK-005 — Modelos LLM por agente (Anthropic Sonnet) — 2026-05-30
+
+- **Contexto:** Relatório TASK-005 aprovado pelo Vitor; `*_PROVIDER` no `.env` não eram lidos pelo backend.
+- **Decisão:**
+  - Todos os agentes passam a usar **anthropic / claude-sonnet-4-20250514** _(supersedido parcialmente por TASK-006 — Ronaldo passa a OpenAI gpt-5)_.
+  - Implementar roteamento em `backend/src/laboratorio/agents/llm_config.py` + `builder.py`.
+  - Fallback: `DEFAULT_PROVIDER` + `DEFAULT_MODEL` quando variável específica ausente.
+  - Comando de verificação: `./run.sh llm-config`.
+  - Caio e Juarez: mantidos em Anthropic (já performavam bem).
+  - Dev e Ronaldo: migrados de OpenAI para Anthropic.
+  - Donizete: provider definido pela primeira vez.
+- **Responsável:** Vitor (aprovação) · Dev (E6)
+- **Agentes impactados:** Todos
+- **Validade / revisar em:** Após checklist validação §4.3 TASK-005-relatorio-modelos.md
+
 ### TASK-001 — número WA adiado; deploy desacoplado — 2026-05-28
 
 - **Contexto:** Vitor autorizou prosseguir sem configurar WhatsApp agora.

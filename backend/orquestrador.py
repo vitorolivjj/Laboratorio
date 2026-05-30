@@ -128,10 +128,10 @@ def build_orchestration_crew(objective: str) -> Crew:
     contexto = _load_contexto_extra()
     briefing = f"Objetivo do Vitor:\n{objective}{contexto}"
 
-    juarez = build_agent("juarez", verbose=True)
-    dev = build_agent("dev", verbose=True)
-    caio = build_agent("caio_manteiga", verbose=True)
-    ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=False)
+    juarez = build_agent("juarez", verbose=True, log_llm=False)
+    dev = build_agent("dev", verbose=True, log_llm=False)
+    caio = build_agent("caio_manteiga", verbose=True, log_llm=False)
+    ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=False, log_llm=False)
 
     task_juarez = Task(
         description=(
@@ -251,6 +251,11 @@ def registrar_ciclo(objective: str, resultado: str) -> None:
 
 def run(objective: str) -> str:
     _require_llm_key()
+
+    from laboratorio.agents.llm_config import log_all_agent_llm_configs
+
+    log_all_agent_llm_configs()
+
     print(f"Objetivo:\n{objective}\n")
     print(
         "Iniciando orquestração:\n"

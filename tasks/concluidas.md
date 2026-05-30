@@ -19,6 +19,22 @@ Histórico de tarefas **finalizadas** (mais recentes no topo).
 
 ## Concluídas
 
+### TASK-006 — Ajuste Final da Arquitetura de Modelos
+
+- **Concluída em:** 2026-05-30
+- **Agente:** ronaldo_maestro
+- **Projeto:** PROJ-001
+- **Resultado:** Arquitetura v1 — Ronaldo `openai/gpt-5` · especialistas `anthropic/sonnet` · `llm-config` OK
+- **Aprendizado:** Camada estratégica separada da execução; ver `memoria/decisoes.md`
+
+### TASK-005 — Revisão Estratégica dos Modelos dos Agentes
+
+- **Concluída em:** 2026-05-30
+- **Agente:** ronaldo_maestro (relatório) · dev (E6)
+- **Projeto:** PROJ-001
+- **Resultado:** Roteamento LLM por agente — todos anthropic/claude-sonnet-4-20250514 · `./run.sh llm-config`
+- **Aprendizado:** Variáveis `*_PROVIDER` sem código = config decorativa. Ver [TASK-005-relatorio-modelos.md](TASK-005-relatorio-modelos.md)
+
 ### TASK-003 — Infra operacional multiagente
 
 - **Concluída em:** 2026-05-28
