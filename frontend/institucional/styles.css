@@ -677,6 +677,20 @@ header {
   line-height: 1.7;
 }
 
+.legal-meta {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.legal-meta p {
+  margin-bottom: 6px;
+}
+
+.legal-meta p:last-child {
+  margin-bottom: 0;
+}
+
 .back {
   display: inline-flex;
   align-items: center;
