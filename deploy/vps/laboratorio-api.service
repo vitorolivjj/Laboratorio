@@ -1,0 +1,24 @@
+[Unit]
+Description=Laboratório — WhatsApp Caio API (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=laboratorio
+Group=laboratorio
+WorkingDirectory=/opt/laboratorio/Laboratorio/backend
+Environment=PYTHONPATH=/opt/laboratorio/Laboratorio/backend/src
+Environment=WHATSAPP_HOST=127.0.0.1
+Environment=WHATSAPP_PORT=8000
+EnvironmentFile=/opt/laboratorio/Laboratorio/backend/.env
+ExecStart=/opt/laboratorio/Laboratorio/backend/run.sh serve
+Restart=always
+RestartSec=5
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=laboratorio-api
+
+[Install]
+WantedBy=multi-user.target

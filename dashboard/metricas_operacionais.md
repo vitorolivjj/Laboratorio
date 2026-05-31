@@ -218,21 +218,23 @@ Fórmulas simples — atualizar quando houver volume:
 | Donizete | — | E2 (002) |
 | Vitor | decisão gateway; TASK-005 LLM | E7 (001) |
 
-### 5.1 Configuração LLM (TASK-006 — arquitetura v1)
+### 5.1 Configuração LLM (TASK-006 v1 · atualizado TASK-007)
 
 > Verificação: `cd backend && ./run.sh llm-config` · Decisão: [memoria/decisoes.md](../memoria/decisoes.md)
 
 | Agente | Camada | Provider | Model | Status |
 |--------|--------|----------|-------|--------|
 | Ronaldo | Estratégica | openai | gpt-5 | ✅ v1 |
-| Caio | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
-| Donizete | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
-| Dev | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
-| Juarez | Especialista | anthropic | claude-sonnet-4-20250514 | ✅ v1 |
+| Caio | Especialista | anthropic | claude-sonnet-4-6 | ✅ prod WA |
+| Donizete | Especialista | anthropic | claude-sonnet-4-6 | ✅ v1.1 |
+| Dev | Especialista | anthropic | claude-sonnet-4-6 | ✅ v1.1 |
+| Juarez | Especialista | anthropic | claude-sonnet-4-6 | ✅ v1.1 |
 
-**Princípio:** camada estratégica = padrão Ronaldo (OpenAI) · especialistas = Anthropic Sonnet (evidência operacional).
+**Princípio:** camada estratégica = padrão Ronaldo (OpenAI) · especialistas = Anthropic Sonnet.
 
-**Fallback:** `DEFAULT_PROVIDER=anthropic` · `DEFAULT_MODEL=claude-sonnet-4-20250514`
+**Fallback:** `DEFAULT_PROVIDER=anthropic` · `DEFAULT_MODEL=claude-sonnet-4-6`
+
+**WhatsApp (TASK-007):** `https://api.laboratorioagentes.com.br/webhook/whatsapp` · VPS Hetzner
 
 **Fase:** aprender · validar · medir · acumular histórico
 

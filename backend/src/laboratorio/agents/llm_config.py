@@ -31,7 +31,7 @@ AGENT_DISPLAY_NAME: dict[str, str] = {
 }
 
 DEFAULT_PROVIDER = "anthropic"
-DEFAULT_MODEL = "claude-sonnet-4-20250514"
+DEFAULT_MODEL = "claude-sonnet-4-6"
 
 API_KEY_ENV: dict[str, str] = {
     "openai": "OPENAI_API_KEY",

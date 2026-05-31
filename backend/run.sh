@@ -20,4 +20,11 @@ if [[ "${1:-}" == "orquestrar" ]]; then
   fi
 fi
 
+if [[ "${1:-}" == "serve" ]]; then
+  shift
+  PORT="${WHATSAPP_PORT:-8000}"
+  HOST="${WHATSAPP_HOST:-0.0.0.0}"
+  exec "$PY" -m uvicorn laboratorio.api.app:app --host "$HOST" --port "$PORT" "$@"
+fi
+
 exec "$PY" -m laboratorio "$@"

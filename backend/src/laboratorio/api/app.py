@@ -1,0 +1,98 @@
+"""FastAPI — webhook WhatsApp Business."""
+
+from __future__ import annotations
+
+import hashlib
+import hmac
+import logging
+import os
+from typing import Any
+
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request, Response
+
+from laboratorio.config import load_env
+from laboratorio.whatsapp.handler import process_inbound_message
+from laboratorio.whatsapp.parser import InboundMessage, extract_text_messages
+
+load_env()
+
+logger = logging.getLogger("laboratorio.api")
+
+app = FastAPI(
+    title="Laboratório — WhatsApp Caio",
+    description="Webhook WhatsApp Business → Caio → WhatsApp (TASK-007)",
+    version="0.1.0",
+)
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok", "service": "whatsapp-caio"}
+
+
+@app.get("/webhook/whatsapp")
+def verify_webhook(
+    hub_mode: str = Query(alias="hub.mode", default=""),
+    hub_verify_token: str = Query(alias="hub.verify_token", default=""),
+    hub_challenge: str = Query(alias="hub.challenge", default=""),
+) -> Response:
+    """Verificação do webhook Meta (GET)."""
+    verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "").strip()
+    if not verify_token:
+        raise HTTPException(status_code=500, detail="WHATSAPP_VERIFY_TOKEN não configurado")
+
+    if hub_mode == "subscribe" and hub_verify_token == verify_token:
+        logger.info("Webhook WhatsApp verificado com sucesso")
+        return Response(content=hub_challenge, media_type="text/plain")
+
+    logger.warning("Falha na verificação do webhook WhatsApp")
+    raise HTTPException(status_code=403, detail="Token de verificação inválido")
+
+
+def _verify_signature(body: bytes, signature_header: str | None) -> bool:
+    secret = os.getenv("META_APP_SECRET", "").strip()
+    if not secret:
+        return True  # opcional em dev local
+
+    if not signature_header or not signature_header.startswith("sha256="):
+        return False
+
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        body,
+        hashlib.sha256,
+    ).hexdigest()
+    received = signature_header.removeprefix("sha256=")
+    return hmac.compare_digest(expected, received)
+
+
+@app.post("/webhook/whatsapp")
+async def receive_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+) -> dict[str, str]:
+    """Recebe mensagens inbound (POST)."""
+    body = await request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+
+    if not _verify_signature(body, signature):
+        raise HTTPException(status_code=403, detail="Assinatura inválida")
+
+    payload: dict[str, Any] = await request.json()
+    messages = extract_text_messages(payload)
+
+    if not messages:
+        return {"status": "ignored"}
+
+    for msg in messages:
+        logger.info("Inbound de %s: %s", msg.from_wa_id, msg.text[:80])
+        background_tasks.add_task(_process_message, msg)
+
+    return {"status": "ok"}
+
+
+def _process_message(msg: InboundMessage) -> None:
+    try:
+        process_inbound_message(msg)
+    except Exception:
+        logger.exception("Erro no processamento assíncrono message_id=%s", msg.message_id)

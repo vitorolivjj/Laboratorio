@@ -36,8 +36,8 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 - **URL pública:** https://vitorolivjj.github.io/Laboratorio/
 - **Rodada ativa:** 5 — deploy concluído (2026-05-28)
 - **Entregáveis:** E1–E5 ✅ · E7 ⬜ · E8 ⬜
-- **Bloqueio:** nenhum — WA placeholder
-- **Próxima ação:** Vitor → número WA + 3 contatos · Caio → teste funil
+- **Bloqueio:** nenhum — WA real via TASK-007 ✅
+- **Próxima ação:** Caio → teste funil com número produção · Vitor → 3 contatos
 
 ---
 

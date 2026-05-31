@@ -19,6 +19,14 @@ Histórico de tarefas **finalizadas** (mais recentes no topo).
 
 ## Concluídas
 
+### TASK-007 — Conectar Caio ao WhatsApp
+
+- **Concluída em:** 2026-05-31
+- **Agente:** dev · caio_manteiga
+- **Projeto:** PROJ-001
+- **Resultado:** WhatsApp → VPS → Caio → WhatsApp em produção · webhook Meta · número real · primeira conversa humana validada
+- **Aprendizado:** Modelo `claude-sonnet-4-20250514` descontinuado — migrar para `claude-sonnet-4-6`
+
 ### TASK-006 — Ajuste Final da Arquitetura de Modelos
 
 - **Concluída em:** 2026-05-30

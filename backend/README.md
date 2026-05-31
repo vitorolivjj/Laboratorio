@@ -14,17 +14,17 @@ cd backend
 cp .env.example .env
 ```
 
-Edite `.env` — API keys + provider/model por agente (TASK-005):
+Edite `.env` — API keys + provider/model por agente (TASK-006/007):
 
 ```env
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 
 DEFAULT_PROVIDER=anthropic
-DEFAULT_MODEL=claude-sonnet-4-20250514
+DEFAULT_MODEL=claude-sonnet-4-6
 
-MAESTRO_PROVIDER=anthropic
-MAESTRO_MODEL=claude-sonnet-4-20250514
+MAESTRO_PROVIDER=openai
+MAESTRO_MODEL=gpt-5
 # ... CAIO, JUAREZ, DEV, DONIZETE — ver .env.example
 ```
 
@@ -59,6 +59,10 @@ chmod +x run.sh   # uma vez
 ./run.sh run-sample
 ./run.sh orchestrate "seu objetivo aqui"
 
+# WhatsApp → Caio → WhatsApp (TASK-007)
+./run.sh whatsapp-check
+./run.sh serve              # http://localhost:8000 — webhook /webhook/whatsapp
+
 # Orquestrador real: Juarez + Dev + Caio → Ronaldo consolida
 ./run.sh orquestrar
 ./run.sh orquestrar "seu objetivo customizado"
@@ -90,12 +94,26 @@ backend/
     ├── config.py          # paths do monorepo (agentes/, memoria/)
     ├── main.py            # CLI
     ├── agents/            # carrega definições .md → Agent CrewAI
+    ├── api/               # FastAPI — webhook WhatsApp (TASK-007)
+    ├── whatsapp/          # parse, Caio, envio Graph API, log
     ├── crews/             # composição de crews (orquestrador, etc.)
     └── tasks/             # tarefas reutilizáveis (evolução futura)
 ```
+
+## WhatsApp (TASK-007)
+
+Fluxo: **WhatsApp inbound → webhook → Caio (CrewAI) → Graph API → WhatsApp**.
+
+1. Preencher variáveis WhatsApp no `.env` (ver `.env.example`).
+2. `./run.sh whatsapp-check`
+3. `./run.sh serve` + túnel público (ngrok) apontando para `:8000`.
+4. Configurar webhook no Meta Developers: `https://<tunel>/webhook/whatsapp`.
+5. Mensagens registradas em `../logs/whatsapp_mensagens.md`.
+
+Documentação completa: [../tasks/TASK-007.md](../tasks/TASK-007.md).
 
 ## Evolução
 
 1. Implementar crew do **Ronaldo Maestro** delegando tarefas por domínio
 2. Conectar memória em `../memoria/ronaldo_maestro/` como contexto
-3. Expor API HTTP em `backend/` quando necessário
+3. ~~Expor API HTTP em `backend/` quando necessário~~ ✅ webhook WhatsApp (TASK-007)

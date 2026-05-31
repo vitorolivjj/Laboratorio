@@ -81,6 +81,37 @@ def cmd_orchestrate(objective: str) -> int:
     return 0
 
 
+def cmd_whatsapp_check() -> int:
+    """Valida variáveis WhatsApp sem iniciar servidor."""
+    import os
+
+    load_env()
+    required = [
+        "WHATSAPP_VERIFY_TOKEN",
+        "WHATSAPP_ACCESS_TOKEN",
+        "WHATSAPP_PHONE_NUMBER_ID",
+    ]
+    optional = ["META_APP_SECRET", "WHATSAPP_API_VERSION", "ANTHROPIC_API_KEY"]
+
+    ok = True
+    print("WhatsApp — config (TASK-007)\n")
+    for key in required:
+        val = os.getenv(key, "").strip()
+        if val:
+            masked = val[:4] + "…" if len(val) > 4 else "(ok)"
+            print(f"  {key}: {masked}")
+        else:
+            print(f"  {key}: AUSENTE")
+            ok = False
+
+    for key in optional:
+        val = os.getenv(key, "").strip()
+        print(f"  {key}: {'ok' if val else '(opcional)'}")
+
+    print(f"\nWebhook URL (local): http://localhost:{os.getenv('WHATSAPP_PORT', '8000')}/webhook/whatsapp")
+    return 0 if ok else 1
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Laboratório — backend CrewAI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -101,6 +132,11 @@ def main() -> None:
         help="Objetivo ou pedido do Vitor (texto livre)",
     )
 
+    sub.add_parser(
+        "whatsapp-check",
+        help="Valida variáveis WhatsApp (TASK-007)",
+    )
+
     args = parser.parse_args()
 
     if args.command == "check":
@@ -112,6 +148,8 @@ def main() -> None:
     if args.command == "orchestrate":
         objective = " ".join(args.objective)
         sys.exit(cmd_orchestrate(objective))
+    if args.command == "whatsapp-check":
+        sys.exit(cmd_whatsapp_check())
 
     parser.print_help()
     sys.exit(1)

@@ -25,6 +25,16 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-31 — [marco] TASK-007 concluída — Caio respondeu humano no WhatsApp
+- **Agente(s):** caio_manteiga, dev, vitor
+- **Detalhe:** Produção VPS Hetzner · `api.laboratorioagentes.com.br` · webhook Meta · modelo `claude-sonnet-4-6` · critério de aceite ok
+- **Ref:** TASK-007, logs/whatsapp_mensagens.md
+
+### 2026-05-28 — [marco] TASK-007 — Webhook WhatsApp + Caio implementado
+- **Agente(s):** dev, caio_manteiga
+- **Detalhe:** FastAPI `/webhook/whatsapp` · CrewAI Caio · Graph API outbound · log `logs/whatsapp_mensagens.md` · `./run.sh serve`
+- **Ref:** TASK-007 · teste real E7 aguarda credenciais Meta + túnel
+
 ### 2026-05-30 — [decisao] TASK-006 — Arquitetura oficial modelos v1
 - **Agente(s):** ronaldo_maestro, vitor
 - **Detalhe:** Ronaldo openai/gpt-5 · especialistas anthropic/sonnet · `./run.sh llm-config` validado

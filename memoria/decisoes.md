@@ -27,13 +27,25 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### TASK-007 — Migração modelo Anthropic + WhatsApp em produção — 2026-05-31
+
+- **Contexto:** TASK-007 em produção na VPS Hetzner; API Anthropic retornou `not_found` para `claude-sonnet-4-20250514` (snapshot descontinuado).
+- **Decisão:**
+  - **Especialistas (Caio, Juarez, Dev, Donizete):** migrar para `anthropic` / **`claude-sonnet-4-6`**.
+  - **Ronaldo Maestro:** mantém `openai` / `gpt-5`.
+  - **WhatsApp produção:** `https://api.laboratorioagentes.com.br/webhook/whatsapp` · VPS CPX21 · systemd `laboratorio-api`.
+  - Atualizar `.env`, `.env.example`, `llm_config.py` DEFAULT_MODEL e docs operacionais.
+- **Responsável:** Dev · Vitor (validação teste real)
+- **Agentes impactados:** Caio (crítico — WhatsApp), demais especialistas
+- **Validade / revisar em:** Quando Anthropic deprecar `claude-sonnet-4-6` ou nova evidência por agente
+
 ### TASK-006 — Arquitetura oficial de modelos v1 — 2026-05-30
 
 - **Contexto:** TASK-005 implementou roteamento LLM; Vitor aprovou ajuste final antes dos testes operacionais reais.
 - **Decisão:**
   - **Princípio:** camada estratégica do Grupo = padrão **Ronaldo** (OpenAI); especialistas = modelos distintos conforme função e evidência.
   - **Ronaldo Maestro:** `openai` / `gpt-5` — estratégia, coordenação, priorização, governança.
-  - **Caio, Juarez, Dev, Donizete:** `anthropic` / `claude-sonnet-4-20250514`.
+  - **Caio, Juarez, Dev, Donizete:** `anthropic` / `claude-sonnet-4-20250514` _(especialistas migrados para `claude-sonnet-4-6` em 2026-05-31 — ver decisão TASK-007 abaixo)_.
   - Fase atual: aprender, validar, medir, acumular histórico — não otimizar custo.
   - Verificação: `./run.sh llm-config`.
 - **Responsável:** Vitor (aprovação) · Ronaldo Maestro (consolidação) · Dev (E6 TASK-005)
