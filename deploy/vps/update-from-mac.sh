@@ -23,7 +23,7 @@ sudo -u laboratorio bash -c "
   .venv/bin/pip install -r requirements.txt -q
 "
 systemctl restart laboratorio-api
-sleep 15
+sleep 25
 curl -sf http://127.0.0.1:8000/health
 echo ""
 echo "✅ Deploy ok"
