@@ -23,7 +23,7 @@ Automatizar a **atualização básica** do dashboard operacional via GitHub Acti
 ## Contexto
 
 - Dashboard manual criado em `dashboard/metricas_operacionais.md`.
-- TASK-001 e TASK-002 geram mudanças frequentes em `tasks/` e `crm/`.
+- TASK-001 e TASK-002 (pintores/leads) **canceladas** em 2026-05-31 — eram teste; TASK-003 permanece válida para snapshot geral.
 - Necessidade de visão sistêmica atualizada sem backend, banco ou frontend.
 
 ## Escopo

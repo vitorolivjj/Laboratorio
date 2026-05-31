@@ -2,10 +2,11 @@
 
 **ID:** TASK-001  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `executando`  
+**Status:** `arquivado` (cancelada — teste descartado 2026-05-31)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
-**Atualizada em:** 2026-05-28 (E5 — landing publicada GitHub Pages)
+**Cancelada em:** 2026-05-31  
+**Atualizada em:** 2026-05-31
 
 > Task persistente oficial · Modelo: [docs/modelo-task.md](../docs/modelo-task.md) · Ciclo de vida: [docs/ciclo-de-vida-tasks.md](../docs/ciclo-de-vida-tasks.md) · Runtime: [runtime/ronaldo_runtime.md](../runtime/ronaldo_runtime.md)
 
@@ -475,6 +476,7 @@ Follow-up D+3: A oferta de R$ 49 ainda tá valendo. Quer garantir sua página es
 
 | Data | De → Para | Evento |
 |------|-----------|--------|
+| 2026-05-31 | executando → arquivado | **Cancelada** — teste pintores/leads descartado pelo Vitor |
 | 2026-05-28 | — → backlog | TASK-001 criada |
 | 2026-05-28 | — | E5 ✅ — landing publicada GitHub Pages |
 | 2026-05-28 | — | Rodada 4 — pipeline deploy; WA adiado por Vitor |

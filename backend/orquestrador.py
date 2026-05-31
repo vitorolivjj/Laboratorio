@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Orquestrador multiagente — Ronaldo Maestro coordena Juarez, Dev e Caio Manteiga.
+Orquestrador multiagente — Ronaldo Maestro coordena Juarez, Dev, Loide (UX) e Caio Manteiga.
 
-Fluxo: Juarez → Dev → Caio → Ronaldo (consolidação final) → Ronaldo (priorização executiva)
+Fluxo: Juarez → Dev → Loide (UX, junto com Dev) → Caio → Ronaldo (consolidação → priorização)
 
 Uso:
   .venv/bin/python orquestrador.py "seu objetivo"
@@ -44,8 +44,9 @@ _PROIBIDO_RONALDO = (
 )
 
 _CONSOLIDACAO_INSTRUCOES = """
-Você é diretor operacional fechando uma reunião entre Juarez, Dev e Caio Manteiga.
-As três análises JÁ ESTÃO no contexto — NÃO peça novas entregas.
+Você é diretor operacional fechando uma reunião entre Juarez, Dev, Loide (UX) e Caio Manteiga.
+As análises JÁ ESTÃO no contexto — NÃO peça novas entregas.
+Lembre: Dev e Loide trabalham juntos — implementação técnica + experiência de uso andam lado a lado.
 
 Faça:
 1. Compare as três respostas lado a lado
@@ -130,6 +131,7 @@ def build_orchestration_crew(objective: str) -> Crew:
 
     juarez = build_agent("juarez", verbose=True, log_llm=False)
     dev = build_agent("dev", verbose=True, log_llm=False)
+    loide = build_agent("loide", verbose=True, log_llm=False)
     caio = build_agent("caio_manteiga", verbose=True, log_llm=False)
     ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=False, log_llm=False)
 
@@ -154,6 +156,23 @@ def build_orchestration_crew(objective: str) -> Crew:
         context=[task_juarez],
     )
 
+    task_loide = Task(
+        description=(
+            f"{briefing}\n\n"
+            "Como Loide (UX Designer): a partir do MVP técnico proposto pelo Dev, "
+            "desenhe a EXPERIÊNCIA DE USO. Defina o fluxo do usuário, a estrutura "
+            "das telas principais (hierarquia), o microcopy essencial (botões/mensagens) "
+            "e notas de usabilidade/acessibilidade para o Dev implementar. "
+            "Mobile-first, mínimo de atrito. Máximo 15 linhas."
+        ),
+        expected_output=(
+            "Proposta de UX objetiva: fluxo do usuário, estrutura de tela, microcopy "
+            "e notas de implementação para o Dev."
+        ),
+        agent=loide,
+        context=[task_juarez, task_dev],
+    )
+
     task_caio = Task(
         description=(
             f"{briefing}\n\n"
@@ -176,7 +195,7 @@ def build_orchestration_crew(objective: str) -> Crew:
             "plano operacional único em tabela."
         ),
         agent=ronaldo,
-        context=[task_juarez, task_dev, task_caio],
+        context=[task_juarez, task_dev, task_loide, task_caio],
     )
 
     task_priorizacao = Task(
@@ -189,12 +208,12 @@ def build_orchestration_crew(objective: str) -> Crew:
             "TASK SUGERIDA e KPI DE SUCESSO — pronto para executar."
         ),
         agent=ronaldo,
-        context=[task_juarez, task_dev, task_caio, task_consolidacao],
+        context=[task_juarez, task_dev, task_loide, task_caio, task_consolidacao],
     )
 
     return Crew(
-        agents=[juarez, dev, caio, ronaldo],
-        tasks=[task_juarez, task_dev, task_caio, task_consolidacao, task_priorizacao],
+        agents=[juarez, dev, loide, caio, ronaldo],
+        tasks=[task_juarez, task_dev, task_loide, task_caio, task_consolidacao, task_priorizacao],
         process=Process.sequential,
         verbose=True,
     )
@@ -228,15 +247,15 @@ def registrar_ciclo(objective: str, resultado: str) -> None:
     resumo_evento = resumo[:400] + "…" if len(resumo) > 400 else resumo
 
     evento = f"""### {stamp} — [orquestracao] Ciclo multiagente
-- **Agente(s):** Ronaldo Maestro, Juarez, Dev, Caio Manteiga
+- **Agente(s):** Ronaldo Maestro, Juarez, Dev, Loide (UX), Caio Manteiga
 - **Detalhe:** Objetivo: {objective} | Resumo: {resumo_evento}
 - **Ref:** PROJ-001
 """
 
     historico = f"""### {date} — Orquestração multiagente
 - **Objetivo:** {objective}
-- **Agentes acionados:** Juarez, Dev, Caio Manteiga → Ronaldo (consolidação + priorização)
-- **Tarefas distribuídas:** Operação → Técnico → Comercial → Consolidação final → Priorização executiva
+- **Agentes acionados:** Juarez, Dev, Loide (UX), Caio Manteiga → Ronaldo (consolidação + priorização)
+- **Tarefas distribuídas:** Operação → Técnico → UX (Dev+Loide) → Comercial → Consolidação final → Priorização executiva
 - **Resultado consolidado:**
 
 {resultado.strip()}
@@ -259,7 +278,7 @@ def run(objective: str) -> str:
     print(f"Objetivo:\n{objective}\n")
     print(
         "Iniciando orquestração:\n"
-        "  Juarez → Dev → Caio → Ronaldo (consolidação final → priorização executiva)\n"
+        "  Juarez → Dev → Loide (UX) → Caio → Ronaldo (consolidação final → priorização executiva)\n"
     )
 
     crew = build_orchestration_crew(objective)

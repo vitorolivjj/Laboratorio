@@ -25,6 +25,56 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-31 — [decisao] Protocolo Ronaldo — delegar, conferir, evoluir
+- **Agente(s):** Vitor · Ronaldo Maestro
+- **Detalhe:** Toda TASK: briefing antes de executar, auditoria antes de concluir, aprendizado em aprendizados + evolucao_orquestracao. Especialistas não iniciam sozinhos.
+- **Ref:** memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md · memoria/decisoes.md
+
+### 2026-05-31 — [marco] TASK-011 concluída — CRUD operacional validado
+- **Agente(s):** dev · loide · Vitor (aceite)
+- **Detalhe:** Kanban + rabiscos + projetos em vitoroliv.com · TASK-012 iniciada (KPIs Macro)
+- **Ref:** TASK-011 · PROJ-002
+
+### 2026-05-31 — [decisao] Laboratório = fábrica · centralvitor = produto
+- **Agente(s):** Vitor · dev · loide
+- **Detalhe:** Agentes, skills, memória e UX specs só no Laboratório. centralvitor = código deployável only. Mockups TASK-011 movidos para `docs/ux/vitoros/`.
+- **Ref:** memoria/decisoes.md
+
+### 2026-05-31 — [deploy] TASK-011 A1 — CRUD operacional vitoroliv.com
+- **Agente(s):** dev
+- **Detalhe:** Kanban tasks, rabiscos, projetos · `operacional.js` · commit `dfd73e6` · VPS atualizada
+- **Ref:** TASK-011 · PROJ-002
+
+### 2026-05-31 — [orquestracao] TASK-022 — Biblioteca Skills Dev + Loide
+- **Agente(s):** dev · loide · ronaldo
+- **Detalhe:** 3 Cursor skills (loide-ux com GenerateImage, dev-vitoros, dev-laboratorio) · índice em memoria/agentes/skills-biblioteca.md · mockup kanban TASK-011 gerado
+- **Ref:** TASK-022 · `.cursor/skills/`
+
+### 2026-05-31 — [marco] TASK-010 concluída — VitorOS A0 em produção
+- **Agente(s):** dev · loide · Vitor (aceite login)
+- **Detalhe:** vitoroliv.com operacional · TASK-011 iniciada
+- **Ref:** TASK-010 · PROJ-002
+
+### 2026-05-31 — [deploy] VitorOS A0 em produção — vitoroliv.com
+- **Agente(s):** dev · loide
+- **Detalhe:** Supabase `pwlpdpwxxhbsmkclrpoa` + migration inicial · shell PWA 3 camadas · Auth · deploy VPS `5.78.215.136` · commit `6f8ac20` em `centralvitor`. Credenciais só em `.env` na VPS (publishable key no frontend).
+- **Ref:** TASK-010 · PROJ-002
+
+### 2026-05-31 — [tarefa] TASK-001 e TASK-002 canceladas (teste pintores/leads)
+- **Agente(s):** Vitor (decisão) · Ronaldo Maestro (kanban)
+- **Detalhe:** Landing pintores + captação Donizete→Caio eram teste de validação. Arquivadas em `tasks/arquivado.md`. WIP liberado para PROJ-002.
+- **Ref:** TASK-001, TASK-002
+
+### 2026-05-31 — [decisao] Autonomia operacional — Ronaldo inicia tasks quando quiser
+- **Agente(s):** Ronaldo Maestro · Vitor (concessão)
+- **Detalhe:** Mandato para mover kanban, delegar e acionar agentes sem aprovação prévia. Registrar eventos; WIP 3; escalar só credenciais/custo/prod Lab. PROJ-002 separado do Lab.
+- **Ref:** memoria/decisoes.md · agentes/ronaldo_maestro.md
+
+### 2026-05-31 — [orquestracao] VitorOS — escopo → 12 tasks delegadas
+- **Agente(s):** Ronaldo Maestro → dev, loide, juarez
+- **Detalhe:** escopo-vitoros.md v4 decomposto em TASK-010–021 (PROJ-002). Track A cockpit em vitoroliv.com VPS 5.78.215.136 / repo centralvitor. Track B Negão ia.vitoroliv.com. **Separado do Laboratório.**
+- **Ref:** PROJ-002 · [VITOROS-DELEGACAO-RONALDO.md](../tasks/VITOROS-DELEGACAO-RONALDO.md)
+
 ### 2026-05-31 — [marco] TASK-008 — Painel Maestro v1 em produção
 - **Agente(s):** dev, vitor
 - **Detalhe:** Dashboard operacional · `/api/maestro/snapshot` · `/painel/` · 6 seções · VPS

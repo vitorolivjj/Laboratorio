@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Runtime / secrets (social_executor)
+social_executor/session/
+social_executor/logs/
+social_executor/data/*.json
+!social_executor/data/.gitkeep

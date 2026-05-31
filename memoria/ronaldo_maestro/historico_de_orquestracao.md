@@ -17,7 +17,27 @@ Formato por entrada:
 
 ## Registros
 
-<!-- Nenhum ciclo registrado ainda. Adicionar abaixo conforme a orquestração acontecer. -->
+### 2026-05-31 — Protocolo delegação + conferência + evolução
+- **Objetivo:** Garantir que toda TASK seja delegada pelo Ronaldo, conferida por ele, e que aprendizados evoluam briefings futuros.
+- **Decisão:** `protocolo_delegacao_conferencia.md` + `evolucao_orquestracao.md`; gates `executando` e `concluído`.
+- **Aprendizados incorporados:** fábrica Lab vs produto; skills nos briefings; auth Supabase Site URL.
+- **Próximo passo:** TASK-012 com briefing emitido; auditoria ao aceite Vitor.
+
+### 2026-05-31 — Autonomia operacional do Ronaldo
+- **Objetivo:** Vitor concede mandato para Ronaldo iniciar e delegar tasks sem gate de aprovação por ciclo.
+- **Decisão:** Autonomia plena em kanban + briefings; limites: credenciais, custo, prod Lab, WIP 3, separação PROJ-002.
+- **Próximo passo:** Ronaldo inicia TASK-010 (VitorOS A0) quando capacidade Dev/Loide permitir.
+
+### 2026-05-31 — VitorOS: escopo → delegação multiagente
+- **Objetivo:** Transformar escopo-vitoros.md v4 em plano executável PROJ-002 (cockpit + Negão).
+- **Agentes acionados:** Ronaldo (coord.) → Dev, Loide, Juarez
+- **Tarefas distribuídas:**
+  - **Dev + Loide:** TASK-010 (A0 esqueleto) → TASK-011–016 (cockpit A1–A3)
+  - **Dev:** TASK-017–020 (Negão B0–B4) em `ia.vitoroliv.com`
+  - **Juarez:** inventário seed (preparação TASK-021)
+  - **Dev + Juarez:** TASK-021 integração final
+- **Decisão Ronaldo:** código e deploy **somente** VPS `vitoroliv.com` + repo `centralvitor`. Orquestração permanece no Laboratório. Zero mistura com VPS `api.laboratorioagentes.com.br`.
+- **Próximo passo:** Dev + Loide iniciam TASK-010 esta semana.
 
 ### 2026-05-28 — Orquestração multiagente
 - **Objetivo:** Criar uma oferta low ticket de página simples para pintores autônomos.

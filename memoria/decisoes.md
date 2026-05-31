@@ -27,6 +27,53 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### Protocolo delegação + conferência + evolução — 2026-05-31
+
+- **Contexto:** Vitor exige que **todas** as tasks sejam delegadas pelo Ronaldo, conferidas por ele, e que aprendizados alimentem evolução constante.
+- **Decisão:**
+  - Protocolo oficial: `memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md`
+  - **Gate `executando`:** briefing Ronaldo por agente em `TASK-XXX.md`
+  - **Gate `concluído`:** § Auditoria do Ronaldo preenchida + aceite quando aplicável
+  - **Pós-aprovação:** entrada em `aprendizados.md` + `evolucao_orquestracao.md`
+  - Especialistas **não iniciam** TASK sem delegação; sessões diretas exigem backfill em 24h
+  - Laboratório = fábrica (agentes, skills, memória, UX specs); repos produto = código only
+- **Responsável:** Vitor · Ronaldo Maestro (execução)
+- **Agentes impactados:** Todos
+- **Validade / revisar em:** Permanente
+
+### Laboratório = fábrica · centralvitor = produto — 2026-05-31
+
+- **Contexto:** Risco de misturar orquestração (agentes, skills, memória) com código deployável do VitorOS.
+- **Decisão:**
+  - **Laboratório** concentra: agentes (`agentes/`), skills (`.cursor/skills/`), memória (`memoria/`), tasks, logs, **mockups/specs UX** (`docs/ux/`).
+  - **centralvitor** contém **somente** código, migrations e deploy do app em `vitoroliv.com`.
+  - Dev implementa no centralvitor lendo specs da fábrica; Loide nunca commita artefatos de agente no repo produto.
+- **Responsável:** Vitor
+- **Agentes impactados:** Dev, Loide, Ronaldo
+- **Validade / revisar em:** Permanente
+
+### TASK-001 / TASK-002 canceladas (teste pintores) — 2026-05-31
+
+- **Contexto:** Landing low ticket pintores (TASK-001) e captação orgânica Donizete→Caio (TASK-002) eram experimentos de validação.
+- **Decisão:** Cancelar e arquivar ambas. Não continuar funil pintores nem captação de leads para esse ICP.
+- **Responsável:** Vitor
+- **Agentes impactados:** Caio, Donizete, Juarez, Dev (escopo encerrado)
+- **Validade / revisar em:** Permanente — histórico preservado em `tasks/arquivado.md`
+
+### Ronaldo — autonomia para iniciar tasks — 2026-05-31
+
+- **Contexto:** Vitor concedeu autonomia operacional ao Ronaldo Maestro para iniciar e mover tasks sem aprovação prévia a cada ciclo.
+- **Decisão:**
+  - Ronaldo **pode** criar `TASK-XXX`, mover `backlog → planejando → executando`, emitir briefings e acionar agentes **quando julgar o momento certo**.
+  - **Não precisa** pedir permissão ao Vitor para iniciar execução de tasks já priorizadas no backlog (ex.: PROJ-002 VitorOS TASK-010+).
+  - **Deve registrar** toda iniciativa em `logs/eventos.md` + atualizar `tasks/` + briefing no doc da task.
+  - **Respeitar WIP máx. 3** em `executando.md`; se iniciar 4ª, mover a de menor impacto para `aguardando` ou `backlog` com nota — não paralisar PROJ-002 por burocracia.
+  - **Escalar ao Vitor apenas quando:** credenciais/contas novas, gasto financeiro, alteração em produção do Lab, decisão estrutural irreversível, bloqueio externo >48h.
+  - **PROJ-002:** código/deploy **somente** `centralvitor` + VPS `vitoroliv.com` — nunca misturar com Lab.
+- **Responsável:** Vitor (concessão) · Ronaldo Maestro (execução da política)
+- **Agentes impactados:** Todos — especialmente Dev, Loide, Juarez
+- **Validade / revisar em:** Permanente até Vitor revogar
+
 ### TASK-007 — Migração modelo Anthropic + WhatsApp em produção — 2026-05-31
 
 - **Contexto:** TASK-007 em produção na VPS Hetzner; API Anthropic retornou `not_found` para `claude-sonnet-4-20250514` (snapshot descontinuado).

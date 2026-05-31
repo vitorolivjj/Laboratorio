@@ -2,10 +2,11 @@
 
 **ID:** TASK-002  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `executando`  
+**Status:** `arquivado` (cancelada — teste descartado 2026-05-31)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
-**Atualizada em:** 2026-05-28 (criação + Rodada 1 — briefings)
+**Cancelada em:** 2026-05-31  
+**Atualizada em:** 2026-05-31
 
 > Task persistente · Modelo: [docs/modelo-task.md](../docs/modelo-task.md) · Workflow: [docs/workflow-captacao-comercial.md](../docs/workflow-captacao-comercial.md) · CRM: [crm/leads.md](../crm/leads.md)
 
@@ -243,6 +244,7 @@ _Preencher ao concluir E5._
 
 | Data | De → Para | Evento |
 |------|-----------|--------|
+| 2026-05-31 | executando → arquivado | **Cancelada** — teste captação pintores descartado pelo Vitor |
 | 2026-05-28 | — → executando | TASK-002 criada — validação captação orgânica |
 | 2026-05-28 | — | Rodada 1 — briefings Donizete + Caio |
 

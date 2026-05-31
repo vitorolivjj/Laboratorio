@@ -8,7 +8,7 @@ Ver transições: [workflows/pipeline_operacional.md](../workflows/pipeline_oper
 
 ## Em planejamento
 
-_Nenhuma tarefa neste estado._
+_(nenhuma task no momento)_
 
 ---
 

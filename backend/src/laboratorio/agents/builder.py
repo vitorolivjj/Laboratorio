@@ -27,6 +27,10 @@ _AGENT_META: dict[str, dict[str, str]] = {
         "role": "Donizete Social — Captação",
         "goal": "Captar e classificar leads com qualidade, sem spam e com contexto para o comercial.",
     },
+    "loide": {
+        "role": "Loide — UX Designer",
+        "goal": "Garantir experiência de uso simples, clara e acessível, trabalhando junto com o Dev.",
+    },
 }
 
 

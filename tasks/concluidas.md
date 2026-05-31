@@ -19,6 +19,22 @@ Histórico de tarefas **finalizadas** (mais recentes no topo).
 
 ## Concluídas
 
+### TASK-011 — VitorOS A1: Rabiscos + Projetos + Tasks kanban
+
+- **Concluída em:** 2026-05-31
+- **Agente:** dev · loide
+- **Projeto:** PROJ-002
+- **Resultado:** Kanban 6 colunas + CRUD rabiscos/projetos/tasks · Supabase · deploy `vitoroliv.com` · aceite Vitor
+- **Aprendizado:** Specs UX na fábrica (Lab); código só no `centralvitor`
+
+### TASK-010 — VitorOS A0: Esqueleto (Supabase, Auth, shell PWA, deploy VPS)
+
+- **Concluída em:** 2026-05-31
+- **Agente:** dev · loide
+- **Projeto:** PROJ-002
+- **Resultado:** Supabase + migration · shell PWA 3 camadas · Auth · deploy `vitoroliv.com` · login validado pelo Vitor
+- **Aprendizado:** Configurar Site URL Supabase = domínio prod; skills aceleram próximas telas (TASK-022)
+
 ### TASK-008 — Painel Maestro v1
 
 - **Concluída em:** 2026-05-31

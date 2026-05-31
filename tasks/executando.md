@@ -26,35 +26,6 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 
 ## Em andamento
 
-### TASK-001 — Landing low ticket para pintores autônomos
-
-- **Iniciada em:** 2026-05-28
-- **Agente:** ronaldo_maestro (coord.) · juarez · dev · caio_manteiga
-- **Projeto:** PROJ-001
-- **Status:** em_progresso
-- **Documento oficial:** [TASK-001.md](TASK-001.md)
-- **URL pública:** https://vitorolivjj.github.io/Laboratorio/
-- **Rodada ativa:** 5 — deploy concluído (2026-05-28)
-- **Entregáveis:** E1–E5 ✅ · E7 ⬜ · E8 ⬜
-- **Bloqueio:** nenhum — WA real via TASK-007 ✅
-- **Próxima ação:** Caio → teste funil com número produção · Vitor → 3 contatos
-
----
-
-### TASK-002 — Validação captação orgânica Donizete → Caio
-
-- **Iniciada em:** 2026-05-28
-- **Agente:** ronaldo_maestro (coord.) · donizete_social · caio_manteiga
-- **Projeto:** PROJ-001
-- **Status:** em_progresso
-- **Documento oficial:** [TASK-002.md](TASK-002.md)
-- **Rodada ativa:** 1 — captação + abordagem (máx. 3 leads)
-- **Entregáveis:** E1 ✅ · E2–E5 ⬜
-- **Bloqueio:** nenhum
-- **Próxima ação:** Donizete → captar leads CRM · Caio → aguardar handoff
-
----
-
 ### TASK-003 — Automação snapshot dashboard operacional
 
 - **Iniciada em:** 2026-05-28
@@ -66,6 +37,24 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 - **Entregáveis:** E1–E4 ✅ · E5 🔄
 - **Bloqueio:** nenhum — aguarda push Actions
 - **Próxima ação:** Push main → validar workflow
+
+### TASK-012 — VitorOS A1: Home cockpit + KPIs derivados
+
+- **Iniciada em:** 2026-05-31
+- **Agente:** dev · loide
+- **Projeto:** PROJ-002
+- **Status:** em_progresso
+- **Documento:** [TASK-012.md](TASK-012.md)
+- **Depende:** TASK-011 ✅
+- **Próxima ação:** KPIs derivados na camada Macro · expandir `snapshot_estado()`
+
+### TASK-022 — Biblioteca Skills Dev + Loide
+
+- **Iniciada em:** 2026-05-31
+- **Agente:** dev · loide · ronaldo_maestro
+- **Projeto:** PROJ-001 (transversal)
+- **Status:** em_progresso — E1–E6 ✅ · protocolo Ronaldo integrado
+- **Próxima ação:** Fechar TASK-022 após TASK-012 auditada · expandir skills Negão/finanças
 
 ---
 

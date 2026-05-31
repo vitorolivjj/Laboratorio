@@ -11,7 +11,7 @@ Fluxo **oficial** de status das tasks no Laboratório. Markdown first — uma TA
 1. **TASK persistente** — trabalho real vira `TASK-XXX` (arquivo dedicado + entrada no Kanban).
 2. **Um status por vez** — nunca duplicar a mesma TASK em dois arquivos de estado.
 3. **Ronaldo Maestro** é dono do **fluxo de status** (priorizar, mover, auditar, registrar memória).
-4. **Especialistas** executam dentro da TASK ativa; não mudam status sozinhos.
+4. **Especialistas** executam dentro da TASK ativa; **não mudam status** sozinhos; **não iniciam** TASK sem briefing Ronaldo.
 5. **Mover = cortar/colar** o bloco entre arquivos + atualizar `status` e `Atualizada em` no `TASK-XXX.md`.
 
 ---
@@ -108,7 +108,7 @@ Ronaldo Maestro é **responsável oficial** pelo ciclo de vida das TASKs:
 | **Briefing curto** | 2–4 linhas por agente antes de `executando` |
 | **Auditar entregas** | Comparar entrega vs critérios de aceite |
 | **Registrar decisões** | `memoria/decisoes.md` |
-| **Registrar aprendizados** | `memoria/aprendizados.md` |
+| **Registrar aprendizados** | `memoria/aprendizados.md` + `memoria/ronaldo_maestro/evolucao_orquestracao.md` |
 | **Registrar hipóteses** | `memoria/hipoteses_testadas.md` (status H-XXX) |
 | **Consolidar** | CONSOLIDAÇÃO FINAL + PRIORIZAÇÃO EXECUTIVA quando multiagente |
 | **Log operacional** | `logs/eventos.md`, `historico_de_orquestracao.md` |
@@ -205,4 +205,4 @@ Ao ordenar o backlog, considerar:
 
 ---
 
-**Última revisão:** 2026-05-28
+**Última revisão:** 2026-05-31 (protocolo delegação + conferência)

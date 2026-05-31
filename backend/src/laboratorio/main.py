@@ -52,6 +52,7 @@ def cmd_llm_config() -> int:
             "donizete_social",
             "dev",
             "juarez",
+            "loide",
         ]
     )
     return 0

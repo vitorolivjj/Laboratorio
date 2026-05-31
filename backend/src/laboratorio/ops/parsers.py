@@ -24,6 +24,11 @@ def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
         header_date = m.group(1).strip()
         tipo = m.group(2).strip().lower()
         titulo = m.group(3).strip()
+        # Ignora linha de template em eventos.md
+        if titulo in ("Título", "Titulo") or "YYYY-MM-DD" in header_date:
+            continue
+        if tipo in ("tipo",):
+            continue
         body = m.group(4)
         agentes = _field(body, "Agente(s)")
         detalhe = _field(body, "Detalhe")
@@ -154,11 +159,15 @@ def parse_executando_tasks(content: str) -> list[dict]:
         re.MULTILINE | re.DOTALL,
     ):
         block = m.group(3)
+        agents = _field(block, "Agente") or _field(block, "Responsável")
+        aux = _field(block, "Auxiliares")
+        if aux and aux not in ("—", "-", ""):
+            agents = f"{agents} · {aux}" if agents else aux
         tasks.append(
             {
                 "id": m.group(1),
                 "title": m.group(2).strip(),
-                "agents": _field(block, "Agente"),
+                "agents": agents,
                 "status": _field(block, "Status") or "em_progresso",
                 "proxima_acao": _field(block, "Próxima ação"),
                 "bloqueio": _field(block, "Bloqueio"),
@@ -168,6 +177,34 @@ def parse_executando_tasks(content: str) -> list[dict]:
     return tasks
 
 
+def parse_briefings_from_task(content: str, task_id: str) -> list[dict]:
+    """Extrai briefings Ronaldo → agente de TASK-XXX.md."""
+    delegations: list[dict] = []
+    title_m = re.search(r"^# TASK-\d+ — (.+?)$", content, re.MULTILINE)
+    task_title = title_m.group(1).strip() if title_m else task_id
+    for m in re.finditer(
+        r"^### Briefing — (.+?) — (TASK-\d+)(?: — (\d{4}-\d{2}-\d{2}))?\n(.*?)(?=^### |\Z)",
+        content,
+        re.MULTILINE | re.DOTALL,
+    ):
+        agent_label = m.group(1).strip()
+        obj = _field(m.group(4), "Objetivo desta rodada") or task_title
+        delegations.append(
+            {
+                "from": "ronaldo_maestro",
+                "from_label": "Ronaldo",
+                "to": _normalize_agent_id(agent_label),
+                "to_label": agent_label,
+                "task": f"{obj} ({m.group(2)})",
+                "status": "delegado",
+                "priority": "P1",
+                "datetime": m.group(3) or "—",
+                "next_step": _field(m.group(4), "Critério de pronto") or obj,
+            }
+        )
+    return delegations
+
+
 def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list[dict]:
     delegations: list[dict] = []
     for task_id in active_ids:
@@ -175,6 +212,10 @@ def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list
         if not path.is_file():
             continue
         content = read_text(path)
+        briefings = parse_briefings_from_task(content, task_id)
+        if briefings:
+            delegations.extend(briefings)
+            continue
         title_m = re.search(r"^# TASK-\d+ — (.+?)$", content, re.MULTILINE)
         task_title = title_m.group(1).strip() if title_m else task_id
 
@@ -219,9 +260,12 @@ def parse_decisions(content: str, limit: int = 10) -> list[dict]:
         content,
         re.MULTILINE | re.DOTALL,
     ):
+        title = m.group(1).strip()
+        if title.startswith("[") or "Título" in title:
+            continue
         decisions.append(
             {
-                "title": m.group(1).strip(),
+                "title": title,
                 "date": m.group(2),
                 "body": m.group(3).strip()[:300],
             }
@@ -254,6 +298,7 @@ def count_kanban(tasks_dir: Path) -> dict[str, list[str]]:
         "aguardando": parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas"),
         "backlog": parsers_count(tasks_dir / "backlog.md", "## Fila"),
         "concluidas": parsers_count(tasks_dir / "concluidas.md", "## Concluídas"),
+        "arquivado": parsers_count(tasks_dir / "arquivado.md", "## Arquivo"),
     }
 
 
@@ -262,7 +307,7 @@ def parsers_count(path: Path, section: str) -> list[str]:
     if not content:
         return []
     match = re.search(
-        rf"{re.escape(section)}\s*\n(.*?)(?:\n## |\n---|\Z)",
+        rf"{re.escape(section)}\s*\n(.*?)(?=\n## |\Z)",
         content,
         re.DOTALL,
     )

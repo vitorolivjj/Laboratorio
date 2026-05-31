@@ -13,7 +13,9 @@ CRM operacional markdown-first. Donizete Social registra captações; Caio Mante
 1. Donizete cria entrada `LEAD-XXX` ao identificar potencial.
 2. Qualifica → status `qualificado` → handoff Caio.
 3. Caio atualiza status após abordagem (`abordado`, `convertido`, `sem_resposta`, `descartado`).
-4. Referenciar TASK ativa quando aplicável (ex.: TASK-001).
+4. Referenciar TASK ativa quando aplicável (ex.: TASK-XXX).
+
+> **2026-05-31:** Teste pintores/leads encerrado — TASK-001 e TASK-002 canceladas. CRM limpo; captação orgânica pintores não continua.
 
 ## Regras
 
@@ -74,4 +76,4 @@ CRM operacional markdown-first. Donizete Social registra captações; Caio Mante
 |---------|----------|--------------|----------------|-------------|
 | — | 0 | 0 | 0 | 0 |
 
-**Última atualização:** 2026-05-28
+**Última atualização:** 2026-05-31 (teste pintores cancelado · CRM zerado)

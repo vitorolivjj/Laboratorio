@@ -15,14 +15,15 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-05-31 13:43 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-05-31 21:47 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução (WIP) | 1 / 3 |
-| Entregáveis (TASKs `executando`) | 10 / 18 |
+| TASKs em execução (WIP) | 3 / 3 |
+| TASKs em planejamento | 0 |
+| Entregáveis (TASKs `executando`) | 4 / 5 |
 | Total leads CRM | 0 |
 | Hipóteses `a_testar` | 2 |
 | Taxa lead → convertido | — |
@@ -32,24 +33,39 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | TASKs |
 |--------|-----|-------|
-| `executando` | 1 | TASK-001 |
+| `executando` | 3 | TASK-003, TASK-012, TASK-022 |
 | `planejando` | 0 | — |
 | `aguardando` | 0 | — |
-| `backlog` | 1 | TASK-004 |
-| `concluído` (kanban) | 6 | TASK-008, TASK-007, TASK-006, TASK-005, TASK-003, TASK-000 |
+| `backlog` | 11 | TASK-012, TASK-013, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-004 |
+| `concluído` (kanban) | 8 | TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-003, TASK-000 |
+| `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
 
 ### TASKs (arquivos persistentes)
 
 | TASK | Status | Entregáveis | Progresso |
 |------|--------|-------------|-----------|
-| [TASK-001](../tasks/TASK-001.md) | `executando` | 5/8 | 62% |
-| [TASK-002](../tasks/TASK-002.md) | `executando` | 1/5 | 20% |
+| [TASK-001](../tasks/TASK-001.md) | `arquivado` | 5/8 | 62% |
+| [TASK-002](../tasks/TASK-002.md) | `arquivado` | 1/5 | 20% |
 | [TASK-003](../tasks/TASK-003.md) | `executando` | 4/5 | 80% |
 | [TASK-005-relatorio-modelos](../tasks/TASK-005-relatorio-modelos.md) | `desconhecido` | 0/0 | — |
 | [TASK-005](../tasks/TASK-005.md) | `concluido` | 6/6 | 100% |
 | [TASK-006](../tasks/TASK-006.md) | `concluido` | 6/6 | 100% |
 | [TASK-007](../tasks/TASK-007.md) | `concluido` | 7/7 | 100% |
 | [TASK-008](../tasks/TASK-008.md) | `concluido` | 5/5 | 100% |
+| [TASK-009](../tasks/TASK-009.md) | `concluido` | 0/0 | — |
+| [TASK-010](../tasks/TASK-010.md) | `desconhecido` | 5/5 | 100% |
+| [TASK-011](../tasks/TASK-011.md) | `desconhecido` | 4/4 | 100% |
+| [TASK-012](../tasks/TASK-012.md) | `desconhecido` | 0/0 | — |
+| [TASK-013](../tasks/TASK-013.md) | `desconhecido` | 0/0 | — |
+| [TASK-014](../tasks/TASK-014.md) | `desconhecido` | 0/0 | — |
+| [TASK-015](../tasks/TASK-015.md) | `desconhecido` | 0/0 | — |
+| [TASK-016](../tasks/TASK-016.md) | `desconhecido` | 0/0 | — |
+| [TASK-017](../tasks/TASK-017.md) | `desconhecido` | 0/0 | — |
+| [TASK-018](../tasks/TASK-018.md) | `desconhecido` | 0/0 | — |
+| [TASK-019](../tasks/TASK-019.md) | `desconhecido` | 0/0 | — |
+| [TASK-020](../tasks/TASK-020.md) | `desconhecido` | 0/0 | — |
+| [TASK-021](../tasks/TASK-021.md) | `desconhecido` | 0/4 | 0% |
+| [TASK-022](../tasks/TASK-022.md) | `desconhecido` | 6/6 | 100% |
 
 ### Funil CRM
 
@@ -78,16 +94,15 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Indicador | Valor | Status |
 |-----------|-------|--------|
-| TASKs em execução | 2 / 3 WIP | 🟢 |
-| Entregáveis concluídos (TASKs ativas) | 6 / 13 | 🟡 |
+| TASKs em execução | 1 / 3 WIP | 🟢 |
+| TASKs em planejamento | 1 (TASK-010 VitorOS) | 🟡 |
+| Entregáveis concluídos (TASKs ativas) | 4 / 5 | 🟡 |
 | Leads no CRM | 0 | ⚪ |
-| Landing no ar | ✅ | 🟢 |
+| Painel Maestro + WhatsApp Caio | ✅ produção | 🟢 |
 | Bloqueios críticos | 0 | 🟢 |
-| Automação LLM por agente | ✅ TASK-006 v1 | 🟢 |
-| Hipóteses em teste | 2 | 🟡 |
-| Taxa conversão operacional | — (sem leads) | ⚪ |
+| TASKs teste canceladas | TASK-001, TASK-002 (pintores) | ⚪ arquivadas |
 
-**Foco imediato:** TASK-002 captação (Donizete) · TASK-001 WA real + teste funil (Vitor/Caio)
+**Foco imediato:** PROJ-002 VitorOS (TASK-010) · TASK-003 snapshot Actions · infra Lab estável
 
 ---
 
@@ -97,31 +112,30 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | TASKs |
 |--------|-----|-------|
-| `executando` | 2 | TASK-001, TASK-002 |
-| `planejando` | 0 | — |
+| `executando` | 1 | TASK-003 |
+| `planejando` | 1 | TASK-010 |
 | `aguardando` | 0 | — |
-| `backlog` | 1+ | TASK-004 |
-| `concluído` | 0 | — |
+| `backlog` | 11+ | TASK-011–021, TASK-004 |
+| `arquivado` | 2 | TASK-001, TASK-002 (canceladas) |
+| `concluído` | 6 | TASK-005–008, … |
 
-**WIP:** 2/3 · **Capacidade livre:** 1 slot
+**WIP:** 1/3 · **Capacidade livre:** 2 slots
 
 ### 2.2 TASKs ativas — detalhe
 
-| TASK | Rodada | Entregáveis | Progresso | Bloqueio |
-|------|--------|-------------|-----------|----------|
-| [TASK-001](../tasks/TASK-001.md) | 5 | E1–E5 ✅ · E7–E8 ⬜ | 63% (5/8) | WA placeholder |
-| [TASK-002](../tasks/TASK-002.md) | 1 | E1 ✅ · E2–E5 ⬜ | 20% (1/5) | nenhum |
+| TASK | Projeto | Rodada | Entregáveis | Progresso | Bloqueio |
+|------|---------|--------|-------------|-----------|----------|
+| [TASK-003](../tasks/TASK-003.md) | PROJ-001 | 1 | E1–E4 ✅ · E5 🔄 | 80% | push Actions |
+| [TASK-010](../tasks/TASK-010.md) | PROJ-002 | — | planejando | — | aguarda Dev+Loide |
 
 ### 2.3 Throughput de execução
 
 | Métrica | Período | Valor |
 |---------|---------|-------|
-| Rodadas operacionais concluídas | TASK-001 | 5 |
-| Rodadas operacionais concluídas | TASK-002 | 0 (Rodada 1 em curso) |
-| Entregáveis fechados | 2026-05-28 | 6 |
-| Deploys | 2026-05-28 | 1 (GitHub Pages) |
-| TASKs criadas | 2026-05-28 | 2 |
-| Tempo médio rodada | — | _a medir_ |
+| TASKs concluídas (Lab) | 2026-05-31 | TASK-007, TASK-008 |
+| TASKs canceladas (teste) | 2026-05-31 | TASK-001, TASK-002 |
+| Deploys Painel Maestro | 2026-05-31 | VPS `/painel/` |
+| PROJ-002 criado | 2026-05-31 | 12 tasks VitorOS |
 
 ### 2.4 SLA TASK (meta interna)
 
@@ -149,7 +163,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | Sem resposta | 0 | — |
 | Descartados | 0 | — |
 
-**Total leads:** 0 · **Meta TASK-002:** 3
+**Total leads:** 0 · **Captação pintores:** encerrada (TASK-002 cancelada 2026-05-31)
 
 ### 3.2 Qualidade de captação
 

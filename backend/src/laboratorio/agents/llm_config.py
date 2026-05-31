@@ -19,6 +19,7 @@ AGENT_ENV_PREFIX: dict[str, str] = {
     "donizete_social": "DONIZETE",
     "dev": "DEV",
     "juarez": "JUAREZ",
+    "loide": "LOIDE",
 }
 
 # Nome amigável para logs e CLI
@@ -28,6 +29,7 @@ AGENT_DISPLAY_NAME: dict[str, str] = {
     "donizete_social": "Donizete",
     "dev": "Dev",
     "juarez": "Juarez",
+    "loide": "Loide",
 }
 
 DEFAULT_PROVIDER = "anthropic"

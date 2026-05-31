@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 import subprocess
+import threading
+import time
 from datetime import datetime, timezone
 from typing import Any
 
@@ -12,6 +14,28 @@ from laboratorio.config import LOGS_DIR, MEMORIA_DIR, REPO_ROOT, TASKS_DIR
 from laboratorio.ops import parsers
 
 CRM_LEADS = REPO_ROOT / "crm" / "leads.md"
+
+# Cache em memória: evita reler arquivos + rodar systemctl a cada chamada de voz.
+_SNAPSHOT_CACHE: dict[str, Any] = {"data": None, "ts": 0.0}
+_SNAPSHOT_TTL = float(os.getenv("MAESTRO_SNAPSHOT_TTL", "8"))
+_SNAPSHOT_LOCK = threading.Lock()
+
+
+def get_cached_snapshot(max_age: float | None = None) -> dict[str, Any]:
+    """Snapshot com cache curto — ideal para respostas de voz de baixa latência."""
+    ttl = _SNAPSHOT_TTL if max_age is None else max_age
+    now = time.monotonic()
+    cached = _SNAPSHOT_CACHE["data"]
+    if cached is not None and (now - _SNAPSHOT_CACHE["ts"]) < ttl:
+        return cached
+    with _SNAPSHOT_LOCK:
+        cached = _SNAPSHOT_CACHE["data"]
+        if cached is not None and (time.monotonic() - _SNAPSHOT_CACHE["ts"]) < ttl:
+            return cached
+        data = build_maestro_snapshot()
+        _SNAPSHOT_CACHE["data"] = data
+        _SNAPSHOT_CACHE["ts"] = time.monotonic()
+        return data
 
 AGENT_AVATARS: dict[str, str] = {
     "ronaldo_maestro": "ronaldo-maestro.png",
@@ -61,9 +85,9 @@ AGENT_CATALOG: list[dict[str, str]] = [
     {
         "id": "loide",
         "name": "Loide",
-        "role": "Operações",
-        "function": "Processos, organização e governança do laboratório",
-        "has_backend": "false",
+        "role": "UX Designer",
+        "function": "Experiência de uso, usabilidade e interface — trabalha junto com o Dev",
+        "has_backend": "true",
     },
 ]
 
@@ -80,7 +104,15 @@ def build_maestro_snapshot() -> dict[str, Any]:
     executando = parsers.parse_executando_tasks(
         parsers.read_text(TASKS_DIR / "executando.md")
     )
-    active_ids = [t["id"] for t in executando]
+    planejando = parsers.parse_executando_tasks(
+        parsers.read_text(TASKS_DIR / "planejando.md")
+    )
+    for t in executando:
+        t["phase"] = "executando"
+    for t in planejando:
+        t["phase"] = "planejando"
+    active_work = executando + planejando
+    active_ids = [t["id"] for t in active_work]
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
     kanban = parsers.count_kanban(TASKS_DIR)
@@ -93,9 +125,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
     wa_online = _whatsapp_online(wa_log)
     vps_online = check_vps_service()
 
-    agents = _build_agents(executando, events, wa_log, active_ids)
-    estimated_cost = round(messages_today * 0.012 + len(executando) * 0.05, 3)
-    briefing = _build_briefing(agents, executando, wa_log, leads, last_error, vps_online, wa_online)
+    agents = _build_agents(active_work, events, wa_log, active_ids)
+    estimated_cost = round(messages_today * 0.012 + len(active_work) * 0.05, 3)
+    briefing = _build_briefing(agents, active_work, wa_log, leads, last_error, vps_online, wa_online)
 
     errors = [e for e in events if e["type"] == "erro"]
     alerts = [e for e in events if e["type"] in ("erro", "marco")][:5]
@@ -113,7 +145,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
             "last_error": last_error,
             "wip_tasks": len(executando),
             "wip_max": 3,
-            "active_tasks": active_ids,
+            "planning_tasks": len(planejando),
+            "active_tasks": [t["id"] for t in executando],
+            "planning_task_ids": [t["id"] for t in planejando],
         },
         "agents": agents,
         "delegations": delegations,
@@ -134,22 +168,25 @@ def build_maestro_snapshot() -> dict[str, Any]:
                 "agents": t["agents"],
                 "proxima_acao": t["proxima_acao"],
                 "bloqueio": t["bloqueio"],
+                "phase": t.get("phase", "executando"),
             }
-            for t in executando
+            for t in active_work
         ],
     }
 
 
 def _build_agents(
-    executando: list[dict],
+    active_work: list[dict],
     events: list[dict],
     wa_log: list[dict],
     active_ids: list[str],
 ) -> list[dict]:
     agent_tasks: dict[str, list[str]] = {}
-    for task in executando:
-        for part in re_split_agents(task["agents"]):
-            agent_tasks.setdefault(part, []).append(f"{task['id']}: {task['title']}")
+    for task in active_work:
+        phase = task.get("phase", "")
+        prefix = "[planejando] " if phase == "planejando" else ""
+        for part in re_split_agents(task.get("agents") or task.get("responsavel", "")):
+            agent_tasks.setdefault(part, []).append(f"{prefix}{task['id']}: {task['title']}")
 
     result: list[dict] = []
     for meta in AGENT_CATALOG:
@@ -162,9 +199,9 @@ def _build_agents(
         if aid in agent_tasks:
             status = "executando"
             current_task = agent_tasks[aid][0]
-        elif aid == "ronaldo_maestro" and executando:
+        elif aid == "ronaldo_maestro" and active_work:
             status = "executando"
-            current_task = f"Coordena {len(executando)} TASK(s)"
+            current_task = f"Coordena {len(active_work)} TASK(s)"
 
         if aid == "caio_manteiga" and wa_log:
             last = wa_log[0]
@@ -213,7 +250,7 @@ def _build_agents(
 
 def _build_briefing(
     agents: list[dict],
-    executando: list[dict],
+    active_work: list[dict],
     wa_log: list[dict],
     leads: list[dict],
     last_error: str,
@@ -236,10 +273,15 @@ def _build_briefing(
             for a in agents
             if a["status"] in ("executando", "ativo")
         },
-        "pending_count": len(executando),
+        "pending_count": len(active_work),
         "pending_tasks": [
-            {"id": t["id"], "title": t["title"], "next": t.get("proxima_acao", "—")}
-            for t in executando
+            {
+                "id": t["id"],
+                "title": t["title"],
+                "next": t.get("proxima_acao", "—"),
+                "phase": t.get("phase", "executando"),
+            }
+            for t in active_work
         ],
         "leads_total": len(leads),
         "caio_last_reply": wa_log[0]["outbound"][:160] if wa_log else "Nenhuma conversa ainda",

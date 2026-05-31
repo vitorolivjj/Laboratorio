@@ -30,7 +30,7 @@ def count_kanban_tasks(path: Path, section: str) -> list[str]:
     if not content:
         return []
     match = re.search(
-        rf"{re.escape(section)}\s*\n(.*?)(?:\n## |\n---|\Z)",
+        rf"{re.escape(section)}\s*\n(.*?)(?=\n## |\Z)",
         content,
         re.DOTALL,
     )
@@ -41,8 +41,8 @@ def count_kanban_tasks(path: Path, section: str) -> list[str]:
 def parse_task_file(path: Path) -> dict:
     content = read_text(path)
     task_id = path.stem
-    status_match = re.search(r"\*\*Status:\*\*\s*`(\w+)`", content)
-    status = status_match.group(1) if status_match else "desconhecido"
+    status_match = re.search(r"\*\*Status:\*\*\s*`([^`]+)`", content)
+    status = status_match.group(1).split()[0] if status_match else "desconhecido"
 
     entregaveis_done = 0
     entregaveis_total = 0
@@ -128,11 +128,14 @@ def build_snapshot() -> str:
     aguardando = count_kanban_tasks(tasks_dir / "aguardando.md", "## Bloqueadas")
     backlog = count_kanban_tasks(tasks_dir / "backlog.md", "## Fila")
     concluidas = count_kanban_tasks(tasks_dir / "concluidas.md", "## Concluídas")
+    arquivado = count_kanban_tasks(tasks_dir / "arquivado.md", "## Arquivo")
 
     wip = len(executando)
     wip_max = 3
+    planning = len(planejando)
 
     active_tasks = [t for t in tasks if t["status"] == "executando"]
+    planning_tasks = [t for t in tasks if t["status"] == "planejando"]
     ent_done = sum(t["entregaveis_done"] for t in active_tasks)
     ent_total = sum(t["entregaveis_total"] for t in active_tasks)
 
@@ -175,6 +178,7 @@ def build_snapshot() -> str:
 | Indicador | Valor |
 |-----------|-------|
 | TASKs em execução (WIP) | {wip} / {wip_max} |
+| TASKs em planejamento | {planning} |
 | Entregáveis (TASKs `executando`) | {ent_done} / {ent_total} |
 | Total leads CRM | {total_leads} |
 | Hipóteses `a_testar` | {hyp_testing} |
@@ -190,6 +194,7 @@ def build_snapshot() -> str:
 | `aguardando` | {len(aguardando)} | {", ".join(aguardando) or "—"} |
 | `backlog` | {len(backlog)} | {", ".join(backlog) or "—"} |
 | `concluído` (kanban) | {len(concluidas)} | {", ".join(concluidas) or "—"} |
+| `arquivado` (canceladas) | {len(arquivado)} | {", ".join(arquivado) or "—"} |
 
 ### TASKs (arquivos persistentes)
 

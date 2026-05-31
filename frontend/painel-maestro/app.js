@@ -42,7 +42,7 @@ function renderBriefing(data) {
     { q: "Sistema online?", a: o.vps_online && o.whatsapp_online ? "Sim — VPS e WhatsApp operacionais" : "Verificar infraestrutura", cls: o.vps_online && o.whatsapp_online ? "ok" : "error" },
     { q: "Quem está trabalhando?", a: b.who_working.length ? b.who_working.join(" · ") : "Ninguém ativo no momento", cls: b.who_working.length ? "ok" : "warn" },
     { q: "O que cada agente faz?", a: Object.entries(b.agent_tasks).map(([n, t]) => `${n}: ${t}`).join(" | ") || "Todos aguardando", cls: "ok" },
-    { q: "Tarefas pendentes?", a: b.pending_tasks.map((t) => `${t.id} → ${t.next}`).join(" · ") || "Nenhuma", cls: b.pending_count ? "warn" : "ok" },
+    { q: "Tarefas pendentes?", a: b.pending_tasks.map((t) => `${t.id}${t.phase === "planejando" ? " (planejando)" : ""} → ${t.next}`).join(" · ") || "Nenhuma", cls: b.pending_count ? "warn" : "ok" },
     { q: "Leads no CRM?", a: `${b.leads_total} lead(s) registrado(s)`, cls: "ok" },
     { q: "Caio respondeu?", a: b.caio_last_reply, cls: b.caio_last_reply.includes("Nenhuma") ? "warn" : "ok" },
     { q: "Teve erro?", a: b.had_error ? b.last_error : "Nenhum erro recente", cls: b.had_error ? "error" : "ok" },
@@ -98,10 +98,10 @@ function renderTasks(tasks) {
   const list = tasks?.length ? tasks : snapshot?.briefing?.pending_tasks || [];
   $("task-cards").innerHTML = list.length ? list.map((t) => `
     <div class="task-card">
-      <h4>${esc(t.id)} — ${esc(t.title || t.id)}</h4>
+      <h4>${esc(t.id)} — ${esc(t.title || t.id)} ${t.phase === "planejando" ? badge("planejando") : ""}</h4>
       <p><strong>Próxima:</strong> ${esc(t.proxima_acao || t.next || "—")}</p>
       ${t.bloqueio ? `<p><strong>Bloqueio:</strong> ${esc(t.bloqueio)}</p>` : ""}
-    </div>`).join("") : `<p class="empty">Nenhuma TASK em execução</p>`;
+    </div>`).join("") : `<p class="empty">Nenhuma TASK ativa</p>`;
 }
 
 function renderDelegations(rows) {
@@ -249,3 +249,4 @@ tickClock();
 setInterval(tickClock, 1000);
 refresh();
 setInterval(refresh, REFRESH_MS);
+window.refresh = refresh;

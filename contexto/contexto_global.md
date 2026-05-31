@@ -6,45 +6,44 @@ Todos os agentes leem este arquivo **antes** de executar tarefas relevantes. Ron
 
 ## Foco atual
 
-<!-- Uma frase: o que importa esta semana -->
-
-_Em definição — atualizar com o Vitor._
+VitorOS (PROJ-002) TASK-012 KPIs Macro + **protocolo Ronaldo**: toda TASK delegada, conferida, com aprendizado incorporado.
 
 ## Prioridades
 
 | # | Prioridade | Dono | Prazo | Status |
 |---|------------|------|-------|--------|
-| 1 | Consolidar infra operacional multiagente | Dev | — | em_andamento |
-| 2 | — | — | — | — |
+| 1 | VitorOS A1 — KPIs Macro (TASK-012) | Dev + Loide | esta semana | **executando** |
+| 2 | Skills Dev+Loide (TASK-022) | Dev + Loide | esta semana | **executando** — base pronta |
+| 3 | Consolidar infra Lab (TASK-003) | Dev / agentes | — | em_andamento |
 
 ## Restrições
 
 - **Orçamento / custo:** baixo — MVP, free tier quando possível
 - **Tempo:** evolução gradual, sem over-engineering
 - **Ferramentas:** Git, markdown no repo, backend Python/CrewAI
+- **Separação:** PROJ-002 (`vitoroliv.com` / `centralvitor`) **≠** PROJ-001 (`api.laboratorioagentes.com.br` / `Laboratorio`)
+- **Ronaldo:** delega, confere, aprende — [protocolo_delegacao_conferencia.md](../memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md)
+- **Fábrica:** Laboratório (agentes, skills, memória, UX) · **Produto:** repos deploy (`centralvitor`, etc.)
 
 ## Projetos em destaque
 
 Ver detalhes em `memoria/projetos.md`. IDs ativos:
 
 - `PROJ-001` — Laboratório multiagente
+- `PROJ-002` — VitorOS + Negão (`vitoroliv.com`)
 
 ## Decisões recentes (resumo)
 
 Ver `memoria/decisoes.md`. Última:
 
-- Estrutura operacional: `memoria/`, `contexto/`, `tasks/`, `logs/`, `workflows/` (2026-05-28)
-
-## Comunicação entre agentes
-
-- Pedidos amplos → **Ronaldo Maestro** primeiro.
-- Tarefas na fila → `tasks/backlog.md` → `executando.md` → `concluidas.md`.
-- Eventos relevantes → `logs/eventos.md`.
+- **Protocolo delegação + conferência + evolução** — 2026-05-31
+- **Ronaldo autonomia iniciar tasks** — 2026-05-31
+- Estrutura operacional — 2026-05-28
 
 ## Última atualização
 
 | Campo | Valor |
 |-------|-------|
-| Data | 2026-05-28 |
-| Atualizado por | Dev |
-| Resumo | Criação do contexto global inicial |
+| Data | 2026-05-31 |
+| Atualizado por | Ronaldo Maestro |
+| Resumo | Protocolo Ronaldo + TASK-012 KPIs Macro |

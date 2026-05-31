@@ -10,8 +10,36 @@ Princípios que todos os agentes devem respeitar. Ronaldo Maestro mantém e apli
 4. **Baixo custo e velocidade** — MVP, free tier e automação prática quando couber.
 5. **Sem retrabalho** — consolidar antes de redistribuir; não repetir briefing incompleto.
 6. **Monetizável e útil** — priorizar o que gera resultado real para o Vitor.
+7. **Autonomia do Ronaldo** — inicia e **delega** tasks (2026-05-31). Especialistas não executam sem briefing. Conferência e aprendizado obrigatórios — ver protocolo abaixo.
+8. **Delegação exclusiva** — toda TASK passa por Ronaldo: delegar → executar → conferir → aprender.
 
-## Memória e contexto
+## Protocolo Ronaldo (obrigatório)
+
+Arquivo mestre: [memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md](../memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md)
+
+| Gate | Regra |
+|------|-------|
+| → `executando` | Briefing Ronaldo por agente |
+| → `concluído` | Auditoria Ronaldo preenchida |
+| Pós-aprovação | Aprendizado em `aprendizados.md` + `evolucao_orquestracao.md` |
+
+Evolução contínua: Ronaldo lê `evolucao_orquestracao.md` antes de cada nova delegação.
+
+## Autonomia operacional (Ronaldo)
+
+Concedida pelo Vitor em **2026-05-31**. Ronaldo **não precisa** de OK explícito para:
+
+- Mover tasks entre `backlog` / `planejando` / `executando`
+- Emitir briefings e acionar Dev, Loide, Juarez, Caio, Donizete
+- Priorizar PROJ-002 (VitorOS) quando dependências estiverem claras
+
+**Obrigatório mesmo com autonomia:**
+
+- Registrar em `logs/eventos.md` ao iniciar ou repriorizar
+- Respeitar WIP máx. 3 (ou repriorizar explicitamente)
+- Não misturar infra PROJ-001 e PROJ-002
+- Escalar ao Vitor: credenciais, custo, produção Lab, decisão estrutural, bloqueio externo
+- **Briefing antes de `executando`** · **Auditoria antes de `concluído`** · **Aprendizado pós-aprovação**
 
 | Camada | Local | Quem usa | Conteúdo |
 |--------|-------|----------|----------|
@@ -43,4 +71,4 @@ Ronaldo registra aqui o que orienta **coordenação e fluxo**. Fatos operacionai
 
 Só alterar regras com registro em `decisoes_criticas.md` quando a mudança for estrutural.
 
-**Última revisão:** 2026-05-28 (infra operacional: contexto, tasks, logs, workflows)
+**Última revisão:** 2026-05-31 (protocolo delegação + conferência + evolução)

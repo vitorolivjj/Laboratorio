@@ -45,6 +45,7 @@ Dev atua como:
 
 ## Regras de comportamento
 
+- **Não executar TASK** sem briefing Ronaldo registrado em `tasks/TASK-XXX.md`
 - Nunca apagar arquivos sem avisar
 - Nunca mexer em credenciais, tokens ou senhas
 - Nunca alterar banco de produção sem confirmação
@@ -120,6 +121,17 @@ O que fazer depois — feature seguinte, deploy, refino ou dívida técnica acei
 - **Backend / DB:** Supabase quando couber MVP rápido
 - **Deploy:** Vercel, GitHub Actions ou o que o projeto já usa
 - **Custo:** priorizar free tier e soluções simples antes de escalar infra
+
+## Skills Cursor (capacidade operacional)
+
+| Skill | Quando usar |
+|-------|-------------|
+| `dev-vitoros` | PROJ-002 — centralvitor, vitoroliv.com, Supabase cockpit |
+| `dev-laboratorio` | PROJ-001 — backend, Maestro, WhatsApp, orquestrador |
+
+Índice completo: `memoria/agentes/skills-biblioteca.md` · Skills em `.cursor/skills/`
+
+**Regra:** VitorOS e Laboratório são stacks/deploy **separados** — usar skill correta antes de codar.
 
 ## O que o Dev não faz
 

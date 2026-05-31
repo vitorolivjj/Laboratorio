@@ -12,25 +12,29 @@ Fluxo contínuo do ecossistema multiagente: do objetivo do Vitor até registro, 
 
 ```mermaid
 flowchart TD
-  A[Entrada de objetivos] --> B[Leitura de contexto]
+  A[Entrada de objetivos] --> B[Leitura de contexto + evolução]
   B --> C[Consulta de memória]
-  C --> D[Delegação]
-  D --> E[Juarez / Dev / Caio executam]
-  E --> F[CONSOLIDAÇÃO FINAL]
-  F --> G[PRIORIZAÇÃO EXECUTIVA]
-  G --> H[Registro]
-  H --> I[Acompanhamento]
-  I --> A
+  C --> D[Delegação — briefing obrigatório]
+  D --> E[Especialistas executam]
+  E --> F[Conferência — auditoria Ronaldo]
+  F --> G[Aprendizado — memória + evolução]
+  G --> H[CONSOLIDAÇÃO FINAL]
+  H --> I[PRIORIZAÇÃO EXECUTIVA]
+  I --> J[Registro]
+  J --> K[Acompanhamento]
+  K --> A
 ```
 
 | Etapa | Responsável | Ação | Onde |
 |-------|-------------|------|------|
 | **Entrada de objetivos** | Vitor | Define pedido, meta ou problema | Conversa, `tasks/backlog.md`, `./run.sh orquestrar "..."` |
 | **Leitura de contexto** | Ronaldo | Lê foco e restrições atuais | `contexto/contexto_global.md` |
-| **Consulta de memória** | Ronaldo | Decisões, projetos, aprendizados | `memoria/*.md`, `memoria/ronaldo_maestro/` |
-| **Delegação** | Ronaldo | Briefing e ordem dos especialistas | `tasks/planejando.md` → `executando.md` |
-| **Execução** | Juarez, Dev, Caio | Análises de domínio | Saída do crew / conversa |
-| **CONSOLIDAÇÃO FINAL** | Ronaldo | Comparar, decidir divergências, plano único | Etapa 1 do Ronaldo — ver abaixo |
+| **Consulta de memória** | Ronaldo | Decisões, projetos, aprendizados, **evolução orquestração** | `memoria/*.md`, `memoria/ronaldo_maestro/evolucao_orquestracao.md` |
+| **Delegação** | Ronaldo | Briefing por agente — **gate para `executando`** | `TASK-XXX.md` § Briefings, `tasks/planejando.md` |
+| **Execução** | Especialistas | Somente escopo do briefing | `TASK-XXX.md` § Registros |
+| **Conferência** | Ronaldo | Auditoria vs critérios — **gate para `concluído`** | `TASK-XXX.md` § Auditoria do Ronaldo |
+| **Aprendizado** | Ronaldo | Incorporar lições nos próximos briefings | `aprendizados.md`, `evolucao_orquestracao.md` |
+| **CONSOLIDAÇÃO FINAL** | Ronaldo | Multiagente — comparar, decidir | Etapa 1 do Ronaldo |
 | **PRIORIZAÇÃO EXECUTIVA** | Ronaldo | Top 3, decisão de hoje, TASK, KPI | Etapa 2 do Ronaldo — saída final |
 | **Registro** | Ronaldo | Histórico + evento | `historico_de_orquestracao.md`, `logs/eventos.md` |
 | **Acompanhamento** | Vitor / Ronaldo | Executar próximo passo 24h | `tasks/` |
@@ -98,14 +102,16 @@ backlog → planejando → executando → concluído → arquivado
 
 ### Quando mover tarefas
 
-| Momento | De → Para |
-|---------|-----------|
-| Objetivo aceito, vai planejar | backlog → planejando |
-| Plano pronto, agente começou | planejando → executando |
-| Falta input do Vitor ou dependência | executando → aguardando |
-| Desbloqueou | aguardando → executando |
-| Critério de pronto OK | executando → concluidas |
-| Histórico antigo, sem ação | concluidas → arquivado (opcional, mensal) |
+| Momento | De → Para | Quem decide |
+|---------|-----------|-------------|
+| Objetivo aceito, vai planejar | backlog → planejando | Ronaldo (autonomia Vitor 2026-05-31) |
+| Plano pronto, agente começou | planejando → executando | **Ronaldo — sem OK prévio do Vitor** |
+| Falta input do Vitor ou dependência | executando → aguardando | Ronaldo ou agente |
+| Desbloqueou | aguardando → executando | Ronaldo |
+| Critério de pronto OK | executando → concluidas | **Ronaldo audita → preenche § Auditoria → aprendizado** |
+| Histórico antigo, sem ação | concluidas → arquivado (opcional, mensal) | Ronaldo |
+
+**Autonomia (2026-05-31):** Ronaldo inicia tasks quando julgar o momento — registrar em `logs/eventos.md`. WIP máx. 3: se abrir 4ª, repriorizar explicitamente (mover menor impacto para `aguardando`).
 
 ### Quando gerar relatório
 
@@ -211,18 +217,19 @@ Template rápido (aprendizado):
 
 ## Checklist — Ronaldo em cada ciclo
 
-- [ ] Li `contexto/contexto_global.md`
-- [ ] Consultei `memoria/decisoes.md` e `projetos.md` (e estratégico se necessário)
+- [ ] Li `contexto/contexto_global.md` e `evolucao_orquestracao.md`
+- [ ] Consultei `memoria/decisoes.md` e `projetos.md`
 - [ ] Priorizei / criei `TASK-XXX`
-- [ ] Deleguei ao agente certo com briefing completo
-- [ ] CONSOLIDAÇÃO FINAL: convergências, decisões, plano único
-- [ ] PRIORIZAÇÃO EXECUTIVA: top 3, decisão de hoje, TASK, KPI
-- [ ] Nenhuma frase pedindo entregas já feitas
+- [ ] **Deleguei** — briefing por agente registrado (gate `executando`)
+- [ ] Especialistas executaram dentro do briefing
+- [ ] **Conferi** — § Auditoria preenchida (gate `concluído`)
+- [ ] **Aprendizado** em `aprendizados.md` + `evolucao_orquestracao.md`
+- [ ] CONSOLIDAÇÃO FINAL (se multiagente)
+- [ ] PRIORIZAÇÃO EXECUTIVA
 - [ ] Registrei em `historico_de_orquestracao.md` + `logs/eventos.md`
-- [ ] Atualizei status da tarefa nos arquivos corretos
-- [ ] Aprendizado ou decisão registrado se relevante
-- [ ] Próximo passo claro para o Vitor
+- [ ] Kanban atualizado no arquivo correto
+- [ ] Próximo passo claro
 
 ---
 
-**Última revisão:** 2026-05-28
+**Última revisão:** 2026-05-31 (protocolo delegação + conferência + evolução)
