@@ -19,6 +19,14 @@ Histórico de tarefas **finalizadas** (mais recentes no topo).
 
 ## Concluídas
 
+### TASK-008 — Painel Maestro v1
+
+- **Concluída em:** 2026-05-31
+- **Agente:** dev
+- **Projeto:** PROJ-001
+- **Resultado:** Dashboard operacional dark/neon · API snapshot · 6 seções · deploy VPS `/painel/`
+- **Aprendizado:** Agregar markdown existente evita duplicar CRM/tasks em banco
+
 ### TASK-007 — Conectar Caio ao WhatsApp
 
 - **Concluída em:** 2026-05-31

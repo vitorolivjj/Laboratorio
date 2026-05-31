@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Maestro — Laboratório de Agentes IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <svg class="flask" viewBox="0 0 34 42" aria-hidden="true"><path d="M14 2h6v12l11 18a4 4 0 01-3.4 6H6.4A4 4 0 013 32L14 14V2z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="30" r="3" fill="#4F9CFF" opacity=".8"/></svg>
+        <div>
+          <strong>Painel Maestro</strong>
+          <span>Laboratório de Agentes IA</span>
+        </div>
+      </div>
+      <div class="topbar-meta">
+        <span id="clock">—</span>
+        <button type="button" id="btn-refresh" class="btn">Atualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <section class="section" id="sec-overview">
+      <h2>Visão Geral</h2>
+      <div class="grid overview-grid" id="overview-grid"></div>
+    </section>
+
+    <section class="section" id="sec-agents">
+      <h2>Agentes</h2>
+      <div class="grid agents-grid" id="agents-grid"></div>
+    </section>
+
+    <section class="section" id="sec-delegations">
+      <h2>Delegações</h2>
+      <div class="table-wrap">
+        <table id="delegations-table">
+          <thead>
+            <tr>
+              <th>De</th>
+              <th>Para</th>
+              <th>Tarefa</th>
+              <th>Status</th>
+              <th>Prioridade</th>
+              <th>Próximo passo</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="sec-whatsapp">
+      <h2>Conversas WhatsApp</h2>
+      <div class="table-wrap">
+        <table id="whatsapp-table">
+          <thead>
+            <tr>
+              <th>Telefone</th>
+              <th>Última mensagem</th>
+              <th>Resposta Caio</th>
+              <th>Horário</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="sec-leads">
+      <h2>Leads</h2>
+      <div class="table-wrap">
+        <table id="leads-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Origem</th>
+              <th>Score</th>
+              <th>Etapa</th>
+              <th>Responsável</th>
+              <th>Próxima ação</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="sec-logs">
+      <h2>Logs</h2>
+      <div class="logs-grid">
+        <div class="panel">
+          <h3>Eventos recentes</h3>
+          <ul id="log-events" class="log-list"></ul>
+        </div>
+        <div class="panel">
+          <h3>Erros</h3>
+          <ul id="log-errors" class="log-list"></ul>
+        </div>
+        <div class="panel">
+          <h3>Decisões</h3>
+          <ul id="log-decisions" class="log-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span id="footer-meta">Carregando…</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

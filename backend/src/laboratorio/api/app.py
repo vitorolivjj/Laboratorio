@@ -9,8 +9,10 @@ import os
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request, Response
+from fastapi.staticfiles import StaticFiles
 
-from laboratorio.config import load_env
+from laboratorio.api.routes.maestro import router as maestro_router
+from laboratorio.config import REPO_ROOT, load_env
 from laboratorio.whatsapp.handler import process_inbound_message
 from laboratorio.whatsapp.parser import InboundMessage, extract_text_messages
 
@@ -19,10 +21,16 @@ load_env()
 logger = logging.getLogger("laboratorio.api")
 
 app = FastAPI(
-    title="Laboratório — WhatsApp Caio",
-    description="Webhook WhatsApp Business → Caio → WhatsApp (TASK-007)",
-    version="0.1.0",
+    title="Laboratório — API",
+    description="WhatsApp Caio + Painel Maestro (TASK-007/008)",
+    version="0.2.0",
 )
+
+app.include_router(maestro_router)
+
+PAINEL_DIR = REPO_ROOT / "frontend" / "painel-maestro"
+if PAINEL_DIR.is_dir():
+    app.mount("/painel", StaticFiles(directory=str(PAINEL_DIR), html=True), name="painel")
 
 
 @app.get("/health")

@@ -25,6 +25,11 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-05-31 — [marco] TASK-008 — Painel Maestro v1 em produção
+- **Agente(s):** dev, vitor
+- **Detalhe:** Dashboard operacional · `/api/maestro/snapshot` · `/painel/` · 6 seções · VPS
+- **Ref:** TASK-008, frontend/painel-maestro/
+
 ### 2026-05-31 — [marco] TASK-007 concluída — Caio respondeu humano no WhatsApp
 - **Agente(s):** caio_manteiga, dev, vitor
 - **Detalhe:** Produção VPS Hetzner · `api.laboratorioagentes.com.br` · webhook Meta · modelo `claude-sonnet-4-6` · critério de aceite ok
