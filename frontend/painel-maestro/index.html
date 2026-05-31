@@ -4,119 +4,167 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Maestro — Laboratório de Agentes IA</title>
+  <meta name="theme-color" content="#070B16">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand">
-        <svg class="flask" viewBox="0 0 34 42" aria-hidden="true"><path d="M14 2h6v12l11 18a4 4 0 01-3.4 6H6.4A4 4 0 013 32L14 14V2z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="30" r="3" fill="#4F9CFF" opacity=".8"/></svg>
-        <div>
-          <strong>Painel Maestro</strong>
-          <span>Laboratório de Agentes IA</span>
-        </div>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#top">
+      <svg class="flask" viewBox="0 0 40 50" fill="none" aria-hidden="true">
+        <path d="M15 4h10M16.5 4v13L6 38a5 5 0 0 0 4.4 7.4h19.2A5 5 0 0 0 34 38L23.5 17V4" stroke="#4F9CFF" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="16" cy="30" r="1.7" fill="#4F9CFF"/><circle cx="23" cy="34" r="2.1" fill="#4F9CFF"/>
+      </svg>
+      <div>
+        <div class="brand-l1">PAINEL</div>
+        <div class="brand-l2">MAESTRO</div>
       </div>
-      <div class="topbar-meta">
-        <span id="clock">—</span>
-        <button type="button" id="btn-refresh" class="btn">Atualizar</button>
-      </div>
+    </a>
+
+    <nav class="side-nav" aria-label="Seções">
+      <a href="#briefing" class="nav-item active" data-section="briefing">Command Center</a>
+      <a href="#agentes" class="nav-item" data-section="agentes">Agentes</a>
+      <a href="#operacoes" class="nav-item" data-section="operacoes">Operações</a>
+      <a href="#whatsapp" class="nav-item" data-section="whatsapp">WhatsApp</a>
+      <a href="#leads" class="nav-item" data-section="leads">Leads</a>
+      <a href="#logs" class="nav-item" data-section="logs">Logs</a>
+    </nav>
+
+    <div class="side-status" id="side-status">
+      <div class="pulse"></div>
+      <span>Carregando…</span>
     </div>
-  </header>
+  </aside>
 
-  <main class="wrap main">
-    <section class="section" id="sec-overview">
-      <h2>Visão Geral</h2>
-      <div class="grid overview-grid" id="overview-grid"></div>
-    </section>
-
-    <section class="section" id="sec-agents">
-      <h2>Agentes</h2>
-      <div class="grid agents-grid" id="agents-grid"></div>
-    </section>
-
-    <section class="section" id="sec-delegations">
-      <h2>Delegações</h2>
-      <div class="table-wrap">
-        <table id="delegations-table">
-          <thead>
-            <tr>
-              <th>De</th>
-              <th>Para</th>
-              <th>Tarefa</th>
-              <th>Status</th>
-              <th>Prioridade</th>
-              <th>Próximo passo</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+  <div class="main-wrap">
+    <header class="topbar">
+      <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+      <div class="topbar-title">
+        <h1 id="page-title">Command Center</h1>
+        <p id="page-sub">Visão operacional em 30 segundos</p>
       </div>
-    </section>
-
-    <section class="section" id="sec-whatsapp">
-      <h2>Conversas WhatsApp</h2>
-      <div class="table-wrap">
-        <table id="whatsapp-table">
-          <thead>
-            <tr>
-              <th>Telefone</th>
-              <th>Última mensagem</th>
-              <th>Resposta Caio</th>
-              <th>Horário</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div class="topbar-actions">
+        <span class="clock" id="clock">—</span>
+        <button type="button" class="btn" id="btn-refresh">
+          <span class="btn-icon">↻</span> Atualizar
+        </button>
       </div>
-    </section>
+    </header>
 
-    <section class="section" id="sec-leads">
-      <h2>Leads</h2>
-      <div class="table-wrap">
-        <table id="leads-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Origem</th>
-              <th>Score</th>
-              <th>Etapa</th>
-              <th>Responsável</th>
-              <th>Próxima ação</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+    <main class="content" id="top">
 
-    <section class="section" id="sec-logs">
-      <h2>Logs</h2>
-      <div class="logs-grid">
-        <div class="panel">
-          <h3>Eventos recentes</h3>
-          <ul id="log-events" class="log-list"></ul>
+      <!-- BRIEFING / 30s answers -->
+      <section class="panel-section" id="briefing">
+        <div class="hero-card" id="hero-card">
+          <div class="hero-left">
+            <span class="eyebrow"><span class="dot"></span> Laboratório de Agentes IA</span>
+            <h2 id="hero-headline">—</h2>
+            <p id="hero-sub">Aguardando dados…</p>
+          </div>
+          <div class="hero-metrics" id="hero-metrics"></div>
         </div>
-        <div class="panel">
-          <h3>Erros</h3>
-          <ul id="log-errors" class="log-list"></ul>
-        </div>
-        <div class="panel">
-          <h3>Decisões</h3>
-          <ul id="log-decisions" class="log-list"></ul>
-        </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <span id="footer-meta">Carregando…</span>
-    </div>
-  </footer>
+        <div class="qa-grid" id="qa-grid"></div>
+
+        <div class="kanban-row" id="kanban-row"></div>
+      </section>
+
+      <!-- AGENTES -->
+      <section class="panel-section" id="agentes">
+        <div class="section-head">
+          <h2>Time de Agentes</h2>
+          <p>Status, modelo e tarefa atual</p>
+        </div>
+        <div class="agents-grid" id="agents-grid"></div>
+      </section>
+
+      <!-- OPERAÇÕES -->
+      <section class="panel-section" id="operacoes">
+        <div class="split-2">
+          <div>
+            <div class="section-head">
+              <h2>Tarefas em andamento</h2>
+              <p>WIP · máx. 3</p>
+            </div>
+            <div class="task-cards" id="task-cards"></div>
+          </div>
+          <div>
+            <div class="section-head">
+              <h2>Delegações</h2>
+              <p>Ronaldo → especialistas</p>
+            </div>
+            <div class="delegation-list" id="delegation-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WHATSAPP -->
+      <section class="panel-section" id="whatsapp">
+        <div class="section-head">
+          <h2>Conversas WhatsApp</h2>
+          <p>Caio em produção · agrupado por contato</p>
+        </div>
+        <div class="wa-layout">
+          <div class="wa-threads" id="wa-threads"></div>
+          <div class="wa-detail panel" id="wa-detail">
+            <p class="empty">Selecione uma conversa</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEADS -->
+      <section class="panel-section" id="leads">
+        <div class="section-head">
+          <h2>CRM — Leads</h2>
+          <p>Pipeline comercial</p>
+        </div>
+        <div class="table-wrap">
+          <table id="leads-table">
+            <thead>
+              <tr>
+                <th>Lead</th>
+                <th>Origem</th>
+                <th>Score</th>
+                <th>Etapa</th>
+                <th>Resp.</th>
+                <th>Próxima ação</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- LOGS -->
+      <section class="panel-section" id="logs">
+        <div class="section-head">
+          <h2>Logs &amp; Decisões</h2>
+        </div>
+        <div class="logs-grid">
+          <div class="panel">
+            <h3>Eventos</h3>
+            <ul class="feed" id="log-events"></ul>
+          </div>
+          <div class="panel panel-alert">
+            <h3>Erros &amp; Alertas</h3>
+            <ul class="feed" id="log-errors"></ul>
+          </div>
+          <div class="panel">
+            <h3>Decisões</h3>
+            <ul class="feed" id="log-decisions"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span id="footer-meta">—</span>
+    </footer>
+  </div>
 
   <script src="app.js"></script>
 </body>

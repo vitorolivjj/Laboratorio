@@ -247,6 +247,50 @@ def _normalize_agent_id(label: str) -> str:
     return label_l.replace(" ", "_")
 
 
+def count_kanban(tasks_dir: Path) -> dict[str, list[str]]:
+    return {
+        "executando": parsers_count(tasks_dir / "executando.md", "## Em andamento"),
+        "planejando": parsers_count(tasks_dir / "planejando.md", "## Em planejamento"),
+        "aguardando": parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas"),
+        "backlog": parsers_count(tasks_dir / "backlog.md", "## Fila"),
+        "concluidas": parsers_count(tasks_dir / "concluidas.md", "## Concluídas"),
+    }
+
+
+def parsers_count(path: Path, section: str) -> list[str]:
+    content = read_text(path)
+    if not content:
+        return []
+    match = re.search(
+        rf"{re.escape(section)}\s*\n(.*?)(?:\n## |\n---|\Z)",
+        content,
+        re.DOTALL,
+    )
+    block = match.group(1) if match else content
+    return re.findall(r"^### (TASK-\d+)", block, re.MULTILINE)
+
+
+def group_whatsapp_threads(entries: list[dict]) -> list[dict]:
+    """Agrupa mensagens por telefone — thread mais recente primeiro."""
+    threads: dict[str, dict] = {}
+    for entry in entries:
+        phone = entry["phone"]
+        if phone not in threads:
+            threads[phone] = {
+                "phone": phone,
+                "last_inbound": entry["inbound"],
+                "last_outbound": entry["outbound"],
+                "datetime": entry["datetime"],
+                "status": entry["status"],
+                "message_count": 1,
+                "messages": [entry],
+            }
+        else:
+            threads[phone]["message_count"] += 1
+            threads[phone]["messages"].append(entry)
+    return sorted(threads.values(), key=lambda t: t["datetime"], reverse=True)
+
+
 def count_today(items: list[dict], date_key: str = "datetime") -> int:
     today = date.today().isoformat()
     count = 0

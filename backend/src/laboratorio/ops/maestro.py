@@ -13,47 +13,56 @@ from laboratorio.ops import parsers
 
 CRM_LEADS = REPO_ROOT / "crm" / "leads.md"
 
+AGENT_AVATARS: dict[str, str] = {
+    "ronaldo_maestro": "ronaldo-maestro.png",
+    "caio_manteiga": "caio-manteiga.png",
+    "donizete_social": "donizete.png",
+    "dev": "dev.png",
+    "juarez": "juarez.png",
+    "loide": "loide.png",
+}
+
 AGENT_CATALOG: list[dict[str, str]] = [
     {
         "id": "ronaldo_maestro",
         "name": "Ronaldo",
-        "role": "Orquestrador estratégico",
-        "function": "Coordena agentes, prioriza e consolida entregas",
+        "role": "Maestro",
+        "function": "Estratégia, visão e arquitetura do laboratório",
         "has_backend": "true",
     },
     {
         "id": "caio_manteiga",
         "name": "Caio",
         "role": "Comercial",
-        "function": "Conversão WhatsApp e funis de venda",
+        "function": "Abordagem inteligente, relacionamento e conversão",
         "has_backend": "true",
     },
     {
         "id": "donizete_social",
         "name": "Donizete",
-        "role": "Captação",
-        "function": "Captura e qualifica leads orgânicos",
+        "role": "Captura",
+        "function": "Executor social, captação e qualificação de leads",
         "has_backend": "true",
     },
     {
         "id": "dev",
         "name": "Dev",
         "role": "Desenvolvimento",
-        "function": "Sistemas, backend e automações",
+        "function": "Código, integrações e IA aplicada ao negócio",
         "has_backend": "true",
     },
     {
         "id": "juarez",
         "name": "Juarez",
-        "role": "Operações",
-        "function": "KPIs, processos e produtividade",
+        "role": "Backoffice",
+        "function": "Suporte, dados e execução operacional",
         "has_backend": "true",
     },
     {
         "id": "loide",
         "name": "Loide",
-        "role": "UX / Operações",
-        "function": "Experiência, fluxos e governança de interface",
+        "role": "Operações",
+        "function": "Processos, organização e governança do laboratório",
         "has_backend": "false",
     },
 ]
@@ -74,6 +83,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
     active_ids = [t["id"] for t in executando]
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
+    kanban = parsers.count_kanban(TASKS_DIR)
+    wa_threads = parsers.group_whatsapp_threads(wa_log)
 
     messages_today = parsers.count_today(wa_log)
     leads_today = sum(1 for l in leads if l.get("captura", "").startswith(datetime.now(timezone.utc).strftime("%Y-%m-%d")))
@@ -84,12 +95,14 @@ def build_maestro_snapshot() -> dict[str, Any]:
 
     agents = _build_agents(executando, events, wa_log, active_ids)
     estimated_cost = round(messages_today * 0.012 + len(executando) * 0.05, 3)
+    briefing = _build_briefing(agents, executando, wa_log, leads, last_error, vps_online, wa_online)
 
     errors = [e for e in events if e["type"] == "erro"]
     alerts = [e for e in events if e["type"] in ("erro", "marco")][:5]
 
     return {
         "generated_at": now,
+        "briefing": briefing,
         "overview": {
             "system_online": True,
             "vps_online": vps_online,
@@ -105,7 +118,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
         "agents": agents,
         "delegations": delegations,
         "conversations": wa_log,
+        "whatsapp_threads": wa_threads,
         "leads": leads,
+        "kanban": {k: {"count": len(v), "tasks": v} for k, v in kanban.items()},
         "logs": {
             "events": events,
             "errors": errors[:10],
@@ -190,9 +205,48 @@ def _build_agents(
                 "current_task": current_task,
                 "last_action": last_action,
                 "last_update": last_update,
+                "avatar": AGENT_AVATARS.get(aid, ""),
             }
         )
     return result
+
+
+def _build_briefing(
+    agents: list[dict],
+    executando: list[dict],
+    wa_log: list[dict],
+    leads: list[dict],
+    last_error: str,
+    vps_online: bool,
+    wa_online: bool,
+) -> dict[str, Any]:
+    working = [a["name"] for a in agents if a["status"] in ("executando", "ativo")]
+    idle = [a["name"] for a in agents if a["status"] == "aguardando"]
+    errored = [a["name"] for a in agents if a["status"] == "erro"]
+
+    all_online = vps_online and wa_online
+    return {
+        "headline": "Operação normal" if all_online and not errored else "Atenção necessária",
+        "system_online": all_online,
+        "who_working": working,
+        "who_idle": idle,
+        "who_error": errored,
+        "agent_tasks": {
+            a["name"]: a["current_task"]
+            for a in agents
+            if a["status"] in ("executando", "ativo")
+        },
+        "pending_count": len(executando),
+        "pending_tasks": [
+            {"id": t["id"], "title": t["title"], "next": t.get("proxima_acao", "—")}
+            for t in executando
+        ],
+        "leads_total": len(leads),
+        "caio_last_reply": wa_log[0]["outbound"][:160] if wa_log else "Nenhuma conversa ainda",
+        "caio_last_phone": wa_log[0]["phone"] if wa_log else "—",
+        "had_error": last_error != "Nenhum erro recente",
+        "last_error": last_error,
+    }
 
 
 def re_split_agents(text: str) -> list[str]:
