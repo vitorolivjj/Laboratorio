@@ -8,14 +8,14 @@ Visão centralizada da operação do Laboratório multiagente.
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
-**Última atualização automática:** 2026-05-30 (GitHub Actions)
+**Última atualização automática:** 2026-05-31 (GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-05-30 21:39 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-05-31 01:48 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
@@ -36,7 +36,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | `planejando` | 0 | — |
 | `aguardando` | 0 | — |
 | `backlog` | 1 | TASK-004 |
-| `concluído` (kanban) | 4 | TASK-006, TASK-005, TASK-003, TASK-000 |
+| `concluído` (kanban) | 5 | TASK-007, TASK-006, TASK-005, TASK-003, TASK-000 |
 
 ### TASKs (arquivos persistentes)
 
@@ -48,6 +48,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | [TASK-005-relatorio-modelos](../tasks/TASK-005-relatorio-modelos.md) | `desconhecido` | 0/0 | — |
 | [TASK-005](../tasks/TASK-005.md) | `concluido` | 6/6 | 100% |
 | [TASK-006](../tasks/TASK-006.md) | `concluido` | 6/6 | 100% |
+| [TASK-007](../tasks/TASK-007.md) | `concluido` | 7/7 | 100% |
 
 ### Funil CRM
 
