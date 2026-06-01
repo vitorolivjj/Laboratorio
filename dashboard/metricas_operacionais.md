@@ -15,13 +15,13 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-01 17:37 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-06-01 19:43 UTC** · script `scripts/update_dashboard_snapshot.py`
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução (WIP) | 3 / 3 |
+| TASKs em execução (WIP) | 0 / 3 |
 | TASKs em planejamento | 0 |
 | Entregáveis (TASKs `executando`) | 4 / 5 |
 | Total leads CRM | 0 |
@@ -33,10 +33,10 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | TASKs |
 |--------|-----|-------|
-| `executando` | 3 | TASK-003, TASK-012, TASK-022 |
+| `executando` | 0 | — |
 | `planejando` | 0 | — |
 | `aguardando` | 0 | — |
-| `backlog` | 11 | TASK-012, TASK-013, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-004 |
+| `backlog` | 0 | — |
 | `concluído` (kanban) | 8 | TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-003, TASK-000 |
 | `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
 
