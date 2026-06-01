@@ -196,6 +196,26 @@ git -C /opt/laboratorio-src pull
 
 ---
 
+## Deploy automático (GitHub Actions)
+
+O workflow `.github/workflows/deploy-vps.yml` faz o deploy sozinho a cada push
+na `main` (e via botão **Run workflow**). Ele conecta na VPS por SSH e roda o
+`deploy-app.sh`.
+
+Secrets necessários (Settings → Secrets and variables → Actions):
+
+| Secret | Valor |
+|--------|-------|
+| `VPS_HOST` | IP da VPS (ex.: `5.78.232.71`) |
+| `VPS_USER` | `root` |
+| `VPS_SSH_KEY` | chave **privada** SEM passphrase, cuja pública está no `authorized_keys` do servidor |
+| `VPS_PORT` | opcional, se o SSH não for porta 22 |
+
+Dica: gere uma chave dedicada sem senha — `ssh-keygen -t ed25519 -f ~/.ssh/lab_deploy -N ""` —
+e instale a pública com `ssh-copy-id -i ~/.ssh/lab_deploy.pub root@IP_DA_VPS`.
+
+---
+
 ## Comandos úteis
 
 ```bash
