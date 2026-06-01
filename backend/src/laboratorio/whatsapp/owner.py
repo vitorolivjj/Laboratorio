@@ -99,7 +99,15 @@ def _act_as_ronaldo(text: str) -> str:
 
 
 def generate_owner_reply(text: str) -> str:
-    """Resposta do Ronaldo ao dono: consulta status OU executa ação com ferramentas."""
+    """Resposta do Ronaldo ao dono: aprovação pendente, consulta status OU ação."""
+    # 1º: o dono está aprovando/recusando um pedido pendente? (human-in-the-loop)
+    from laboratorio.ops.approvals import try_resolve_from_text
+
+    resolved = try_resolve_from_text(text)
+    if resolved is not None:
+        logger.info("Modo dono [aprovação]: '%s'", text[:50])
+        return resolved
+
     if _is_action(text):
         try:
             reply = _act_as_ronaldo(text)

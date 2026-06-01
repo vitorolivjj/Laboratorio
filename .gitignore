@@ -20,3 +20,5 @@ social_executor/data/*.json
 logs/agent_interactions.jsonl
 backend/data/autopilot_state.json
 backend/data/usage.jsonl
+backend/data/approvals.json
+backend/data/wa_processed_ids.json
