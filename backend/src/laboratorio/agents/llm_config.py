@@ -150,6 +150,17 @@ def _api_key_for_provider(provider: str) -> str | None:
     return os.getenv(env_name)
 
 
+def _llm_timeout() -> float:
+    """Timeout (s) por chamada de LLM — teto contra travamento, não alvo.
+
+    Folgado para modelos fortes (gpt-5/opus) concluírem; ajuste fino depois.
+    """
+    try:
+        return float(os.getenv("LLM_TIMEOUT", "300"))
+    except ValueError:
+        return 300.0
+
+
 def build_llm_for_agent(agent_id: str, *, log: bool = True, tier: str | None = None) -> LLM:
     """Instancia CrewAI LLM conforme config do agente (com tier de custo opcional)."""
     cfg = resolve_agent_llm_config(agent_id, tier=tier)
@@ -167,7 +178,7 @@ def build_llm_for_agent(agent_id: str, *, log: bool = True, tier: str | None = N
     if log:
         log_agent_llm_config(cfg)
 
-    return LLM(model=cfg.litellm_model, api_key=api_key)
+    return LLM(model=cfg.litellm_model, api_key=api_key, timeout=_llm_timeout())
 
 
 def log_agent_llm_config(cfg: AgentLLMConfig) -> None:

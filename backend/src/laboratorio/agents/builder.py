@@ -1,10 +1,36 @@
 """Constrói Agent do CrewAI a partir das definições em markdown."""
 
+import os
+
 from crewai import Agent
 
 from laboratorio.agents.llm_config import build_llm_for_agent
 from laboratorio.agents.loader import load_agent_prompt
 from laboratorio.tools.registry import tools_for
+
+
+def _int_env(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+
+
+# Tetos de segurança (não alvos): impedem travamento eterno, mas altos o
+# suficiente para a orquestração hierárquica concluir. Custos/limites finos são
+# regulados depois por estas mesmas variáveis de ambiente.
+def _agent_max_iter() -> int:
+    return _int_env("AGENT_MAX_ITER", 25)
+
+
+def _agent_max_exec_seconds() -> int:
+    return _int_env("AGENT_MAX_EXECUTION_TIME", 600)
+
+
+def _agent_max_rpm() -> int | None:
+    if not os.getenv("AGENT_MAX_RPM"):
+        return None
+    return _int_env("AGENT_MAX_RPM", 0) or None
 
 # Metadados mínimos por agente (role/goal); backstory vem do .md
 _AGENT_META: dict[str, dict[str, str]] = {
@@ -70,4 +96,7 @@ def build_agent(
         verbose=verbose,
         allow_delegation=allow_delegation,
         tools=tools,
+        max_iter=_agent_max_iter(),
+        max_execution_time=_agent_max_exec_seconds(),
+        max_rpm=_agent_max_rpm(),
     )

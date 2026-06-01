@@ -1,7 +1,7 @@
 const API_BASE = window.location.origin.includes("localhost")
   ? "http://127.0.0.1:8000"
   : window.location.origin;
-const REFRESH_MS = 30_000;
+const REFRESH_MS = 10_000;
 const ASSET_BASE = window.location.pathname.includes("/painel")
   ? window.location.pathname.replace(/\/?index\.html$/, "").replace(/\/?$/, "") + "/"
   : "/painel/";
@@ -170,6 +170,41 @@ function renderLeads(rows) {
     </tr>`).join("");
 }
 
+function renderUsage(u) {
+  const bar = $("cost-bar");
+  if (!bar) return;
+  if (!u) { bar.innerHTML = ""; return; }
+  const auto = (u.by_source && u.by_source.autopilot) || { cost_usd: 0, tokens: 0, calls: 0 };
+  const fmt = (n) => `$${Number(n || 0).toFixed(4)}`;
+  const pills = [
+    { lbl: "Autopilot total", val: fmt(auto.cost_usd), sub: `${auto.calls || 0} ciclo(s) · ${(auto.tokens || 0).toLocaleString("pt-BR")} tok` },
+    { lbl: "Hoje (todos)", val: fmt(u.today_cost_usd), sub: `${(u.today_tokens || 0).toLocaleString("pt-BR")} tok` },
+    { lbl: "Acumulado", val: fmt(u.total_cost_usd), sub: `${(u.total_tokens || 0).toLocaleString("pt-BR")} tok` },
+  ];
+  bar.innerHTML = pills.map((p) => `
+    <div class="cost-pill">
+      <span class="cost-val">${esc(p.val)}</span>
+      <span class="cost-lbl">${esc(p.lbl)}</span>
+      <span class="cost-sub">${esc(p.sub)}</span>
+    </div>`).join("");
+}
+
+function renderInteractions(rows) {
+  const list = rows || [];
+  const kindLabel = { step: "raciocínio", tool: "ferramenta", task: "entrega", autopilot: "autopilot", error: "erro" };
+  $("interaction-feed").innerHTML = list.length ? list.map((it) => {
+    const k = (it.kind || "step").toLowerCase();
+    const tag = kindLabel[k] || k;
+    const tool = it.tool ? ` · 🔧 ${esc(it.tool)}` : "";
+    return `<li class="interaction ${esc(k)}">
+      <strong>${esc(it.agent || "—")}</strong>
+      <span class="interaction-kind">${esc(tag)}</span>${tool}
+      <div class="interaction-detail">${esc(it.detail || "—")}</div>
+      <small>${esc(it.at || "")}${it.context ? " · " + esc(it.context) : ""}</small>
+    </li>`;
+  }).join("") : `<li class="empty">Nenhuma interação registrada ainda — rode o orquestrador ou ligue o autopilot</li>`;
+}
+
 function renderLogs(logs) {
   const ev = logs.events || [];
   $("log-events").innerHTML = ev.slice(0, 12).map((e) =>
@@ -187,7 +222,11 @@ function renderLogs(logs) {
 }
 
 async function loadSnapshot() {
-  const res = await fetch(`${API_BASE}/api/maestro/snapshot`);
+  // cache-busting + no-store: garante dados frescos a cada ciclo (sem cache do navegador)
+  const res = await fetch(`${API_BASE}/api/maestro/snapshot?_=${Date.now()}`, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -215,6 +254,8 @@ async function refresh() {
           }))
     );
     renderLeads(snapshot.leads);
+    renderUsage(snapshot.usage);
+    renderInteractions(snapshot.interactions);
     renderLogs(snapshot.logs);
     $("footer-meta").textContent = `Snapshot ${snapshot.generated_at} · refresh ${REFRESH_MS / 1000}s`;
   } catch (err) {
@@ -249,4 +290,10 @@ tickClock();
 setInterval(tickClock, 1000);
 refresh();
 setInterval(refresh, REFRESH_MS);
+
+// Navegadores congelam timers em abas ocultas — atualiza assim que a aba volta ao foco.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") refresh();
+});
+
 window.refresh = refresh;
