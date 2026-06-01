@@ -1,7 +1,5 @@
 """Carrega prompts dos agentes a partir dos arquivos .md do repositório."""
 
-from pathlib import Path
-
 from laboratorio.config import AGENT_FILES
 
 

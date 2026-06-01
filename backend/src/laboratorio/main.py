@@ -14,11 +14,9 @@ def cmd_check() -> int:
     print(f"Backend root:  {BACKEND_ROOT}")
 
     try:
-        import crewai  # noqa: F401
+        import crewai
 
-        import crewai as crewai_mod
-
-        print(f"CrewAI:        OK ({getattr(crewai_mod, '__version__', 'installed')})")
+        print(f"CrewAI:        OK ({getattr(crewai, '__version__', 'installed')})")
     except ImportError:
         print("CrewAI:        ERRO — pacote ausente. Rode: .venv/bin/pip install -r requirements.txt")
         return 1

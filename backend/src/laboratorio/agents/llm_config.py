@@ -40,6 +40,17 @@ API_KEY_ENV: dict[str, str] = {
     "anthropic": "ANTHROPIC_API_KEY",
 }
 
+# Roteamento por custo: tarefas simples num modelo barato, complexas num forte.
+# Cada tier aponta para uma env opcional no formato litellm "provider/model".
+TIER_ENV: dict[str, str] = {
+    "simple": "TIER_SIMPLE_MODEL",
+    "strong": "TIER_STRONG_MODEL",
+}
+TIER_DEFAULTS: dict[str, str] = {
+    "simple": "anthropic/claude-haiku-4-5-20251001",
+    "strong": "anthropic/claude-opus-4-8",
+}
+
 
 @dataclass(frozen=True)
 class AgentLLMConfig:
@@ -66,8 +77,22 @@ def _normalize_model(value: str | None) -> str:
     return value.strip()
 
 
-def resolve_agent_llm_config(agent_id: str) -> AgentLLMConfig:
-    """Resolve provider/model para um agente (sem instanciar LLM)."""
+def _tier_override(tier: str | None) -> str | None:
+    """Resolve o litellm model de um tier (env > default). None se não aplicável."""
+    if not tier or tier == "standard":
+        return None
+    env_name = TIER_ENV.get(tier)
+    if env_name is None:
+        return None
+    return os.getenv(env_name) or TIER_DEFAULTS.get(tier)
+
+
+def resolve_agent_llm_config(agent_id: str, tier: str | None = None) -> AgentLLMConfig:
+    """Resolve provider/model para um agente (sem instanciar LLM).
+
+    Se `tier` for informado ("simple"/"strong"), o modelo é sobrescrito pelo
+    modelo do tier (roteamento por custo), mantendo o provider derivado dele.
+    """
     load_env()
 
     prefix = AGENT_ENV_PREFIX.get(agent_id)
@@ -99,6 +124,15 @@ def resolve_agent_llm_config(agent_id: str) -> AgentLLMConfig:
 
     litellm_model = model if "/" in model else f"{provider}/{model}"
 
+    override = _tier_override(tier)
+    if override:
+        litellm_model = override
+        if "/" in override:
+            provider, model = override.split("/", 1)
+        else:
+            model = override
+        source = f"tier:{tier}"
+
     return AgentLLMConfig(
         agent_id=agent_id,
         display_name=AGENT_DISPLAY_NAME.get(agent_id, agent_id),
@@ -116,9 +150,9 @@ def _api_key_for_provider(provider: str) -> str | None:
     return os.getenv(env_name)
 
 
-def build_llm_for_agent(agent_id: str, *, log: bool = True) -> LLM:
-    """Instancia CrewAI LLM conforme config do agente."""
-    cfg = resolve_agent_llm_config(agent_id)
+def build_llm_for_agent(agent_id: str, *, log: bool = True, tier: str | None = None) -> LLM:
+    """Instancia CrewAI LLM conforme config do agente (com tier de custo opcional)."""
+    cfg = resolve_agent_llm_config(agent_id, tier=tier)
     api_key = _api_key_for_provider(cfg.provider)
 
     if not api_key:

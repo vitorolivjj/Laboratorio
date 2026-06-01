@@ -4,6 +4,7 @@ from crewai import Agent
 
 from laboratorio.agents.llm_config import build_llm_for_agent
 from laboratorio.agents.loader import load_agent_prompt
+from laboratorio.tools.registry import tools_for
 
 # Metadados mínimos por agente (role/goal); backstory vem do .md
 _AGENT_META: dict[str, dict[str, str]] = {
@@ -40,17 +41,26 @@ def build_agent(
     verbose: bool = True,
     allow_delegation: bool | None = None,
     log_llm: bool = True,
+    tier: str | None = None,
+    tools: list | None = None,
 ) -> Agent:
-    """Instancia um Agent CrewAI usando o markdown em agentes/{agent_id}.md."""
+    """Instancia um Agent CrewAI usando o markdown em agentes/{agent_id}.md.
+
+    tier: nível de modelo por custo ("simple" | "standard" | "strong").
+    tools: ferramentas; None usa o conjunto padrão do agente (registry).
+    """
     meta = _AGENT_META.get(agent_id)
     if meta is None:
         raise KeyError(f"Metadados não definidos para agente: {agent_id}")
 
     backstory = load_agent_prompt(agent_id)
-    llm = build_llm_for_agent(agent_id, log=log_llm)
+    llm = build_llm_for_agent(agent_id, log=log_llm, tier=tier)
 
     if allow_delegation is None:
         allow_delegation = agent_id == "ronaldo_maestro"
+
+    if tools is None:
+        tools = tools_for(agent_id)
 
     return Agent(
         role=meta["role"],
@@ -59,4 +69,5 @@ def build_agent(
         llm=llm,
         verbose=verbose,
         allow_delegation=allow_delegation,
+        tools=tools,
     )

@@ -27,6 +27,11 @@ MEMORIA_SHARED_FILES = {
 }
 CONTEXTO_GLOBAL = CONTEXTO_DIR / "contexto_global.md"
 
+# CRM e dados de runtime
+CRM_DIR = REPO_ROOT / "crm"
+CRM_LEADS = CRM_DIR / "leads.md"
+DATA_DIR = BACKEND_ROOT / "data"
+
 # Definições dos agentes (markdown na raiz do repo)
 AGENT_FILES: dict[str, Path] = {
     "ronaldo_maestro": AGENTES_DIR / "ronaldo_maestro.md",

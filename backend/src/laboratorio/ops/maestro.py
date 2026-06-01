@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import threading
 import time
@@ -10,10 +11,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 from laboratorio.agents.llm_config import resolve_agent_llm_config
-from laboratorio.config import LOGS_DIR, MEMORIA_DIR, REPO_ROOT, TASKS_DIR
+from laboratorio.config import CRM_LEADS, LOGS_DIR, MEMORIA_DIR, TASKS_DIR
 from laboratorio.ops import parsers
-
-CRM_LEADS = REPO_ROOT / "crm" / "leads.md"
 
 # Cache em memória: evita reler arquivos + rodar systemctl a cada chamada de voz.
 _SNAPSHOT_CACHE: dict[str, Any] = {"data": None, "ts": 0.0}
@@ -119,14 +118,15 @@ def build_maestro_snapshot() -> dict[str, Any]:
     wa_threads = parsers.group_whatsapp_threads(wa_log)
 
     messages_today = parsers.count_today(wa_log)
-    leads_today = sum(1 for l in leads if l.get("captura", "").startswith(datetime.now(timezone.utc).strftime("%Y-%m-%d")))
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    leads_today = sum(1 for l in leads if l.get("captura", "").startswith(today_str))
 
     last_error = _last_error(events, wa_log)
     wa_online = _whatsapp_online(wa_log)
     vps_online = check_vps_service()
 
     agents = _build_agents(active_work, events, wa_log, active_ids)
-    estimated_cost = round(messages_today * 0.012 + len(active_work) * 0.05, 3)
+    estimated_cost, cost_is_real = _resolve_cost(messages_today, len(active_work))
     briefing = _build_briefing(agents, active_work, wa_log, leads, last_error, vps_online, wa_online)
 
     errors = [e for e in events if e["type"] == "erro"]
@@ -142,6 +142,7 @@ def build_maestro_snapshot() -> dict[str, Any]:
             "messages_today": messages_today,
             "leads_today": leads_today,
             "estimated_cost_usd": estimated_cost,
+            "cost_is_real": cost_is_real,
             "last_error": last_error,
             "wip_tasks": len(executando),
             "wip_max": 3,
@@ -292,8 +293,6 @@ def _build_briefing(
 
 
 def re_split_agents(text: str) -> list[str]:
-    import re
-
     ids: list[str] = []
     for token in re.split(r"[·,;]", text):
         t = token.strip().lower()
@@ -320,6 +319,19 @@ def _whatsapp_online(wa_log: list[dict]) -> bool:
     if not wa_log:
         return bool(os.getenv("WHATSAPP_ACCESS_TOKEN"))
     return wa_log[0].get("status") == "ok" or "erro" not in wa_log[0].get("status", "")
+
+
+def _resolve_cost(messages_today: int, active_work: int) -> tuple[float, bool]:
+    """Custo real (usage.jsonl) quando disponível; senão, estimativa heurística."""
+    try:
+        from laboratorio.ops import usage
+
+        summary = usage.summarize()
+        if summary.get("total_cost_usd"):
+            return round(float(summary["total_cost_usd"]), 3), True
+    except Exception:  # noqa: BLE001
+        pass
+    return round(messages_today * 0.012 + active_work * 0.05, 3), False
 
 
 def check_vps_service() -> bool:
