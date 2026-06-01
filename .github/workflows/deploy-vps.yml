@@ -34,9 +34,17 @@ jobs:
           command_timeout: 15m
           script: |
             set -euo pipefail
-            echo "==> Atualizando fonte dos scripts de deploy..."
-            git -C /opt/laboratorio-src pull --ff-only
+            REPO_URL="${LAB_REPO_URL:-https://github.com/vitorolivjj/Laboratorio.git}"
+            SRC=/opt/laboratorio-src
+            echo "==> Garantindo a fonte dos scripts de deploy em $SRC..."
+            if [ ! -d "$SRC/.git" ]; then
+              echo "    (primeira vez) clonando o repositório..."
+              git clone "$REPO_URL" "$SRC"
+            fi
+            git -C "$SRC" fetch origin main
+            git -C "$SRC" checkout main
+            git -C "$SRC" reset --hard origin/main
             echo "==> Rodando deploy-app.sh..."
-            cd /opt/laboratorio-src/deploy/vps
+            cd "$SRC/deploy/vps"
             chmod +x deploy-app.sh
             ./deploy-app.sh
