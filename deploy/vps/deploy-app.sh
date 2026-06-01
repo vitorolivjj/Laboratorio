@@ -9,11 +9,19 @@ REPO_URL="${LAB_REPO_URL:-https://github.com/vitorolivjj/Laboratorio.git}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "==> Código em $APP_DIR..."
+# Robusto para 3 casos: repo git já existente, pasta criada por rsync (sem .git)
+# e diretório novo. Usa reset --hard (não pull), que preserva arquivos não
+# versionados como backend/.env e backend/.venv.
 if [[ ! -d "$APP_DIR/.git" ]]; then
-  sudo -u "$APP_USER" git clone "$REPO_URL" "$APP_DIR"
-else
-  sudo -u "$APP_USER" git -C "$APP_DIR" pull --ff-only
+  echo "    sem repositório git — inicializando (preserva .env/.venv)..."
+  sudo -u "$APP_USER" mkdir -p "$APP_DIR"
+  sudo -u "$APP_USER" git -C "$APP_DIR" init -q
+  sudo -u "$APP_USER" git -C "$APP_DIR" remote add origin "$REPO_URL" 2>/dev/null \
+    || sudo -u "$APP_USER" git -C "$APP_DIR" remote set-url origin "$REPO_URL"
 fi
+sudo -u "$APP_USER" git -C "$APP_DIR" fetch origin main
+sudo -u "$APP_USER" git -C "$APP_DIR" reset --hard origin/main
+sudo -u "$APP_USER" git -C "$APP_DIR" branch -M main 2>/dev/null || true
 
 echo "==> Python venv + dependências..."
 sudo -u "$APP_USER" bash -c "
