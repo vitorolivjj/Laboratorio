@@ -12,18 +12,79 @@ from laboratorio.config import load_env
 
 logger = logging.getLogger("laboratorio.llm")
 
-# Anthropic exige que a conversa termine em mensagem do usuário. Sem isto o
-# litellm às vezes envia um "assistant prefill" e a API rejeita com
-# "This model does not support assistant message prefill". Ativar modify_params
-# deixa o litellm ajustar as mensagens automaticamente; drop_params descarta
-# parâmetros não suportados por um provider em vez de quebrar a chamada.
-try:  # pragma: no cover - configuração global, depende do litellm instalado
-    import litellm
+# Anthropic exige que a conversa termine em mensagem do usuário. O CrewAI 0.86
+# às vezes envia um "assistant prefill" no fim, e o Claude rejeita com
+# "This model does not support assistant message prefill". modify_params/
+# drop_params não resolvem esse caso nessa versão, então interceptamos a chamada
+# ao litellm e garantimos que mensagens para Anthropic terminem com 'user'.
+def _ensure_anthropic_ends_with_user(messages):
+    if not isinstance(messages, list) or not messages:
+        return messages
+    msgs = list(messages)
+    # Remove prefills de assistant vazios no fim.
+    while (
+        len(msgs) > 1
+        and isinstance(msgs[-1], dict)
+        and msgs[-1].get("role") == "assistant"
+        and not str(msgs[-1].get("content", "")).strip()
+    ):
+        msgs = msgs[:-1]
+    if isinstance(msgs[-1], dict) and msgs[-1].get("role") == "assistant":
+        msgs = msgs + [{"role": "user", "content": "Continue."}]
+    return msgs
 
-    litellm.modify_params = True
-    litellm.drop_params = True
-except Exception as _exc:  # noqa: BLE001
-    logger.warning("Não foi possível configurar litellm.modify_params: %s", _exc)
+
+def _is_anthropic_model(model: str) -> bool:
+    m = str(model).lower()
+    return "anthropic" in m or "claude" in m
+
+
+def _patch_litellm_prefill() -> None:
+    """Garante conversa terminando em 'user' para Anthropic (corrige prefill)."""
+    try:
+        import litellm
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("litellm indisponível para patch de prefill: %s", exc)
+        return
+
+    try:
+        litellm.modify_params = True
+        litellm.drop_params = True
+    except Exception:  # noqa: BLE001
+        pass
+
+    if getattr(litellm, "_lab_prefill_patch", False):
+        return
+
+    def _fix_kwargs(args, kwargs):
+        try:
+            model = kwargs.get("model") or (args[0] if args else "")
+            if _is_anthropic_model(model) and kwargs.get("messages"):
+                kwargs["messages"] = _ensure_anthropic_ends_with_user(kwargs["messages"])
+        except Exception:  # noqa: BLE001 — nunca quebra a chamada original
+            pass
+        return kwargs
+
+    _orig_completion = litellm.completion
+
+    def _completion(*args, **kwargs):
+        return _orig_completion(*args, **_fix_kwargs(args, kwargs))
+
+    litellm.completion = _completion
+
+    if hasattr(litellm, "acompletion"):
+        _orig_acompletion = litellm.acompletion
+
+        async def _acompletion(*args, **kwargs):
+            return await _orig_acompletion(*args, **_fix_kwargs(args, kwargs))
+
+        litellm.acompletion = _acompletion
+
+    litellm._lab_prefill_patch = True
+    logger.info("Patch de prefill Anthropic aplicado ao litellm.")
+
+
+_patch_litellm_prefill()
 
 # agent_id interno → prefixo das variáveis de ambiente
 AGENT_ENV_PREFIX: dict[str, str] = {
