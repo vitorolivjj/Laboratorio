@@ -1,0 +1,42 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/painel-maestro/**"
+      - "agentes/**"
+      - "memoria/**"
+      - "deploy/vps/**"
+      - ".github/workflows/deploy-vps.yml"
+  workflow_dispatch:
+
+# Evita dois deploys simultâneos pisando um no outro.
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Não dispara para os commits automáticos do snapshot do dashboard.
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[automated]')
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            echo "==> Atualizando fonte dos scripts de deploy..."
+            git -C /opt/laboratorio-src pull --ff-only
+            echo "==> Rodando deploy-app.sh..."
+            cd /opt/laboratorio-src/deploy/vps
+            chmod +x deploy-app.sh
+            ./deploy-app.sh
