@@ -92,7 +92,7 @@ def _act_as_ronaldo(text: str) -> str:
         tasks=[task],
         process=Process.sequential,
         verbose=False,
-        **interactions.crew_callbacks("modo-dono"),
+        **interactions.crew_callbacks("modo-dono", default_agent="Ronaldo"),
     )
     reply = str(crew.kickoff()).strip()
     return reply or "Feito."
