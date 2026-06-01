@@ -8,6 +8,7 @@ Opera sobre cópias temporárias dos arquivos reais — nunca toca no repo.
 from __future__ import annotations
 
 import inspect
+import os
 import shutil
 import sys
 import tempfile
@@ -141,24 +142,38 @@ def test_usage(tmp: Path):
     assert "gpt-4o-mini" in s["by_model"]
 
 
-def test_owner_detection(monkeypatch=None):
-    # Importa só a lógica pura (não puxa crewai).
+def test_owner_detection():
     import importlib
     owner = importlib.import_module("laboratorio.whatsapp.owner")
 
+    # Override por env (vários números).
     os.environ["OWNER_WA_IDS"] = "5511999998888, +55 11 77777-6666"
     try:
         assert owner.owner_ids() == {"5511999998888", "5511777776666"}
         assert owner.is_owner("5511999998888")
         assert owner.is_owner("+5511999998888")  # normaliza +
         assert owner.is_owner("55 11 77777-6666")  # normaliza espaços/traços
-        assert not owner.is_owner("5511000000000")  # número de cliente comum
+        assert not owner.is_owner("5511000000000")  # cliente comum
     finally:
         del os.environ["OWNER_WA_IDS"]
 
-    # Sem config → ninguém é dono (default seguro).
-    assert owner.owner_ids() == set()
-    assert not owner.is_owner("5511999998888")
+    # Sem env → usa o número default do Vitor.
+    assert owner.owner_ids() == {"5533999353242"}
+    assert owner.is_owner("+55 33 99935-3242")
+    assert not owner.is_owner("5511000000000")
+
+    # Desligado explicitamente → ninguém é dono.
+    os.environ["OWNER_WA_IDS"] = "none"
+    try:
+        assert owner.owner_ids() == set()
+        assert not owner.is_owner("5533999353242")
+    finally:
+        del os.environ["OWNER_WA_IDS"]
+
+    # Detecção de ação vs consulta.
+    assert owner._is_action("cria uma task de teste")
+    assert owner._is_action("interrompe a TASK-012")
+    assert not owner._is_action("qual o status?")
 
 
 
