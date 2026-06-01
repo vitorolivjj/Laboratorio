@@ -135,7 +135,6 @@ def build_snapshot() -> str:
     planning = len(planejando)
 
     active_tasks = [t for t in tasks if t["status"] == "executando"]
-    planning_tasks = [t for t in tasks if t["status"] == "planejando"]
     ent_done = sum(t["entregaveis_done"] for t in active_tasks)
     ent_total = sum(t["entregaveis_total"] for t in active_tasks)
 
