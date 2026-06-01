@@ -133,11 +133,10 @@ def _advance_task(task: dict) -> str:
 def run_cycle() -> dict:
     """Executa um ciclo: trabalha até AUTOPILOT_MAX_TASKS TASKs em execução."""
     load_env()
-    # Vazão para "fazer funcionar": trabalha todas as TASKs em execução (até o
-    # teto de WIP do painel) e reprocessa com mais frequência. Custos são
-    # regulados depois por estas mesmas variáveis.
-    max_tasks = max(1, _int_env("AUTOPILOT_MAX_TASKS", 3))
-    cooldown = _int_env("AUTOPILOT_COOLDOWN_S", 600)
+    # Ritmo equilibrado: 1 tarefa por ciclo e não repete a mesma antes de 30 min
+    # (ela alterna entre as TASKs). Ajustável por estas variáveis de ambiente.
+    max_tasks = max(1, _int_env("AUTOPILOT_MAX_TASKS", 1))
+    cooldown = _int_env("AUTOPILOT_COOLDOWN_S", 1800)
     now = time.time()
 
     tasks = parsers.parse_executando_tasks(
@@ -178,7 +177,7 @@ def run_cycle() -> dict:
 
 
 def run_forever() -> None:
-    interval = max(30, _int_env("AUTOPILOT_INTERVAL_S", 300))
+    interval = max(30, _int_env("AUTOPILOT_INTERVAL_S", 600))
     logger.info("Autopilot iniciado (intervalo=%ss).", interval)
     interactions.record_interaction(
         kind="autopilot", context="autopilot", agent="autopilot",
