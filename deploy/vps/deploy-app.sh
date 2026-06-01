@@ -45,10 +45,18 @@ systemctl enable laboratorio-api
 systemctl restart laboratorio-api
 
 echo "==> nginx..."
-install -m 644 "$SCRIPT_DIR/nginx-laboratorio-api.conf" \
-  /etc/nginx/sites-available/laboratorio-api
-ln -sf /etc/nginx/sites-available/laboratorio-api /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
+# IMPORTANTE: NÃO sobrescrever a config se ela já existe. O certbot edita este
+# arquivo para adicionar o bloco HTTPS (porta 443). Reinstalar a versão HTTP-only
+# do repo apagaria o SSL e derrubaria o site (ERR_CONNECTION_REFUSED na 443).
+if [[ ! -f /etc/nginx/sites-available/laboratorio-api ]]; then
+  install -m 644 "$SCRIPT_DIR/nginx-laboratorio-api.conf" \
+    /etc/nginx/sites-available/laboratorio-api
+  ln -sf /etc/nginx/sites-available/laboratorio-api /etc/nginx/sites-enabled/
+  rm -f /etc/nginx/sites-enabled/default
+  echo "    config nginx instalada — rode 'certbot --nginx -d <dominio>' para habilitar HTTPS."
+else
+  echo "    config nginx já existe — preservada (mantém SSL do certbot intacto)."
+fi
 nginx -t
 systemctl reload nginx
 
