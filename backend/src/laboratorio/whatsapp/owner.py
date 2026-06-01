@@ -112,7 +112,9 @@ def generate_owner_reply(text: str) -> str:
     from laboratorio.ops.ronaldo_voice import generate_ronaldo_voice_reply
 
     result = generate_ronaldo_voice_reply(text)
-    reply = (result.get("reply") or result.get("reply_speech") or "").strip()
+    # No WhatsApp priorizamos a versão "falada": linguagem clara e humana, sem
+    # siglas/IDs crus (TASK-001, PROJ-001, WIP) — fica fácil de entender no chat.
+    reply = (result.get("reply_speech") or result.get("reply") or "").strip()
     if not reply:
         reply = "Sem dados operacionais no momento — verifique o Painel Maestro."
     logger.info("Modo dono [status]: '%s' -> %d chars (fonte=%s)", text[:50], len(reply), result.get("source"))
