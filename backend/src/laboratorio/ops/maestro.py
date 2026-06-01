@@ -12,7 +12,7 @@ from typing import Any
 
 from laboratorio.agents.llm_config import resolve_agent_llm_config
 from laboratorio.config import CRM_LEADS, LOGS_DIR, MEMORIA_DIR, TASKS_DIR
-from laboratorio.ops import parsers
+from laboratorio.ops import parsers, usage
 from laboratorio.ops.interactions import recent_interactions
 
 # Cache em memória: evita reler arquivos + rodar systemctl a cada chamada de voz.
@@ -164,6 +164,7 @@ def build_maestro_snapshot() -> dict[str, Any]:
             "decisions": decisions,
         },
         "interactions": recent_interactions(40),
+        "usage": usage.summarize(),
         "pending_tasks": [
             {
                 "id": t["id"],

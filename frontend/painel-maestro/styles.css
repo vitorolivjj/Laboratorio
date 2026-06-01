@@ -180,6 +180,13 @@ tr:hover td { background: rgba(79,156,255,0.04); }
 .feed li:last-child { border-bottom: none; }
 .feed strong { color: var(--txt); display: block; margin-bottom: 3px; }
 
+/* Barra de custo (autopilot / uso) */
+.cost-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.cost-pill { display: flex; flex-direction: column; gap: 1px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.02); min-width: 130px; }
+.cost-val { font-size: 1.1rem; font-weight: 700; color: var(--txt); }
+.cost-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--txt-dim); }
+.cost-sub { font-size: 0.7rem; color: var(--txt-faint); }
+
 /* Interações ao vivo */
 .feed-interactions { max-height: 460px; }
 .feed-interactions strong { display: inline; }

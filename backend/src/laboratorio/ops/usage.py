@@ -95,8 +95,20 @@ def summarize() -> dict:
     total_tokens = 0
     total_cost = 0.0
     by_model: dict[str, dict[str, float]] = {}
+    by_source: dict[str, dict[str, float]] = {}
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_cost = 0.0
+    today_tokens = 0
+    empty = {
+        "total_tokens": 0,
+        "total_cost_usd": 0.0,
+        "today_cost_usd": 0.0,
+        "today_tokens": 0,
+        "by_model": {},
+        "by_source": {},
+    }
     if not USAGE_FILE.is_file():
-        return {"total_tokens": 0, "total_cost_usd": 0.0, "by_model": {}}
+        return empty
     for line in USAGE_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
@@ -105,14 +117,29 @@ def summarize() -> dict:
             row = json.loads(line)
         except json.JSONDecodeError:
             continue
-        total_tokens += int(row.get("total_tokens", 0))
-        total_cost += float(row.get("cost_usd", 0.0))
+        tokens = int(row.get("total_tokens", 0))
+        cost = float(row.get("cost_usd", 0.0))
+        total_tokens += tokens
+        total_cost += cost
+        if str(row.get("at", "")).startswith(today):
+            today_cost += cost
+            today_tokens += tokens
         m = row.get("model", "—")
         slot = by_model.setdefault(m, {"tokens": 0, "cost_usd": 0.0})
-        slot["tokens"] += int(row.get("total_tokens", 0))
-        slot["cost_usd"] += float(row.get("cost_usd", 0.0))
+        slot["tokens"] += tokens
+        slot["cost_usd"] += cost
+        src = row.get("source", "—")
+        sslot = by_source.setdefault(src, {"tokens": 0, "cost_usd": 0.0, "calls": 0})
+        sslot["tokens"] += tokens
+        sslot["cost_usd"] += cost
+        sslot["calls"] += 1
+    for slot in list(by_model.values()) + list(by_source.values()):
+        slot["cost_usd"] = round(slot["cost_usd"], 4)
     return {
         "total_tokens": total_tokens,
         "total_cost_usd": round(total_cost, 4),
+        "today_cost_usd": round(today_cost, 4),
+        "today_tokens": today_tokens,
         "by_model": by_model,
+        "by_source": by_source,
     }

@@ -105,7 +105,23 @@ def _advance_task(task: dict) -> str:
         verbose=False,
         **interactions.crew_callbacks(context),
     )
-    return str(crew.kickoff()).strip()
+    output = str(crew.kickoff()).strip()
+
+    # Registra custo/tokens reais deste avanço (fonte=autopilot) para o painel.
+    try:
+        from laboratorio.agents.llm_config import resolve_agent_llm_config
+        from laboratorio.ops import usage
+
+        usage.record_usage(
+            source="autopilot",
+            model=resolve_agent_llm_config(agent_id).model,
+            metrics=getattr(crew, "usage_metrics", None),
+            extra={"task": task["id"], "agent": agent_id},
+        )
+    except Exception as exc:  # noqa: BLE001 — custo é observabilidade, não bloqueia
+        logger.warning("Não foi possível registrar uso do autopilot: %s", exc)
+
+    return output
 
 
 def run_cycle() -> dict:
