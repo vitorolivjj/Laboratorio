@@ -1,7 +1,7 @@
 const API_BASE = window.location.origin.includes("localhost")
   ? "http://127.0.0.1:8000"
   : window.location.origin;
-const REFRESH_MS = 30_000;
+const REFRESH_MS = 10_000;
 const ASSET_BASE = window.location.pathname.includes("/painel")
   ? window.location.pathname.replace(/\/?index\.html$/, "").replace(/\/?$/, "") + "/"
   : "/painel/";
@@ -187,7 +187,11 @@ function renderLogs(logs) {
 }
 
 async function loadSnapshot() {
-  const res = await fetch(`${API_BASE}/api/maestro/snapshot`);
+  // cache-busting + no-store: garante dados frescos a cada ciclo (sem cache do navegador)
+  const res = await fetch(`${API_BASE}/api/maestro/snapshot?_=${Date.now()}`, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -249,4 +253,10 @@ tickClock();
 setInterval(tickClock, 1000);
 refresh();
 setInterval(refresh, REFRESH_MS);
+
+// Navegadores congelam timers em abas ocultas — atualiza assim que a aba volta ao foco.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") refresh();
+});
+
 window.refresh = refresh;

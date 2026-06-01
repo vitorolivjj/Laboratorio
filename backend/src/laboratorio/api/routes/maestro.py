@@ -23,8 +23,10 @@ class RonaldoSpeakBody(BaseModel):
 
 
 @router.get("/snapshot")
-def get_snapshot(fresh: bool = False) -> dict:
+def get_snapshot(response: Response, fresh: bool = False) -> dict:
     """Snapshot operacional completo para o dashboard (cacheado por padrão)."""
+    # Evita cache do navegador/proxy: o painel precisa sempre do estado mais recente.
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     return build_maestro_snapshot() if fresh else get_cached_snapshot()
 
 
