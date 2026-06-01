@@ -16,14 +16,15 @@ def _int_env(name: str, default: int) -> int:
         return default
 
 
-# Limites de segurança: evitam loop de raciocínio/delegação e travamento eterno.
-# Ajustáveis por env; valores default conservadores.
+# Tetos de segurança (não alvos): impedem travamento eterno, mas altos o
+# suficiente para a orquestração hierárquica concluir. Custos/limites finos são
+# regulados depois por estas mesmas variáveis de ambiente.
 def _agent_max_iter() -> int:
-    return _int_env("AGENT_MAX_ITER", 12)
+    return _int_env("AGENT_MAX_ITER", 25)
 
 
 def _agent_max_exec_seconds() -> int:
-    return _int_env("AGENT_MAX_EXECUTION_TIME", 240)
+    return _int_env("AGENT_MAX_EXECUTION_TIME", 600)
 
 
 def _agent_max_rpm() -> int | None:

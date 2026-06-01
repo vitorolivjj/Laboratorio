@@ -151,11 +151,14 @@ def _api_key_for_provider(provider: str) -> str | None:
 
 
 def _llm_timeout() -> float:
-    """Timeout (s) para chamadas de LLM — evita travar a crew indefinidamente."""
+    """Timeout (s) por chamada de LLM — teto contra travamento, não alvo.
+
+    Folgado para modelos fortes (gpt-5/opus) concluírem; ajuste fino depois.
+    """
     try:
-        return float(os.getenv("LLM_TIMEOUT", "120"))
+        return float(os.getenv("LLM_TIMEOUT", "300"))
     except ValueError:
-        return 120.0
+        return 300.0
 
 
 def build_llm_for_agent(agent_id: str, *, log: bool = True, tier: str | None = None) -> LLM:

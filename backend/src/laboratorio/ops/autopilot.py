@@ -34,7 +34,7 @@ _started_lock = threading.Lock()
 
 
 def enabled() -> bool:
-    return os.getenv("AUTOPILOT_ENABLED", "0").strip().lower() in ("1", "true", "yes", "on")
+    return os.getenv("AUTOPILOT_ENABLED", "1").strip().lower() in ("1", "true", "yes", "on")
 
 
 def _int_env(name: str, default: int) -> int:
@@ -111,8 +111,11 @@ def _advance_task(task: dict) -> str:
 def run_cycle() -> dict:
     """Executa um ciclo: trabalha até AUTOPILOT_MAX_TASKS TASKs em execução."""
     load_env()
-    max_tasks = max(1, _int_env("AUTOPILOT_MAX_TASKS", 1))
-    cooldown = _int_env("AUTOPILOT_COOLDOWN_S", 1800)
+    # Vazão para "fazer funcionar": trabalha todas as TASKs em execução (até o
+    # teto de WIP do painel) e reprocessa com mais frequência. Custos são
+    # regulados depois por estas mesmas variáveis.
+    max_tasks = max(1, _int_env("AUTOPILOT_MAX_TASKS", 3))
+    cooldown = _int_env("AUTOPILOT_COOLDOWN_S", 600)
     now = time.time()
 
     tasks = parsers.parse_executando_tasks(
