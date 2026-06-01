@@ -33,6 +33,18 @@ if PAINEL_DIR.is_dir():
     app.mount("/painel", StaticFiles(directory=str(PAINEL_DIR), html=True), name="painel")
 
 
+@app.on_event("startup")
+def _maybe_start_autopilot() -> None:
+    """Liga o piloto automático em background se AUTOPILOT_ENABLED=1."""
+    try:
+        from laboratorio.ops.autopilot import start_background
+
+        if start_background():
+            logger.info("Autopilot ativado no startup da API.")
+    except Exception as exc:  # noqa: BLE001 — nunca derruba a API por causa disso
+        logger.warning("Não foi possível iniciar o autopilot: %s", exc)
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "whatsapp-caio"}

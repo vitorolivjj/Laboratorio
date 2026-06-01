@@ -16,7 +16,18 @@ from crewai import Crew, Process, Task
 
 from laboratorio.agents.builder import build_agent
 from laboratorio.agents.loader import load_memory_file
+from laboratorio.ops import interactions
 from laboratorio.ops.retrieval import relevant_excerpt
+
+
+def _crew_max_rpm() -> int | None:
+    raw = os.getenv("CREW_MAX_RPM")
+    if not raw:
+        return None
+    try:
+        return int(raw) or None
+    except ValueError:
+        return None
 
 
 def _memory_block(objective: str) -> str:
@@ -46,15 +57,17 @@ def build_orchestrator_crew(user_objective: str) -> Crew:
     dev = build_agent("dev", verbose=True)
     loide = build_agent("loide", verbose=True)
     caio = build_agent("caio_manteiga", verbose=True)
+    donizete = build_agent("donizete_social", verbose=True)
 
     task = Task(
         description=(
             f"Objetivo do Vitor:\n{user_objective}\n"
             f"{_memory_block(user_objective)}\n\n"
             "Como Ronaldo Maestro, coordene os especialistas (Juarez=operação, "
-            "Dev=software, Loide=UX, Caio=comercial). Acione SOMENTE quem o "
-            "objetivo exige. Use suas ferramentas para consultar memória/CRM e, "
-            "quando fizer sentido, registrar decisões/eventos ou criar TASKs.\n"
+            "Dev=software, Loide=UX, Caio=comercial, Donizete=captação de leads). "
+            "Acione SOMENTE quem o objetivo exige. Use suas ferramentas para "
+            "consultar memória/CRM e, quando fizer sentido, registrar "
+            "decisões/eventos ou criar TASKs.\n"
             "Entregue: (1) objetivo identificado, (2) agentes acionados e por quê, "
             "(3) plano único, (4) decisão de hoje, (5) próximo passo, (6) KPI."
         ),
@@ -65,10 +78,12 @@ def build_orchestrator_crew(user_objective: str) -> Crew:
     )
 
     return Crew(
-        agents=[juarez, dev, loide, caio],
+        agents=[juarez, dev, loide, caio, donizete],
         tasks=[task],
         process=Process.hierarchical,
         manager_agent=ronaldo,
         memory=_memory_enabled(),
         verbose=True,
+        max_rpm=_crew_max_rpm(),
+        **interactions.crew_callbacks("orquestrador"),
     )

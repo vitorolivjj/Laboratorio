@@ -170,6 +170,22 @@ function renderLeads(rows) {
     </tr>`).join("");
 }
 
+function renderInteractions(rows) {
+  const list = rows || [];
+  const kindLabel = { step: "raciocínio", tool: "ferramenta", task: "entrega", autopilot: "autopilot", error: "erro" };
+  $("interaction-feed").innerHTML = list.length ? list.map((it) => {
+    const k = (it.kind || "step").toLowerCase();
+    const tag = kindLabel[k] || k;
+    const tool = it.tool ? ` · 🔧 ${esc(it.tool)}` : "";
+    return `<li class="interaction ${esc(k)}">
+      <strong>${esc(it.agent || "—")}</strong>
+      <span class="interaction-kind">${esc(tag)}</span>${tool}
+      <div class="interaction-detail">${esc(it.detail || "—")}</div>
+      <small>${esc(it.at || "")}${it.context ? " · " + esc(it.context) : ""}</small>
+    </li>`;
+  }).join("") : `<li class="empty">Nenhuma interação registrada ainda — rode o orquestrador ou ligue o autopilot</li>`;
+}
+
 function renderLogs(logs) {
   const ev = logs.events || [];
   $("log-events").innerHTML = ev.slice(0, 12).map((e) =>
@@ -219,6 +235,7 @@ async function refresh() {
           }))
     );
     renderLeads(snapshot.leads);
+    renderInteractions(snapshot.interactions);
     renderLogs(snapshot.logs);
     $("footer-meta").textContent = `Snapshot ${snapshot.generated_at} · refresh ${REFRESH_MS / 1000}s`;
   } catch (err) {

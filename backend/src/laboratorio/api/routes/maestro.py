@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 
 from laboratorio.ops import usage
+from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
 from laboratorio.ops.ronaldo_tts import synthesize_speech
 from laboratorio.ops.ronaldo_voice import generate_ronaldo_voice_reply
@@ -54,6 +55,14 @@ def ronaldo_voice_history(limit: int = 30) -> dict:
     """Histórico persistente de comandos de voz."""
     capped = max(1, min(limit, 100))
     return {"entries": list_voice_history(capped)}
+
+
+@router.get("/interactions")
+def maestro_interactions(response: Response, limit: int = 40) -> dict:
+    """Trace recente das interações dos agentes (passos, ferramentas, tasks)."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    capped = max(1, min(limit, 200))
+    return {"interactions": recent_interactions(capped)}
 
 
 @router.get("/usage")

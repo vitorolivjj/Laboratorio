@@ -79,6 +79,7 @@ def _act_as_ronaldo(text: str) -> str:
     from crewai import Crew, Process, Task
 
     from laboratorio.agents.builder import build_agent
+    from laboratorio.ops import interactions
 
     ronaldo = build_agent("ronaldo_maestro", verbose=False, log_llm=False, allow_delegation=False)
     task = Task(
@@ -86,7 +87,13 @@ def _act_as_ronaldo(text: str) -> str:
         expected_output="Confirmação curta em português do que foi feito (1-3 linhas).",
         agent=ronaldo,
     )
-    crew = Crew(agents=[ronaldo], tasks=[task], process=Process.sequential, verbose=False)
+    crew = Crew(
+        agents=[ronaldo],
+        tasks=[task],
+        process=Process.sequential,
+        verbose=False,
+        **interactions.crew_callbacks("modo-dono"),
+    )
     reply = str(crew.kickoff()).strip()
     return reply or "Feito."
 

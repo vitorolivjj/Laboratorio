@@ -80,6 +80,29 @@ def cmd_orchestrate(objective: str) -> int:
     return 0
 
 
+def cmd_autopilot(once: bool, interval: int | None) -> int:
+    """Piloto automático: dá sequência às TASKs em execução."""
+    import os
+
+    load_env()
+    if interval is not None:
+        os.environ["AUTOPILOT_INTERVAL_S"] = str(interval)
+    # Via CLI o autopilot roda mesmo sem a flag de ambiente.
+    os.environ.setdefault("AUTOPILOT_ENABLED", "1")
+
+    from laboratorio.ops import autopilot
+
+    if once:
+        summary = autopilot.run_cycle()
+        print(f"Ciclo concluído: {summary}")
+        return 0
+    try:
+        autopilot.run_forever()
+    except KeyboardInterrupt:
+        print("\nAutopilot interrompido.")
+    return 0
+
+
 def cmd_whatsapp_check() -> int:
     """Valida variáveis WhatsApp sem iniciar servidor."""
     import os
@@ -136,6 +159,10 @@ def main() -> None:
         help="Valida variáveis WhatsApp (TASK-007)",
     )
 
+    p_auto = sub.add_parser("autopilot", help="Dá sequência automática às TASKs em execução")
+    p_auto.add_argument("--once", action="store_true", help="Roda um único ciclo e sai")
+    p_auto.add_argument("--interval", type=int, default=None, help="Segundos entre ciclos")
+
     args = parser.parse_args()
 
     if args.command == "check":
@@ -149,6 +176,8 @@ def main() -> None:
         sys.exit(cmd_orchestrate(objective))
     if args.command == "whatsapp-check":
         sys.exit(cmd_whatsapp_check())
+    if args.command == "autopilot":
+        sys.exit(cmd_autopilot(args.once, args.interval))
 
     parser.print_help()
     sys.exit(1)
