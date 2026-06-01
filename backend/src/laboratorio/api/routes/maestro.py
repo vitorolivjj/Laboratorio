@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 
+from laboratorio.ops import usage
 from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
 from laboratorio.ops.ronaldo_tts import synthesize_speech
 from laboratorio.ops.ronaldo_voice import generate_ronaldo_voice_reply
@@ -51,6 +52,12 @@ def ronaldo_voice_history(limit: int = 30) -> dict:
     """Histórico persistente de comandos de voz."""
     capped = max(1, min(limit, 100))
     return {"entries": list_voice_history(capped)}
+
+
+@router.get("/usage")
+def maestro_usage() -> dict:
+    """Resumo de tokens/custo reais consumidos pelos agentes."""
+    return usage.summarize()
 
 
 @router.get("/health")

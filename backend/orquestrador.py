@@ -117,16 +117,19 @@ def _require_llm_key() -> None:
     sys.exit(1)
 
 
-def _load_contexto_extra() -> str:
+def _load_contexto_extra(objective: str = "") -> str:
     if not CONTEXTO_GLOBAL.is_file():
         return ""
+    from laboratorio.ops.retrieval import relevant_excerpt
+
     text = CONTEXTO_GLOBAL.read_text(encoding="utf-8")
-    return f"\n\nContexto global (resumo):\n{text[:1200]}\n"
+    trecho = relevant_excerpt(text, objective, max_chars=1200) if objective else text[:1200]
+    return f"\n\nContexto global (resumo):\n{trecho}\n"
 
 
 def build_orchestration_crew(objective: str) -> Crew:
     """Especialistas em sequência; Ronaldo consolida e prioriza em duas etapas."""
-    contexto = _load_contexto_extra()
+    contexto = _load_contexto_extra(objective)
     briefing = f"Objetivo do Vitor:\n{objective}{contexto}"
 
     juarez = build_agent("juarez", verbose=True, log_llm=False)
@@ -284,6 +287,19 @@ def run(objective: str) -> str:
     crew = build_orchestration_crew(objective)
     result = crew.kickoff()
     output = str(result)
+
+    try:
+        from laboratorio.ops import usage
+
+        usage.record_usage(
+            source="orquestrador",
+            model="multi",
+            metrics=getattr(crew, "usage_metrics", None),
+            extra={"objective": objective[:120]},
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"(aviso: não foi possível registrar uso: {exc})")
+
     registrar_ciclo(objective, output)
     return output
 
