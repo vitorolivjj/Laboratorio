@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import threading
 import time
@@ -119,7 +120,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
     wa_threads = parsers.group_whatsapp_threads(wa_log)
 
     messages_today = parsers.count_today(wa_log)
-    leads_today = sum(1 for l in leads if l.get("captura", "").startswith(datetime.now(timezone.utc).strftime("%Y-%m-%d")))
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    leads_today = sum(1 for l in leads if l.get("captura", "").startswith(today_str))
 
     last_error = _last_error(events, wa_log)
     wa_online = _whatsapp_online(wa_log)
@@ -292,8 +294,6 @@ def _build_briefing(
 
 
 def re_split_agents(text: str) -> list[str]:
-    import re
-
     ids: list[str] = []
     for token in re.split(r"[·,;]", text):
         t = token.strip().lower()
