@@ -141,6 +141,27 @@ def test_usage(tmp: Path):
     assert "gpt-4o-mini" in s["by_model"]
 
 
+def test_owner_detection(monkeypatch=None):
+    # Importa só a lógica pura (não puxa crewai).
+    import importlib
+    owner = importlib.import_module("laboratorio.whatsapp.owner")
+
+    os.environ["OWNER_WA_IDS"] = "5511999998888, +55 11 77777-6666"
+    try:
+        assert owner.owner_ids() == {"5511999998888", "5511777776666"}
+        assert owner.is_owner("5511999998888")
+        assert owner.is_owner("+5511999998888")  # normaliza +
+        assert owner.is_owner("55 11 77777-6666")  # normaliza espaços/traços
+        assert not owner.is_owner("5511000000000")  # número de cliente comum
+    finally:
+        del os.environ["OWNER_WA_IDS"]
+
+    # Sem config → ninguém é dono (default seguro).
+    assert owner.owner_ids() == set()
+    assert not owner.is_owner("5511999998888")
+
+
+
 # pytest: expõe a fixture `tmp` se pytest estiver instalado
 try:
     import pytest as _pt
