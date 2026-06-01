@@ -255,7 +255,8 @@ def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list
 def parse_decisions(content: str, limit: int = 10) -> list[dict]:
     decisions: list[dict] = []
     for m in re.finditer(
-        r"^### (.+?) — (\d{4}-\d{2}-\d{2})\n(.*?)(?=^### |\Z)",
+        # título numa única linha ([^\n]) — evita engolir blocos vizinhos via DOTALL
+        r"^### ([^\n]+?) — (\d{4}-\d{2}-\d{2})\n(.*?)(?=^### |\Z)",
         content,
         re.MULTILINE | re.DOTALL,
     ):
