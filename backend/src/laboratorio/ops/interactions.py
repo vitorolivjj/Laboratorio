@@ -37,6 +37,24 @@ def _trim(text: str) -> str:
     return text if len(text) <= _MAX_TEXT else text[: _MAX_TEXT - 1] + "…"
 
 
+# Trechos de boilerplate que o CrewAI injeta nos erros de ferramenta — viram
+# ruído no trace. Cortamos a partir do primeiro marcador encontrado.
+_NOISE_MARKERS = (
+    "You ONLY have access to the following tools",
+    "Tool Name:",
+    "Use the following format",
+)
+
+
+def _strip_noise(text: str) -> str:
+    cut = len(text)
+    for marker in _NOISE_MARKERS:
+        idx = text.find(marker)
+        if 0 <= idx < cut:
+            cut = idx
+    return text[:cut].strip() or text.strip()
+
+
 def _summarize(obj: Any) -> str:
     """Extrai um texto legível de objetos variados do CrewAI (step/task output)."""
     if obj is None:
@@ -46,10 +64,10 @@ def _summarize(obj: Any) -> str:
         if val:
             if isinstance(val, dict):
                 val = val.get("output") or val.get("text") or json.dumps(val, ensure_ascii=False)
-            return _trim(val)
+            return _trim(_strip_noise(str(val)))
     if isinstance(obj, dict):
-        return _trim(obj.get("output") or obj.get("text") or json.dumps(obj, ensure_ascii=False))
-    return _trim(obj)
+        return _trim(_strip_noise(str(obj.get("output") or obj.get("text") or json.dumps(obj, ensure_ascii=False))))
+    return _trim(_strip_noise(str(obj)))
 
 
 def _agent_of(obj: Any) -> str:
@@ -108,8 +126,16 @@ def recent_interactions(limit: int = 40) -> list[dict]:
     return rows
 
 
-def crew_callbacks(context: str) -> dict[str, Callable]:
-    """Retorna {step_callback, task_callback} prontos para `Crew(**...)`."""
+def crew_callbacks(context: str, default_agent: str = "") -> dict[str, Callable]:
+    """Retorna {step_callback, task_callback} prontos para `Crew(**...)`.
+
+    default_agent rotula a interação quando o objeto do CrewAI não traz o agente
+    (caso de crews de um agente só, como o autopilot e o modo dono).
+    """
+
+    def _agent(obj: Any) -> str:
+        found = _agent_of(obj)
+        return found if found and found != "—" else (default_agent or "—")
 
     def step_callback(step: Any) -> None:
         tool = _trim(getattr(step, "tool", "") or "")
@@ -117,7 +143,7 @@ def crew_callbacks(context: str) -> dict[str, Callable]:
         record_interaction(
             kind="tool" if tool else "step",
             context=context,
-            agent=_agent_of(step),
+            agent=_agent(step),
             tool=tool,
             detail=detail,
         )
@@ -126,7 +152,7 @@ def crew_callbacks(context: str) -> dict[str, Callable]:
         record_interaction(
             kind="task",
             context=context,
-            agent=_agent_of(task_output),
+            agent=_agent(task_output),
             detail=_summarize(task_output),
         )
 

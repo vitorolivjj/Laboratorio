@@ -86,14 +86,20 @@ def _advance_task(task: dict) -> str:
         f"TASK {task['id']} — {task.get('title', '')}.\n"
         f"Próxima ação atual: {task.get('proxima_acao') or '—'}.\n"
         f"Bloqueio: {task.get('bloqueio') or 'nenhum'}.\n\n"
-        "Dê sequência a esta tarefa AGORA: execute a próxima ação concreta dentro "
-        "da sua função usando suas ferramentas (registrar evento/aprendizado, atualizar "
-        "CRM, criar subtarefa etc.) e descreva o que foi feito e qual a próxima ação. "
-        "Se estiver bloqueada, registre o bloqueio e o que precisa para destravar. "
-        "Seja objetivo (máx. 8 linhas)."
+        "Dê sequência a ESTA tarefa AGORA: execute a próxima ação concreta dentro "
+        "da sua função usando suas ferramentas (registrar evento/aprendizado, "
+        "atualizar CRM etc.) e descreva o que foi feito e qual a próxima ação. "
+        "NÃO crie novas tarefas nem subtarefas — apenas avance e relate a TASK "
+        "atual. Se estiver bloqueada, registre o bloqueio e o que precisa para "
+        "destravar. Seja objetivo (máx. 8 linhas)."
     )
 
-    agent = build_agent(agent_id, verbose=False, log_llm=False, allow_delegation=False)
+    # Remove a ferramenta de criar TASK para o autopilot não multiplicar tarefas.
+    from laboratorio.agents.llm_config import AGENT_DISPLAY_NAME
+    from laboratorio.tools.registry import tools_for
+
+    tools = [t for t in tools_for(agent_id) if "criar" not in type(t).__name__.lower()]
+    agent = build_agent(agent_id, verbose=False, log_llm=False, allow_delegation=False, tools=tools)
     crew = Crew(
         agents=[agent],
         tasks=[Task(
@@ -103,7 +109,7 @@ def _advance_task(task: dict) -> str:
         )],
         process=Process.sequential,
         verbose=False,
-        **interactions.crew_callbacks(context),
+        **interactions.crew_callbacks(context, default_agent=AGENT_DISPLAY_NAME.get(agent_id, agent_id)),
     )
     output = str(crew.kickoff()).strip()
 
