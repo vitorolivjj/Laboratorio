@@ -12,6 +12,19 @@ from laboratorio.config import load_env
 
 logger = logging.getLogger("laboratorio.llm")
 
+# Anthropic exige que a conversa termine em mensagem do usuário. Sem isto o
+# litellm às vezes envia um "assistant prefill" e a API rejeita com
+# "This model does not support assistant message prefill". Ativar modify_params
+# deixa o litellm ajustar as mensagens automaticamente; drop_params descarta
+# parâmetros não suportados por um provider em vez de quebrar a chamada.
+try:  # pragma: no cover - configuração global, depende do litellm instalado
+    import litellm
+
+    litellm.modify_params = True
+    litellm.drop_params = True
+except Exception as _exc:  # noqa: BLE001
+    logger.warning("Não foi possível configurar litellm.modify_params: %s", _exc)
+
 # agent_id interno → prefixo das variáveis de ambiente
 AGENT_ENV_PREFIX: dict[str, str] = {
     "ronaldo_maestro": "MAESTRO",
