@@ -8,6 +8,7 @@ from laboratorio.whatsapp.caio_handler import generate_caio_reply
 from laboratorio.whatsapp.client import send_text_message
 from laboratorio.whatsapp.dedup import already_processed, mark_processed
 from laboratorio.whatsapp.logger import log_exchange
+from laboratorio.whatsapp.owner import generate_owner_reply, is_owner
 from laboratorio.whatsapp.parser import InboundMessage
 
 logger = logging.getLogger("laboratorio.whatsapp.handler")
@@ -19,7 +20,16 @@ def process_inbound_message(msg: InboundMessage) -> None:
         return
 
     try:
-        reply = generate_caio_reply(msg.from_wa_id, msg.text)
+        if is_owner(msg.from_wa_id):
+            # Dono: Caio responde amplo sobre o laboratório (status, tasks, andamento).
+            logger.info("Mensagem de dono %s — modo ampla (laboratório)", msg.from_wa_id)
+            reply = generate_owner_reply(msg.text)
+            status = "ok (dono)"
+        else:
+            # Demais números: Caio comercial (produtos, projetos, leads do CRM).
+            reply = generate_caio_reply(msg.from_wa_id, msg.text)
+            status = "ok"
+
         send_text_message(msg.from_wa_id, reply)
         mark_processed(msg.message_id)
         log_exchange(
@@ -27,7 +37,7 @@ def process_inbound_message(msg: InboundMessage) -> None:
             inbound=msg.text,
             outbound=reply,
             message_id=msg.message_id,
-            status="ok",
+            status=status,
         )
     except Exception as exc:
         logger.exception("Falha ao processar mensagem %s", msg.message_id)
