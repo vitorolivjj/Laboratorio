@@ -2,48 +2,50 @@
 
 **Fonte única de verdade** do momento: o que o ecossistema precisa saber agora para agir alinhado.
 
-Todos os agentes leem este arquivo **antes** de executar tarefas relevantes. Ronaldo Maestro usa também `memoria/ronaldo_maestro/contexto_estrategico.md` para visão de longo prazo.
-
 ## Foco atual
 
-VitorOS (PROJ-002) TASK-012 KPIs Macro + **protocolo Ronaldo**: toda TASK delegada, conferida, com aprendizado incorporado.
+**Página oficial Webflow (LP-PINTOR-007)** — template + coleção Pintores no ar. **Captação Donizete bloqueada** até 007 fechar. Template Meta (006) em aguardando, prioridade baixa.
+
+**KPI vitrine:** **1/1 ativo** ✓ — LEAD-001 Stephanie Turnley · R$ 69 · [crm/crm_landing_pintor.md](../crm/crm_landing_pintor.md)
 
 ## Prioridades
 
-| # | Prioridade | Dono | Prazo | Status |
-|---|------------|------|-------|--------|
-| 1 | VitorOS A1 — KPIs Macro (TASK-012) | Dev + Loide | esta semana | **executando** |
-| 2 | Skills Dev+Loide (TASK-022) | Dev + Loide | esta semana | **executando** — base pronta |
-| 3 | Consolidar infra Lab (TASK-003) | Dev / agentes | — | em_andamento |
+| # | Prioridade | Dono | Status |
+|---|------------|------|--------|
+| **P0** | **LP-PINTOR-007** — página oficial Webflow | Loide + Dev | **executando** |
+| P1 | LP-PINTOR-008 — automação CRM→Webflow API | Loide + Dev + Juarez | backlog (após 007) |
+| P2 | LP-PINTOR-001 — captação Donizete/FB | Donizete | **bloqueado até 007** |
+| P3 | LP-PINTOR-006 — template Meta WA | Vitor + Dev | aguardando (baixa) |
+| — | VitorOS (PROJ-002) | Dev + Loide | pausado |
+
+## Stack Lab (operacional)
+
+| Fase | Capacidade |
+|------|------------|
+| 0 | Aprovação WhatsApp (mensagem cliente, gasto alto) |
+| 1 | Memória semântica Supabase |
+| 2 | LangGraph piloto + comercial (`graph-pilot` / `graph-run`) |
+| 3 | Autonomia graduada (`agent-action`) |
+| 4 | Autoevolução 1×/dia + sync pós-APROVAR |
 
 ## Restrições
 
-- **Orçamento / custo:** baixo — MVP, free tier quando possível
-- **Tempo:** evolução gradual, sem over-engineering
-- **Ferramentas:** Git, markdown no repo, backend Python/CrewAI
-- **Separação:** PROJ-002 (`vitoroliv.com` / `centralvitor`) **≠** PROJ-001 (`api.laboratorioagentes.com.br` / `Laboratorio`)
-- **Ronaldo:** delega, confere, aprende — [protocolo_delegacao_conferencia.md](../memoria/ronaldo_maestro/protocolo_delegacao_conferencia.md)
-- **Fábrica:** Laboratório (agentes, skills, memória, UX) · **Produto:** repos deploy (`centralvitor`, etc.)
+- **Orçamento:** baixo — MVP, free tier
+- **Caio proativo:** sempre trava WA — inbound continua instantâneo
+- **Captação FB:** **zero posts** até página Webflow oficial (LP-PINTOR-007)
+- **Separação:** Laboratório (fábrica) ≠ `centralvitor` (VitorOS deploy)
+- **Escalacao Vitor:** credencial, custo, prod Lab, estrutural — WA +5533999353242
 
 ## Projetos em destaque
 
-Ver detalhes em `memoria/projetos.md`. IDs ativos:
-
-- `PROJ-001` — Laboratório multiagente
-- `PROJ-002` — VitorOS + Negão (`vitoroliv.com`)
-
-## Decisões recentes (resumo)
-
-Ver `memoria/decisoes.md`. Última:
-
-- **Protocolo delegação + conferência + evolução** — 2026-05-31
-- **Ronaldo autonomia iniciar tasks** — 2026-05-31
-- Estrutura operacional — 2026-05-28
+- **PROJ-LAB** — fábrica multiagente · `api.laboratorioagentes.com.br`
+- **PROJ-LP** — Landing Pintor R$69 · manual `memoria/ronaldo_maestro/operacao_landing_pintor.md`
+- **PROJ-002** — VitorOS · retoma após PROJ-LP escala
 
 ## Última atualização
 
 | Campo | Valor |
 |-------|-------|
-| Data | 2026-05-31 |
-| Atualizado por | Ronaldo Maestro |
-| Resumo | Protocolo Ronaldo + TASK-012 KPIs Macro |
+| Data | 2026-06-02 |
+| Atualizado por | Ronaldo · Dev |
+| Resumo | Kanban realinhado · P0 Webflow 007 · captação gateada · 006 aguardando Meta |

@@ -1,0 +1,26 @@
+{
+  "name": "Painel Maestro — Laboratório de Agentes IA",
+  "short_name": "Maestro",
+  "description": "Dashboard operacional do Laboratório multiagente",
+  "start_url": "/painel/",
+  "scope": "/painel/",
+  "display": "standalone",
+  "background_color": "#070B16",
+  "theme_color": "#070B16",
+  "orientation": "any",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "assets/agentes/ronaldo-maestro.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/agentes/ronaldo-maestro.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

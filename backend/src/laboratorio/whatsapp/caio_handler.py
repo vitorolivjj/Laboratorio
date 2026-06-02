@@ -12,6 +12,11 @@ from laboratorio.agents.builder import build_agent
 from laboratorio.agents.llm_config import resolve_agent_llm_config
 from laboratorio.ops import usage
 from laboratorio.ops.review import review_text
+from laboratorio.whatsapp.lp_leads import (
+    build_lp_llm_prompt,
+    find_lead_by_wa_id,
+    try_lp_scripted_reply,
+)
 
 logger = logging.getLogger("laboratorio.whatsapp.caio")
 
@@ -30,8 +35,8 @@ Você é Caio Manteiga respondendo uma mensagem REAL no WhatsApp do Laboratório
 Regras obrigatórias:
 - Responda APENAS com o texto da mensagem WhatsApp (sem markdown, sem aspas, sem prefixos).
 - Máximo 4 linhas · tom humano, natural, brasileiro · sem tom robótico ou corporativo.
-- Se for saudação (olá, oi, bom dia): apresente-se como assistente do Laboratório de Agentes IA.
-- Não faça pitch agressivo · não envie links na primeira mensagem.
+- Se for saudação (olá, oi, bom dia): apresente-se como Caio, assistente comercial.
+- Não faça pitch agressivo · não envie links na primeira mensagem sem contexto.
 - Não peça dados pessoais desnecessários.
 """
 
@@ -45,18 +50,34 @@ def _clean_reply(raw: str) -> str:
 
 
 def generate_caio_reply(from_wa_id: str, user_message: str) -> str:
-    """Envia contexto ao Caio (CrewAI) e retorna texto da resposta."""
-    logger.info("Caio processando mensagem de %s", from_wa_id)
+    """Resposta comercial — PROJ-LP usa playbook; demais usam Caio genérico."""
+    scripted = try_lp_scripted_reply(from_wa_id, user_message)
+    if scripted:
+        logger.info("Caio LP script → %s (%d chars)", from_wa_id, len(scripted))
+        return scripted
 
-    caio = build_agent("caio_manteiga", verbose=False, log_llm=False)
-
-    task = Task(
-        description=(
+    lead = find_lead_by_wa_id(from_wa_id)
+    task_description = (
+        build_lp_llm_prompt(lead, user_message)
+        if lead
+        else (
             f"{CAIO_WHATSAPP_INSTRUCTIONS}\n\n"
             f"Remetente (WhatsApp ID): {from_wa_id}\n"
             f"Mensagem recebida:\n{user_message}\n\n"
             "Gere a resposta WhatsApp agora."
-        ),
+        )
+    )
+
+    logger.info(
+        "Caio processando %s (modo=%s)",
+        from_wa_id,
+        "lp_playbook" if lead else "generico",
+    )
+
+    caio = build_agent("caio_manteiga", verbose=False, log_llm=False)
+
+    task = Task(
+        description=task_description,
         expected_output=(
             "Uma única mensagem WhatsApp curta e natural, pronta para enviar ao usuário."
         ),
@@ -86,8 +107,9 @@ def generate_caio_reply(from_wa_id: str, user_message: str) -> str:
 
     if not reply:
         reply = (
-            "Olá! Sou o Caio, assistente do Laboratório de Agentes IA. "
-            "Como posso ajudar?"
+            "Olá! Sou o Caio. Como posso te ajudar?"
+            if lead
+            else "Olá! Sou o Caio, assistente do Laboratório de Agentes IA. Como posso ajudar?"
         )
 
     # Camada de revisão: melhora a mensagem antes de enviar ao cliente.

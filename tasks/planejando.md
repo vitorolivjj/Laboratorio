@@ -8,7 +8,7 @@ Ver transições: [workflows/pipeline_operacional.md](../workflows/pipeline_oper
 
 ## Em planejamento
 
-_(nenhuma task no momento)_
+_Nenhuma — LP-PINTOR-007 delegada direto para `executando` (2026-06-02)._
 
 ---
 

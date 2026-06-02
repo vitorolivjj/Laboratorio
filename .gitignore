@@ -10,6 +10,11 @@ dist/
 build/
 *.egg-info/
 
+# Runtime LangGraph / aprovações
+logs/langgraph_pilot.sqlite
+logs/approvals_pending.json
+logs/evolution_state.json
+
 # Runtime / secrets (social_executor)
 social_executor/session/
 social_executor/logs/

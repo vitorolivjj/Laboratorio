@@ -124,15 +124,17 @@ Quando Juarez, Dev e Caio **já entregaram**:
 
 O Vitor concedeu autonomia para **iniciar tasks quando quiser**, sem pedir aprovação a cada ciclo.
 
-### O que Ronaldo pode fazer sozinho
+### O que Ronaldo faz sozinho (fluxo total — 2026-05-31)
 
+- **Ciclo completo:** backlog → planejando → executando → concluído → arquivado
 - Criar ou priorizar `TASK-XXX` no backlog
-- Mover `backlog → planejando → executando` e emitir briefings
-- Acionar agentes (Dev, Loide, Juarez, Caio, Donizete) conforme o mapa
-- Iniciar PROJ-002 (VitorOS) assim que dependências e capacidade permitirem
-- Repriorizar WIP (máx. 3 ativas): pausar task de menor impacto para abrir slot
+- Mover kanban e emitir briefings **sem OK do Vitor entre etapas**
+- Acionar agentes (Dev, Loide, Juarez, Caio, Donizete)
+- **Auditar e fechar** TASK quando critérios técnicos atendidos
+- Repor WIP automaticamente (próxima da fila PROJ-002 quando slot libera)
+- Informar Vitor via WhatsApp/painel **após** marcos — não como gate
 
-### O que ainda exige o Vitor
+### O que ainda exige o Vitor (escalacao — WhatsApp Caio)
 
 - Credenciais, API keys, contas novas (Supabase, domínios pagos)
 - Gasto financeiro ou contratação de serviço pago
@@ -160,6 +162,22 @@ O Vitor concedeu autonomia para **iniciar tasks quando quiser**, sem pedir aprov
 Especialistas **não iniciam** TASK sem delegação Ronaldo. Sessões Cursor diretas com Dev/Loide exigem **backfill** de delegação + auditoria em até 24h.
 
 Autonomia = Ronaldo delega **quando quiser**, não que especialistas pulem o Ronaldo.
+
+## Patrulha operacional + alertas WhatsApp
+
+Ronaldo executa **check periódico** (30 min na VPS) de tasks, estrutura, infra e erros:
+
+- Spec: [patrulha_operacional.md](../memoria/ronaldo_maestro/patrulha_operacional.md)
+- CLI: `./run.sh ronaldo-patrol`
+- Log: `logs/ronaldo_patrol.md`
+
+Quando encontrar bloqueio que **exige Vitor** (credencial, autorização, custo, prod Lab, erro crítico):
+
+1. Registrar em `logs/ronaldo_patrol.md` + `logs/eventos.md` se relevante
+2. **Delegar ao Caio** enviar WhatsApp para `+5533999353242` (autorização: [autorizacao_vitor_whatsapp.md](../memoria/autorizacao_vitor_whatsapp.md))
+3. Não reenviar o mesmo alerta em 4 h
+
+Mensagens **do Vitor** para o Caio no WhatsApp são canal **operacional** (Ronaldo responde — igual Painel/Cursor), não comercial.
 
 ## Memória do sistema
 

@@ -46,6 +46,113 @@ def _require_llm_key() -> None:
     sys.exit(1)
 
 
+def _load_contexto_extra(objective: str = "") -> str:
+    from laboratorio.memory.context import augment_with_semantic_memory
+
+    parts: list[str] = []
+    if CONTEXTO_GLOBAL.is_file():
+        text = CONTEXTO_GLOBAL.read_text(encoding="utf-8")
+        parts.append(f"\n\nContexto global (resumo):\n{text[:1200]}\n")
+    if objective:
+        parts.append(augment_with_semantic_memory(objective))
+    return "".join(parts)
+
+
+def build_orchestration_crew(objective: str) -> Crew:
+    """Especialistas em sequência; Ronaldo consolida e prioriza em duas etapas."""
+    contexto = _load_contexto_extra(objective)
+    briefing = f"Objetivo do Vitor:\n{objective}{contexto}"
+
+    juarez = build_agent("juarez", verbose=True, log_llm=False)
+    dev = build_agent("dev", verbose=True, log_llm=False)
+    loide = build_agent("loide", verbose=True, log_llm=False)
+    caio = build_agent("caio_manteiga", verbose=True, log_llm=False)
+    ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=False, log_llm=False)
+
+    task_juarez = Task(
+        description=(
+            f"{briefing}\n\n"
+            "Como Juarez: análise operacional — situação, gargalos, plano, KPIs. "
+            "Máximo 15 linhas. Seja específico para o objetivo."
+        ),
+        expected_output="Análise operacional objetiva em português (bullets ou tabela curta).",
+        agent=juarez,
+    )
+
+    task_dev = Task(
+        description=(
+            f"{briefing}\n\n"
+            "Como Dev: MVP técnico — stack simples, pastas, passos, testes. "
+            "Sem over-engineering. Máximo 15 linhas."
+        ),
+        expected_output="Proposta técnica objetiva (formato Dev resumido).",
+        agent=dev,
+        context=[task_juarez],
+    )
+
+    task_loide = Task(
+        description=(
+            f"{briefing}\n\n"
+            "Como Loide (UX Designer): a partir do MVP técnico proposto pelo Dev, "
+            "desenhe a EXPERIÊNCIA DE USO. Defina o fluxo do usuário, a estrutura "
+            "das telas principais (hierarquia), o microcopy essencial (botões/mensagens) "
+            "e notas de usabilidade/acessibilidade para o Dev implementar. "
+            "Mobile-first, mínimo de atrito. Máximo 15 linhas."
+        ),
+        expected_output=(
+            "Proposta de UX objetiva: fluxo do usuário, estrutura de tela, microcopy "
+            "e notas de implementação para o Dev."
+        ),
+        agent=loide,
+        context=[task_juarez, task_dev],
+    )
+
+    task_caio = Task(
+        description=(
+            f"{briefing}\n\n"
+            "Como Caio Manteiga: oferta low ticket, preço, CTA, copy WhatsApp, 2 follow-ups. "
+            "Máximo 15 linhas."
+        ),
+        expected_output="Pacote comercial objetivo (oferta, CTA, script, follow-ups).",
+        agent=caio,
+        context=[task_juarez],
+    )
+
+    task_consolidacao = Task(
+        description=(
+            f"{briefing}\n\n"
+            f"{_CONSOLIDACAO_INSTRUCOES}\n"
+            f"Evite estas expressões: {', '.join(_PROIBIDO_RONALDO)}"
+        ),
+        expected_output=(
+            "Seção CONSOLIDAÇÃO FINAL completa: convergências, divergências com decisão, "
+            "plano operacional único em tabela."
+        ),
+        agent=ronaldo,
+        context=[task_juarez, task_dev, task_loide, task_caio],
+    )
+
+    task_priorizacao = Task(
+        description=(
+            f"Objetivo do Vitor:\n{objective}\n\n"
+            f"{_PRIORIZACAO_INSTRUCOES}"
+        ),
+        expected_output=(
+            "Seções PRIORIZAÇÃO EXECUTIVA, DECISÃO DE HOJE, PRÓXIMO PASSO, "
+            "TASK SUGERIDA e KPI DE SUCESSO — pronto para executar."
+        ),
+        agent=ronaldo,
+        context=[task_juarez, task_dev, task_loide, task_caio, task_consolidacao],
+    )
+
+    return Crew(
+        agents=[juarez, dev, loide, caio, ronaldo],
+        tasks=[task_juarez, task_dev, task_loide, task_caio, task_consolidacao, task_priorizacao],
+        process=Process.sequential,
+        verbose=True,
+    )
+
+
 def _insert_after_section(path: Path, section_title: str, entry: str) -> None:
     text = path.read_text(encoding="utf-8")
     anchor = f"## {section_title}\n\n"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer resumo diário autoevolução — 1x/dia (09:00 BRT / 12:00 UTC)
+
+[Timer]
+OnCalendar=*-*-* 12:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

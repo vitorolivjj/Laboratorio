@@ -27,6 +27,177 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### Webflow como plataforma de produção LP — 2026-06-02
+
+- **Contexto:** KPI vitrine 1/1 (Stephanie) provou funil; escala exige páginas profissionais sem Dev montar HTML por lead.
+- **Decisão:**
+  - **Alugar Webflow** (Premium ~US$ 25/mês) — não construir template in-house como produção principal
+  - 1 site · coleção **Pintores** · ~20k páginas · subpath `dominio/slug`
+  - 1 template-matriz + **4 variantes de cor** (Azul, Verde, Grafite-Laranja, Neutro)
+  - Prévia/takedown por item via **API CMS** · ativo = tarja prévia off
+  - **Ativo real em casa:** automação CRM → Webflow API + job expiração (Loide + Dev)
+  - In-house (`frontend/lp-pintor/`) = vitrine fase 1 only; migrar novos leads
+- **Schema fechado (2026-06-02):** campos fixos serviços/depoimentos · ativar = só tarja · handoff Donizete→IA→Loide+Dev→Juarez→Caio→Vitor(PIX)
+- **Gate captação (2026-06-02):** Donizete **só inicia posts após LP-PINTOR-007** (página oficial Webflow)
+- **Responsável:** Vitor · Loide (template) · Dev (API) · Juarez (conferência prévia)
+- **Ref:** `memoria/ronaldo_maestro/webflow_lp_pintor.md` · LP-PINTOR-007/008
+
+### Templates Meta WhatsApp — abertura proativa LP — 2026-06-02
+
+- **Contexto:** Abordagem LEAD-001 com texto livre proativo; Meta exige template aprovado fora da janela 24h (gargalo operacional).
+- **Decisão:**
+  - Fluxo 2 etapas: (1) template `abertura_pintor_contato` + APROVAR Vitor · (2) link inbound após resposta
+  - Código: `send_client_template` · doc `memoria/caio_manteiga/templates_meta_wa.md`
+  - Vitor cadastra template no Meta Business Manager antes da próxima abordagem
+- **Responsável:** Vitor (Meta) · Dev (código) · Caio (script)
+- **Ref:** LP-PINTOR-006 · operacao_landing_pintor §9
+
+### KPI vitrine comercial + plano 4 ondas — 2026-06-02
+
+- **Contexto:** Fases 0–4 concluídas; vitrine = Lab prova entrega + venda low-ticket.
+- **Decisão:**
+  - **KPI único:** 1 lead `ativo` (R$ 69 PIX) em `crm/crm_landing_pintor.md`
+  - Produto piloto: **PROJ-LP** (funil invertido); VitorOS pausado até vitrine
+  - Execução: Ondas 1–4 (consolidar → LP mínimo → LAB-006 grafo → narrativa)
+  - Lead manual válido antes de escalar Donizete/Facebook
+- **Responsável:** Vitor (estratégia) · Ronaldo · Dev · Loide · Caio
+- **Ref:** plano vitrine jun/2026 · `contexto/contexto_global.md`
+
+### Fase 4 — Autoevolução supervisionada (resumo 1×/dia) — 2026-06-02
+
+- **Contexto:** Fases 0–3 no ar; Vitor quer evolução proposta, nunca automática em memória/processos.
+- **Decisão:**
+  - Resumo diário via WhatsApp (timer 09:00 BRT) · propostas append-only
+  - `APROVAR XXXX` aplica lote · `RECUSAR XXXX` descarta
+  - CLI `./run.sh evolution-digest` · dedup 1 execução/dia
+- **Ref:** `memoria/autoevolucao_fase4.md`
+
+### Fase 3 — Autonomia graduada (LAB-004) — 2026-06-02
+
+- **Contexto:** Fases 0–2 estáveis; agentes precisam executar ferramentas com tier auto vs aprovação.
+- **Decisão:**
+  - Catálogo em `laboratorio/autonomy/` · porta única `run_action()`
+  - CLI `./run.sh agent-action` · aprovação WhatsApp tipo `agent_action`
+  - Ações auto: log, recall, patrulha dry-run, alerta Vitor, nota em task
+  - Ações com OK: mensagem proativa a cliente, piloto LangGraph
+- **Ref:** `memoria/autonomia_graduada_fase3.md`
+
+### Fase 2 — Piloto LangGraph (LAB-003) — 2026-06-02
+
+- **Contexto:** Fase 0–1 estáveis; validar motor paralelo ao CrewAI numa task real.
+- **Decisão:**
+  - Task piloto **LAB-003** em `executando.md` · grafo `load→plan→work→cost_gate→finalize`
+  - Checkpoints em `logs/langgraph_pilot.sqlite` · CLI `./run.sh graph-pilot TASK_ID`
+  - Memória semântica no nó `load` · gasto alto notifica Vitor no `cost_gate`
+  - CrewAI mantido para Caio inbound e orquestrador clássico
+- **Responsável:** Dev · Ronaldo
+- **Ref:** `memoria/langgraph_piloto_fase2.md` · `tasks/LAB-003.md`
+
+### Fase 1 — Memória semântica Supabase — 2026-06-01
+
+- **Contexto:** Agentes precisam lembrar por significado; projeto Supabase `pwlpdpwxxhbsmkclrpoa` já existe (VitorOS).
+- **Decisão:**
+  - Tabela `lab_semantic_memories` + pgvector (1536, `text-embedding-3-small`)
+  - Backend Lab conecta via `SUPABASE_DB_URL` (Postgres); publishable key só para frontend
+  - Sync de `memoria/`, `contexto/` e arquivos estratégicos Ronaldo
+  - Injeção automática no orquestrador e no LLM WhatsApp Vitor quando memória ativa
+- **Responsável:** Vitor (credenciais) · Dev (implementação)
+- **Ref:** `memoria/memoria_semantica_fase1.md` · `supabase/README.md`
+
+### Fase 0 — Reset kanban + aprovação WhatsApp — 2026-06-01
+
+- **Contexto:** Roadmap em fases (memória semântica, LangGraph, skills, autoevolução) exige trava de segurança antes de mais autonomia.
+- **Decisão:**
+  - Kanban ativo **arquivado** (reversível em `tasks/arquivado.md`); filas `executando` / `planejando` / `backlog` vazias até nova task
+  - **Mensagem proativa a cliente** → pede OK no WhatsApp do Vitor (`APROVAR XXXX` / `RECUSAR XXXX`)
+  - **Gasto alto** → limiar `APPROVAL_COST_THRESHOLD_USD` (padrão US$ 1); infra pronta, gatilhos LLM plugados nas fases seguintes
+  - **Inbound Caio** (quem escreveu primeiro) e **canal Vitor operacional** continuam sem trava
+- **Responsável:** Vitor (definição) · Dev (implementação)
+- **Agentes impactados:** caio_manteiga, ronaldo_maestro, todos com envio proativo
+- **Validade / revisar em:** Permanente até Fase 3 (autonomia graduada) revisar escopo
+- **Ref:** `memoria/aprovacao_whatsapp_fase0.md`
+
+### Auditoria pós-conclusão do Ronaldo — auditar, delegar e criar follow-ups — 2026-06-01
+
+- **Contexto:** o ciclo terminava ao concluir a task; faltava um passo automático de conferência que gerasse os próximos passos sem depender do Vitor.
+- **Decisão:**
+  - Toda task que entra em `concluidas.md` é **auditada automaticamente** (`ronaldo-audit.timer`, 10 min, alinhado à cadência).
+  - Ronaldo registra veredito (`aprovado` / `aprovado_com_ressalvas` / `ajustes_necessarios`) + gaps + aprendizados em `logs/auditorias.md`.
+  - Se houver gap/próximo passo, **cria até 2 follow-ups** no `backlog` já com briefing (delegação escrita), usando o **prefixo do projeto** da task-mãe.
+  - Follow-ups nascem em `backlog` (nunca direto em execução); promoção a `executando` respeita a cadência de 10 min.
+  - Escala ao Vitor via Caio **só** quando precisa de decisão dele; senão opera em autonomia.
+  - **Idempotente:** estado em `logs/ronaldo_audit_state.json`; histórico anterior marcado como já auditado.
+  - Sem `OPENAI_API_KEY` → fallback heurístico (auditoria mínima, sem inventar follow-ups).
+- **Responsável:** Vitor (mandato) · Ronaldo (execução)
+- **Agentes impactados:** Ronaldo (orquestração); Dev/Loide/Caio/Donizete (recebem follow-ups)
+- **Validade / revisar em:** revisar quando o volume de follow-ups exigir ajuste do teto (hoje 2/task)
+- **Ref:** `memoria/ronaldo_maestro/rotina_pos_task.md` · `backend/src/laboratorio/ops/ronaldo_audit.py`
+
+### Cadência de tasks substitui teto de WIP — 2026-06-01
+
+- **Contexto:** WIP rígido (máx. 3 simultâneas) limitava o volume; com múltiplos projetos/agentes, faz mais sentido controlar o **ritmo de início** que o total simultâneo.
+- **Decisão:**
+  - **Sem teto rígido.** O limite passa a ser **cadência**: intervalo mínimo entre iniciar uma task e a próxima (`TASK_CADENCE_MIN`, padrão **10 min**).
+  - Ronaldo pode ter várias frentes abertas, mas **não dispara várias de uma vez** — espaça os starts.
+  - Teto opcional `WIP_SOFT_MAX` (0 = sem teto) para quem quiser um limite duro.
+  - Painel mostra "Em execução: N" + "Cadência Xmin (livre / aguarda Ymin)". Patrulha alerta só se cadência for violada (2 starts em < intervalo) ou teto opcional excedido.
+  - Timestamp real de cada start em `logs/task_cadence_state.json`.
+- **Responsável:** Vitor (definição) · Ronaldo (execução)
+- **Agentes impactados:** Ronaldo (orquestração)
+- **Validade / revisar em:** Ajustar `TASK_CADENCE_MIN` conforme ritmo da operação
+
+### Operação Landing Page Pintor — funil invertido R$ 69 — 2026-05-31
+
+- **Contexto:** Produto/teste PROJ-LP reativado com playbook completo (Vitor). Modelo "entrega antes de vender".
+- **Decisão:**
+  - **Funil invertido:** produz a página primeiro, sobe prévia grátis, cobra ativação **R$ 69 PIX**. Prévia sai do ar em 3–5 dias se não ativar.
+  - **Separação inquebrável:** Facebook = só captação (Donizete). Venda só no WhatsApp (Caio), sem vínculo com perfil de prospecção.
+  - **Delegação:** Donizete (captação/qualificação/CRM), Loide+Dev (template 2×4 + host grátis), Caio (venda), Ronaldo (alinha/delega/audita).
+  - **KPI-chave:** taxa de ativação (vendas ÷ páginas entregues). Conversão caiu → revisar qualificação, não preço.
+  - **CRM próprio** `crm_landing_pintor`, funil: prospectado → enviado_loide → previa_no_ar → abordado → ativo/recusou. Tag origem indicacao/autopromocao.
+- **Responsável:** Vitor (modelo) · Ronaldo (orquestração)
+- **Agentes impactados:** Donizete, Loide, Dev, Caio, Ronaldo
+- **Validade / revisar em:** Após primeiras ativações (medir taxa) · Manual: `memoria/ronaldo_maestro/operacao_landing_pintor.md`
+
+### Organização por projeto — hierarquia fábrica/projeto/CRM — 2026-05-31
+
+- **Contexto:** Painel misturava 3 naturezas (Laboratório-fábrica, projetos internos/contratados, produtos/leads comerciais).
+- **Decisão:**
+  - **Laboratório = fábrica** (operação principal), não "um projeto".
+  - **Projetos** com prefixo padronizado: `LAB-` (Core), `VITOROS-` (cliente interno), `LP-PINTOR-` (produto/teste), `VIOLA-` (consultoria), `APPVS-` (futuro), `NEGAO-` (sub-VitorOS). Registry: `projetos/projetos.md`.
+  - **Toda task pertence a um projeto** (campo `Projeto:` / prefixo / mapa legado). Nenhuma task solta.
+  - **CRM segmentado por finalidade:** `crm_laboratorio` (leads da empresa — Dr. Viola, clínicas, consultorias) e `crm_landing_pintor` (produto). VitorOS/Negão/interno **não entram em CRM**.
+  - Painel: sidebar com submenu por projeto · seção **Projetos** master-detail (cada projeto mostra suas tasks e **o CRM dentro do próprio projeto**) · seção **Tasks** com filtro por projeto. Sem aba de CRM solta.
+- **Responsável:** Vitor (definição) · Dev/Ronaldo (execução — LAB-002)
+- **Agentes impactados:** Todos (Ronaldo classifica tasks; Donizete/Caio usam CRM correto)
+- **Validade / revisar em:** Permanente — novos projetos entram no registry
+
+### Fluxo total de tasks liberado — 2026-05-31
+
+- **Contexto:** Patrulha operacional + WhatsApp Vitor ativos. Vitor autoriza Ronaldo conduzir o ciclo completo sem gates intermediários.
+- **Decisão:**
+  - Ronaldo opera **backlog → planejando → executando → concluído → próxima TASK** de forma autônoma e contínua
+  - **Sem** aguardar OK do Vitor entre transições de status
+  - **Auditoria Ronaldo** = gate para `concluído` (não aceite manual prévio)
+  - Aceite Vitor = **informação** (WhatsApp/painel), não bloqueio — salvo escalacao explícita (credencial, custo, prod Lab)
+  - Ao liberar slot WIP: priorizar fila PROJ-002 (TASK-013+) automaticamente
+  - Patrulha 30 min + alerta WhatsApp só para exceções
+- **Responsável:** Vitor (autorização) · Ronaldo Maestro (execução)
+- **Agentes impactados:** Todos
+- **Validade / revisar em:** Permanente até revogação
+
+### Canal WhatsApp Vitor — operacional + alertas — 2026-05-31
+
+- **Contexto:** Vitor autoriza conversas do +5533999353242 com Caio como canal do dono (Ronaldo). Patrulha periódica de tasks/estrutura; escalacao WhatsApp quando precisar autorização.
+- **Decisão:**
+  - `memoria/autorizacao_vitor_whatsapp.md`
+  - Backend: número autorizado → Ronaldo; outros → Caio comercial
+  - `./run.sh ronaldo-patrol` + timer 30 min VPS
+  - Caio envia alerta quando Ronaldo detectar bloqueio crítico (dedup 4 h)
+- **Responsável:** Vitor · Ronaldo · Caio · Dev
+- **Agentes impactados:** ronaldo_maestro, caio_manteiga
+- **Validade / revisar em:** Permanente até revogação
+
 ### Protocolo delegação + conferência + evolução — 2026-05-31
 
 - **Contexto:** Vitor exige que **todas** as tasks sejam delegadas pelo Ronaldo, conferidas por ele, e que aprendizados alimentem evolução constante.

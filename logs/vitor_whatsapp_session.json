@@ -1,0 +1,34 @@
+{
+  "5533999353242": [
+    {
+      "role": "user",
+      "content": "status",
+      "ts": "2026-05-31T22:20:20.827048+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "- Operação normal · Sistema/VPS/WhatsApp: OK\n- 1/3 tarefa em andamento (TASK-012)\n- Trabalhando: Ronaldo, Dev, Loide\n- Mensagens hoje: 0 · Leads: 0\n- Erros: Nenhum erro recente",
+      "source": "fast"
+    },
+    {
+      "role": "user",
+      "content": "me fala como estao as tasks",
+      "ts": "2026-05-31T22:44:32.792438+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "WIP 1/3\nExecutando: TASK-012\nPlanejando: TASK-013\n\nTASK-012 (executando)\n  VitorOS A1: Home cockpit + KPIs derivados\n  Próxima: Aceite Macro · auditoria Ronaldo · deploy vitoroliv.com\n\nTASK-013 (planejando)\n  VitorOS A2: Finanças\n  Próxima: Entrar em `executando` assim que TASK-012 auditar · briefings abaixo prontos\n\nRecentes concluídas: TASK-022, TASK-003, TASK-011",
+      "source": "fast"
+    },
+    {
+      "role": "user",
+      "content": "consulta o status do laboratorio",
+      "ts": "2026-05-31T22:44:32.800779+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "- Operação normal · Sistema/VPS/WhatsApp: OK\n- 1/3 tarefa em andamento (TASK-012)\n- Trabalhando: Ronaldo, Dev, Loide\n- Mensagens hoje: 0 · Leads: 0\n- Erros: Nenhum erro recente",
+      "source": "fast"
+    }
+  ]
+}

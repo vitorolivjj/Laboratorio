@@ -8,6 +8,7 @@ from fastapi.responses import Response
 from laboratorio.ops import usage
 from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
+from laboratorio.ops.maestro_metrics import get_metrics_history
 from laboratorio.ops.ronaldo_tts import synthesize_speech
 from laboratorio.ops.ronaldo_voice import generate_ronaldo_voice_reply
 from laboratorio.ops.ronaldo_voice_history import list_voice_history
@@ -29,6 +30,12 @@ def get_snapshot(response: Response, fresh: bool = False) -> dict:
     # Evita cache do navegador/proxy: o painel precisa sempre do estado mais recente.
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     return build_maestro_snapshot() if fresh else get_cached_snapshot()
+
+
+@router.get("/metrics")
+def get_metrics(hours: float = 24) -> dict:
+    """Série temporal WIP / mensagens para sparklines (compartilhada entre dispositivos)."""
+    return get_metrics_history(hours)
 
 
 @router.post("/ronaldo/command")

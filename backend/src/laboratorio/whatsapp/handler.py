@@ -1,44 +1,57 @@
-"""Orquestra inbound → Caio → outbound."""
+"""Orquestra inbound → Caio / Vitor / Dono → outbound."""
 
 from __future__ import annotations
 
 import logging
 
+from laboratorio.whatsapp.approvals import try_handle_approval_message
 from laboratorio.whatsapp.caio_handler import generate_caio_reply
 from laboratorio.whatsapp.client import send_text_message
 from laboratorio.whatsapp.dedup import mark_if_new
+from laboratorio.whatsapp.outbound import send_to_recipient
 from laboratorio.whatsapp.logger import log_exchange
 from laboratorio.whatsapp.owner import generate_owner_reply, is_owner
 from laboratorio.whatsapp.parser import InboundMessage
+from laboratorio.whatsapp.vitor_auth import get_vitor_wa_id, is_vitor_authorized
+from laboratorio.whatsapp.vitor_handler import generate_vitor_reply
+from laboratorio.whatsapp.vitor_whatsapp import process_due_reminders, vitor_needs_ack
 
 logger = logging.getLogger("laboratorio.whatsapp.handler")
 
 
 def process_inbound_message(msg: InboundMessage) -> None:
-    # Marca ANTES de processar (atômico): descarta a 2ª entrega da Meta mesmo
-    # enquanto a 1ª ainda está gerando a resposta — evita resposta duplicada.
     if not mark_if_new(msg.message_id):
         logger.info("Ignorando duplicata message_id=%s", msg.message_id)
         return
 
-    try:
-        if is_owner(msg.from_wa_id):
-            # Dono: Caio responde amplo sobre o laboratório (status, tasks, andamento).
-            logger.info("Mensagem de dono %s — modo ampla (laboratório)", msg.from_wa_id)
-            reply = generate_owner_reply(msg.text)
-            status = "ok (dono)"
-        else:
-            # Demais números: Caio comercial (produtos, projetos, leads do CRM).
-            reply = generate_caio_reply(msg.from_wa_id, msg.text)
-            status = "ok"
+    _flush_due_reminders()
 
-        send_text_message(msg.from_wa_id, reply)
+    try:
+        if is_vitor_authorized(msg.from_wa_id):
+            approval_reply = try_handle_approval_message(msg.text)
+            if approval_reply is not None:
+                reply = approval_reply
+                channel = "vitor_aprovacao"
+            else:
+                if vitor_needs_ack(msg.text):
+                    send_text_message(msg.from_wa_id, "⏳ Consultando operação…")
+                reply = generate_vitor_reply(msg.from_wa_id, msg.text)
+                channel = "vitor_operacional"
+        elif is_owner(msg.from_wa_id):
+            logger.info("Mensagem de dono %s — modo Ronaldo (ações + status)", msg.from_wa_id)
+            reply = generate_owner_reply(msg.text)
+            channel = "owner_ronaldo"
+        else:
+            reply = generate_caio_reply(msg.from_wa_id, msg.text)
+            channel = "caio_comercial"
+
+        send_to_recipient(msg.from_wa_id, reply, proactive=False)
         log_exchange(
             from_wa_id=msg.from_wa_id,
             inbound=msg.text,
             outbound=reply,
             message_id=msg.message_id,
-            status=status,
+            status=f"ok:{channel}",
         )
     except Exception as exc:
         logger.exception("Falha ao processar mensagem %s", msg.message_id)
@@ -50,3 +63,18 @@ def process_inbound_message(msg: InboundMessage) -> None:
             status=f"erro: {exc}",
         )
         raise
+
+
+def _flush_due_reminders() -> None:
+    try:
+        for _id, body in process_due_reminders():
+            send_text_message(get_vitor_wa_id(), body)
+            log_exchange(
+                from_wa_id=get_vitor_wa_id(),
+                inbound="(lembrete agendado)",
+                outbound=body,
+                message_id=f"schedule-{_id}",
+                status="ok:schedule",
+            )
+    except Exception:
+        logger.exception("Falha ao enviar lembretes agendados")

@@ -1,0 +1,85 @@
+/* LP Pintor — template PROJ-LP */
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+  --radius: 12px;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
+
+.theme-verde {
+  --bg: #14532d;
+  --surface: #166534;
+  --accent: #facc15;
+  --accent-hover: #eab308;
+}
+
+.theme-branco {
+  --bg: #ffffff;
+  --surface: #f1f5f9;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.container { max-width: 720px; margin: 0 auto; padding: 1.25rem; }
+
+.hero { padding: 2.5rem 0 2rem; text-align: center; }
+.hero .badge {
+  display: inline-block;
+  background: var(--surface);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.hero h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); margin-bottom: 0.75rem; }
+.hero .lead { color: var(--muted); margin-bottom: 1.5rem; }
+
+.btn-wa {
+  display: inline-block;
+  background: var(--accent);
+  color: #111;
+  font-weight: 700;
+  padding: 0.9rem 1.4rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-wa:hover { background: var(--accent-hover); }
+
+.section { padding: 2rem 0; border-top: 1px solid rgba(255,255,255,0.08); }
+.section h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+.gallery img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}

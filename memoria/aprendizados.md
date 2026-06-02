@@ -26,6 +26,13 @@ O que funcionou, o que falhou e o que **não repetir**. Todos podem contribuir; 
 
 ## Aprendizados
 
+### 2026-05-31 — Fluxo total de tasks liberado #orquestracao
+- **TASK:** transversal · TASK-022 fechada · TASK-013 planejando
+- **Situação:** Vitor autorizou ciclo completo autônomo após patrulha + WhatsApp operacional.
+- **Aprendizado:** Ronaldo fecha após auditoria técnica; informa Vitor via WhatsApp/painel — aceite não bloqueia kanban. Repor WIP da fila PROJ-002 automaticamente.
+- **Muda no próximo briefing:** Briefings prontos em `planejando` antes do slot abrir.
+- **Tags:** `#orquestracao`
+
 ### 2026-05-31 — Fábrica Lab vs produto centralvitor #orquestracao #dev
 - **TASK:** TASK-010, TASK-011, TASK-022
 - **Situação:** Risco de misturar agentes/skills/UX no repo deployável.

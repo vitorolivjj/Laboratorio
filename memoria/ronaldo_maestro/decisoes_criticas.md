@@ -17,6 +17,14 @@ Formato por entrada:
 
 ## Decisões
 
+### Fluxo total de tasks liberado — 2026-05-31
+
+- **Contexto:** Vitor autoriza ciclo completo autônomo após patrulha + canal WhatsApp operacional.
+- **Decisão:** Ronaldo conduz backlog→concluído sem gates do Vitor; auditoria técnica fecha TASK; escalacao só credencial/custo/prod Lab/estrutural; WIP repovoado automaticamente da fila VitorOS.
+- **Motivo:** Andamento constante; Vitor foca em decisões estratégicas, não em aprovar cada movimento de kanban.
+- **Agentes impactados:** Todos.
+- **Revisar em:** Permanente até revogação.
+
 ### Autonomia operacional do Ronaldo — 2026-05-31
 
 - **Contexto:** Vitor autorizou Ronaldo a iniciar tasks e delegar sem gate de aprovação por ciclo.

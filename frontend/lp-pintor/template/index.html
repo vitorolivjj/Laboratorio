@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{NOME}} — Pintor em {{CIDADE}}</title>
+  <meta name="description" content="{{SERVICO}} em {{CIDADE}}. Orçamento pelo WhatsApp.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-{{THEME}}">
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="badge">{{CIDADE}}</span>
+        <h1>{{NOME}}</h1>
+        <p class="lead">{{SERVICO}}</p>
+        <a class="btn-wa" id="cta-wa" href="#" target="_blank" rel="noopener">Pedir orçamento no WhatsApp</a>
+      </div>
+    </section>
+    <section class="section" id="galeria" style="display:none">
+      <div class="container">
+        <h2>Nossos trabalhos</h2>
+        <div class="gallery" id="gallery"></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <h2>Como funciona</h2>
+        <p style="color:var(--muted)">Orçamento rápido pelo WhatsApp. Atendemos {{CIDADE}} e região.</p>
+        <p style="margin-top:1rem"><a class="btn-wa" id="cta-wa-2" href="#">Chamar no WhatsApp</a></p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container">Página profissional · {{NOME}}</div>
+  </footer>
+  <script>
+    window.LP_CONFIG = {{CONFIG_JSON}};
+    (function () {
+      var c = window.LP_CONFIG;
+      var num = (c.whatsapp || "").replace(/\D/g, "");
+      var text = encodeURIComponent(c.whatsapp_text || "Oi! Quero um orçamento.");
+      var url = "https://wa.me/" + num + "?text=" + text;
+      document.getElementById("cta-wa").href = url;
+      document.getElementById("cta-wa-2").href = url;
+      if (c.fotos && c.fotos.length) {
+        document.getElementById("galeria").style.display = "";
+        var g = document.getElementById("gallery");
+        c.fotos.forEach(function (src) {
+          var img = document.createElement("img");
+          img.src = src;
+          img.alt = "Trabalho";
+          g.appendChild(img);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

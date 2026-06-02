@@ -32,6 +32,17 @@ Design tokens: `.cursor/skills/loide-ux/vitoros-design-system.md`
 
 **Nunca** versionar mockups/specs de agente no repo `centralvitor`.
 
+## Autonomia graduada (Fase 3)
+
+Agentes no **backend** usam `run_action()` — não confundir com Cursor skills.
+
+| Tier | Exemplos |
+|------|----------|
+| auto | `log_event`, `memory_recall`, `patrol_check` |
+| approval | `send_client_message`, `run_graph_pilot` |
+
+Ver `memoria/autonomia_graduada_fase3.md` · CLI: `./run.sh agent-action`
+
 ## Manutenção
 
 Task oficial: **TASK-022** · Expandir skills conforme novos padrões (Negão, finanças, etc.)

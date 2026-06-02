@@ -31,7 +31,56 @@ Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operac
 
 ## Fila
 
-_(backlog limpo — recomeço em 2026-06-01. O roteiro anterior (VitorOS TASK-012–021, etc.) foi arquivado em [arquivado.md](arquivado.md); os documentos `TASK-XXX.md` seguem intactos e podem ser repostos quando você quiser.)_
+> Histórico reset Fase 0: [arquivado.md](arquivado.md#reset-fase-0--2026-06-01)
+
+### LP-PINTOR-008 — Automação CRM → Webflow API + takedown
+
+- **Projeto:** PROJ-LP · **Agente:** loide · dev · juarez · **Depende:** LP-PINTOR-007 · [LP-PINTOR-008.md](LP-PINTOR-008.md)
+
+### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
+
+- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Depende:** LP-PINTOR-007 ✋ **só iniciar após página oficial Webflow no ar**
+- **Documento:** [LP-PINTOR-001.md](LP-PINTOR-001.md)
+
+### LP-PINTOR-003 — CRM pintores + handoff Donizete→produção
+
+- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Depende:** LP-PINTOR-007 · [LP-PINTOR-003.md](LP-PINTOR-003.md)
+
+### LP-PINTOR-005 — KPIs, escopo de alterações e auditoria
+
+- **Projeto:** PROJ-LP · **Agente:** ronaldo_maestro · [LP-PINTOR-005.md](LP-PINTOR-005.md)
+
+### TASK-014 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-014.md](TASK-014.md)
+
+### TASK-015 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-015.md](TASK-015.md)
+
+### TASK-016 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-016.md](TASK-016.md)
+
+### TASK-017 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-017.md](TASK-017.md)
+
+### TASK-018 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-018.md](TASK-018.md)
+
+### TASK-019 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-019.md](TASK-019.md)
+
+### TASK-020 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-020.md](TASK-020.md)
+
+### TASK-021 — VitorOS (pausado PROJ-002)
+
+- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-021.md](TASK-021.md)
 
 ---
 

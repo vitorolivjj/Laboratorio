@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer patrulha Ronaldo — a cada 30 min
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

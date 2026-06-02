@@ -106,7 +106,7 @@ def _answer_status(s: dict) -> tuple[str, str]:
     panel = (
         f"- {b.get('headline', 'Operação')} · Sistema/VPS/WhatsApp: "
         f"{'OK' if online else 'verificar'}\n"
-        f"- {wip}/{o.get('wip_max', 3)} {_plural(wip, 'tarefa', 'tarefas')} em andamento "
+        f"- {wip} {_plural(wip, 'tarefa', 'tarefas')} em andamento "
         f"({', '.join(o.get('active_tasks', [])) or '—'})\n"
         f"- Trabalhando: {', '.join(working) or 'ninguém'}\n"
         f"- Mensagens hoje: {o.get('messages_today', 0)} · Leads: {b.get('leads_total', 0)}\n"

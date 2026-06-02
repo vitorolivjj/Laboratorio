@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer lembretes WhatsApp Vitor — a cada 1 min
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

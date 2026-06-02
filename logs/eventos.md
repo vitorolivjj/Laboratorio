@@ -25,6 +25,142 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-06-02 — [auditoria] Governança — kanban realinhado + backfill auditorias
+
+- **Agente(s):** ronaldo_maestro · dev
+- **Detalhe:** Script `audit_governanca.py` + CLI `governanca-audit` · patrulha integrada · backfill `auditorias.md` LAB-003→LP-PINTOR-004 · gate Donizete confirmado · P0 LP-PINTOR-007
+- **Ref:** logs/governanca_auditoria.md · `backend/src/laboratorio/ops/governance_audit.py`
+
+### 2026-06-02 — [orquestracao] Kanban realinhado — P0 Webflow · captação gateada
+
+- **Agente(s):** ronaldo_maestro · dev
+- **Detalhe:** LP-PINTOR-007 → `executando` (P0 página oficial) · LP-PINTOR-006 → `aguardando` (Meta, baixa) · LP-PINTOR-001/003 → `backlog` bloqueados até 007 · Donizete zero posts até Webflow no ar · briefings Loide+Dev delegados
+- **Ref:** LP-PINTOR-007 · contexto_global.md · operacao_landing_pintor §3
+
+### 2026-06-02 — [delegacao] LP-PINTOR-007 — Webflow template + coleção
+
+- **Agente(s):** ronaldo_maestro → loide · dev
+- **Detalhe:** Briefings emitidos · critério: página exemplo no ar antes de captação ou automação 008
+- **Ref:** tasks/LP-PINTOR-007.md
+
+### 2026-06-02 — [marco] KPI vitrine 1/1 — LEAD-001 Stephanie ativo
+- **Agente(s):** caio_manteiga · vitor · loide · dev
+- **Detalhe:** PIX R$ 69 confirmado · pós-venda · fundo branco aplicado · playbook Caio corrigido (confirmação Vitor)
+- **Ref:** PROJ-LP · receita R$ 69
+
+### 2026-06-02 — [marco] LEAD-001 conversão — aguardando PIX R$ 69
+- **Agente(s):** caio_manteiga · Stephanie Turnley
+- **Detalhe:** Funil etapa 1→4 · link enviado · objeções tratadas · pediu fundo branco (Loide) · "vou querer, como paga?" · PIX enviado
+- **Ref:** LEAD-001 · aguarda Vitor confirmar PIX antes de ativar
+
+### 2026-06-02 — [marco] LEAD-001 etapa 1 confirmada (Stephanie recebeu)
+- **Agente(s):** vitor · caio_manteiga
+- **Detalhe:** Abertura Grupo das Fiorino entregue · aguardando resposta para etapa 2 (link)
+- **Ref:** LEAD-001
+
+### 2026-06-02 — [orquestracao] Reinício abordagem LEAD-001 (Grupo das Fiorino)
+- **Agente(s):** caio_manteiga · dev
+- **Detalhe:** Funil zerado · abertura etapa 1 (sem link) enviada · grupo Grupo das Fiorino
+- **Ref:** LEAD-001 · `5516997559557`
+
+### 2026-06-02 — [marco] Playbook comercial Caio PROJ-LP integrado
+- **Agente(s):** caio_manteiga · dev
+- **Detalhe:** `playbook_comercial_lp_pintor.md` · funil 5 etapas · objeções · `lp_leads.py` + LLM com contexto CRM
+- **Ref:** LP-PINTOR-004 · LEAD-001 Stephanie
+
+### 2026-06-02 — [erro] AF49 template Meta 132001 + fallback texto
+- **Agente(s):** dev
+- **Detalhe:** `abertura_pintor_contato` não existe em pt_BR na conta Caio · abertura enviada como texto (janela 24h aberta)
+- **Ref:** LP-PINTOR-006 · LEAD-001
+
+### 2026-06-02 — [orquestracao] Reabordagem template LEAD-001 (AF49)
+- **Agente(s):** caio_manteiga · dev
+- **Detalhe:** `send_client_template` abertura_pintor_contato · Caio LP inbound liberado · **APROVAR AF49**
+- **Ref:** LP-PINTOR-006 · `5516997559557`
+
+### 2026-06-02 — [decisao] Templates Meta — abertura proativa LP
+- **Agente(s):** dev · ronaldo_maestro · vitor
+- **Detalhe:** Gargalo WA proativo · fluxo 2 etapas · `send_client_template` · LP-PINTOR-006
+- **Ref:** `memoria/caio_manteiga/templates_meta_wa.md`
+
+### 2026-06-02 — [erro] APROVAR 368D caiu no Caio (WA ID alternativo)
+- **Agente(s):** dev
+- **Detalhe:** Webhook veio de `553399353242` (não reconhecido como Vitor) → Caio respondeu “aprovada” sem enviar · corrigido `vitor_auth` + envio manual executado
+- **Ref:** LP-PINTOR-004 · approval 368D
+
+### 2026-06-02 — [marco] Abordagem enviada LEAD-001 Stephanie Turnley
+- **Agente(s):** caio_manteiga
+- **Detalhe:** Mensagem abertura entregue via WhatsApp · prévia stephanie-turnley
+- **Ref:** LP-PINTOR-004 · `5516997559557`
+
+### 2026-06-02 — [orquestracao] Abordagem Caio LEAD-001 (Stephanie Turnley)
+- **Agente(s):** caio_manteiga · dev
+- **Detalhe:** Prévia personalizada publicada · mensagem abertura enfileirada · **APROVAR 368D** no WhatsApp Vitor
+- **Ref:** LP-PINTOR-004 · PROJ-LP · `5516997559557`
+
+### 2026-06-02 — [orquestracao] LangGraph piloto LP-PINTOR-002
+- **Agente(s):** ronaldo_maestro · dev
+- **Detalhe:** Piloto LangGraph concluído · custo ~US$ 0.0006
+- **Ref:** LAB-003 · Fase 2
+
+
+### 2026-06-01 — [orquestracao] Fase 3 ativa
+- **Agente(s):** Vitor · ronaldo_maestro (WhatsApp)
+- **Detalhe:** Gateway OK
+- **Ref:** LAB-004
+
+
+### 2026-06-01 — [orquestracao] LangGraph piloto LAB-003
+- **Agente(s):** ronaldo_maestro · dev
+- **Detalhe:** Piloto LangGraph concluído · custo ~US$ 0.0006
+- **Ref:** LAB-003 · Fase 2
+
+
+### 2026-06-01 — [marco] Rotina de auditoria pós-conclusão do Ronaldo no ar
+- **Agente(s):** ronaldo_maestro
+- **Detalhe:** Toda task concluída passa a ser auditada automaticamente (`ronaldo-audit.timer`, 10 min): veredito + gaps + aprendizados em `logs/auditorias.md`; se houver gap, cria até 2 follow-ups no backlog com briefing (delegação) usando o prefixo do projeto; escala ao Vitor via Caio só quando precisa de decisão. Idempotente — histórico marcado como já auditado.
+- **Ref:** memoria/ronaldo_maestro/rotina_pos_task.md · backend/src/laboratorio/ops/ronaldo_audit.py
+
+### 2026-05-31 — [marco] Start operação Landing Pintor — LP-PINTOR-001 e 002 em execução
+- **Agente(s):** ronaldo_maestro → donizete_social · loide · dev
+- **Detalhe:** Ronaldo iniciou os desbloqueadores: LP-PINTOR-001 (captação FB/Donizete) + LP-PINTOR-002 (template 2×4 + host grátis/Loide+Dev). WIP 3/3 (com TASK-012). LP-PINTOR-003 pronto em planejando; 004/005 na fila.
+- **Ref:** PROJ-LP · executando.md
+
+### 2026-05-31 — [orquestracao] PROJ-LP reativado — operação Landing Page Pintor
+- **Agente(s):** ronaldo_maestro → donizete_social · loide · dev · caio_manteiga
+- **Detalhe:** Funil invertido R$ 69. Ronaldo alinhou o plano e delegou: LP-PINTOR-001 (captação FB/Donizete), 002 (template 2×4/Loide+Dev), 003 (CRM funil invertido/Donizete) em planejando · 004 (venda Caio), 005 (KPIs/auditoria Ronaldo) na fila. CRM `crm_landing_pintor` com novo funil.
+- **Ref:** memoria/ronaldo_maestro/operacao_landing_pintor.md · PROJ-LP
+
+### 2026-05-31 — [marco] LAB-002 concluída — painel hierárquico por projeto
+- **Agente(s):** dev · ronaldo_maestro
+- **Detalhe:** Fábrica → Projetos → Tasks/CRM. Registry `projetos/projetos.md`, CRM segmentado (Laboratório + Landing Pintor), painel com Projetos/Tasks(filtro)/CRM(abas). Dr. Viola = lead CRM Laboratório. Zero tasks órfãs.
+- **Ref:** LAB-002 · projetos/projetos.md
+
+### 2026-05-31 — [deploy] Canal WhatsApp Vitor — operador completo
+- **Agente(s):** dev · ronaldo_maestro · caio_manteiga
+- **Detalhe:** vitor_whatsapp.py — exec patrulha, agenda, registrar, LLM full context, histórico sessão · timer lembretes 1 min
+- **Ref:** memoria/autorizacao_vitor_whatsapp.md
+
+### 2026-05-31 — [decisao] Fluxo total de tasks liberado
+- **Agente(s):** Vitor · ronaldo_maestro
+- **Detalhe:** Ronaldo conduz backlog→concluído sem gates do Vitor. Auditoria técnica fecha TASK. WIP reposto automaticamente. Escalacao WhatsApp só exceções.
+- **Ref:** memoria/decisoes.md · decisoes_criticas.md
+
+### 2026-05-31 — [marco] TASK-022 concluída — Skills Dev + Loide
+- **Agente(s):** dev · loide · ronaldo_maestro
+- **Detalhe:** 3 skills Cursor + índice + mockup kanban + protocolo delegação · TASK-013 planejando
+- **Ref:** TASK-022 · .cursor/skills/
+
+### 2026-05-31 — [orquestracao] Patrulha Ronaldo + WhatsApp Vitor autorizado
+- **Agente(s):** Vitor · ronaldo_maestro · caio_manteiga · dev
+- **Detalhe:** Check operacional a cada 30 min (tasks, WIP, infra, erros). Número +5533999353242 responde como Ronaldo (canal dono). Escalacao via Caio quando precisar autorização do Vitor.
+- **Ref:** memoria/autorizacao_vitor_whatsapp.md · memoria/ronaldo_maestro/patrulha_operacional.md
+
+### 2026-05-31 — [marco] TASK-003 concluída — snapshot dashboard automatizado
+- **Agente(s):** dev · juarez · ronaldo_maestro
+- **Detalhe:** GitHub Actions `update-dashboard.yml` executou após push `1150ea7` · snapshot auto `fb102e2` · WIP liberado (2/3)
+- **Ref:** TASK-003 · dashboard/metricas_operacionais.md
+
 ### 2026-05-31 — [decisao] Protocolo Ronaldo — delegar, conferir, evoluir
 - **Agente(s):** Vitor · Ronaldo Maestro
 - **Detalhe:** Toda TASK: briefing antes de executar, auditoria antes de concluir, aprendizado em aprendizados + evolucao_orquestracao. Especialistas não iniciam sozinhos.

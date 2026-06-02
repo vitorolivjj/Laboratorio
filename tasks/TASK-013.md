@@ -5,8 +5,8 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-013 |
-| **Status** | backlog |
-| **Projeto** | PROJ-002 |
+| **Status** | aguardando |
+| **Kanban** | tasks/aguardando.md |
 | **Prioridade** | media |
 | **Agente responsável** | dev |
 | **Agentes auxiliares** | loide |

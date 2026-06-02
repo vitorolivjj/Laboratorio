@@ -2,10 +2,10 @@
 
 **ID:** TASK-003  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `executando`  
+**Status:** `concluido`  
 **Prioridade:** media  
 **Criada em:** 2026-05-28  
-**Atualizada em:** 2026-05-28 (Rodada 1 — Dev entrega + Juarez validação)
+**Atualizada em:** 2026-05-31 (E5 — auditoria Ronaldo · Actions OK)
 
 > Task persistente · Modelo: [docs/modelo-task.md](../docs/modelo-task.md) · Dashboard: [dashboard/metricas_operacionais.md](../dashboard/metricas_operacionais.md)
 
@@ -53,7 +53,7 @@ Automatizar a **atualização básica** do dashboard operacional via GitHub Acti
 | E2 | `scripts/update_dashboard_snapshot.py` | Dev | ✅ |
 | E3 | `.github/workflows/update-dashboard.yml` | Dev | ✅ |
 | E4 | Validação operacional Juarez | Juarez | ✅ |
-| E5 | Auditoria Ronaldo + registro | Ronaldo | 🔄 |
+| E5 | Auditoria Ronaldo + registro | Ronaldo | ✅ |
 
 ## Estrutura técnica (Dev)
 
@@ -109,8 +109,8 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 | 2 | Workflow GitHub Actions | Dev | ✅ |
 | 3 | Validar métricas operacionais | Juarez | ✅ |
 | 4 | Teste local script | Dev | ✅ |
-| 5 | Push + validar Action | Dev/Vitor | ⬜ |
-| 6 | Auditoria Ronaldo | Ronaldo | 🔄 |
+| 5 | Push + validar Action | Dev/Vitor | ✅ |
+| 6 | Auditoria Ronaldo | Ronaldo | ✅ |
 
 ---
 
@@ -136,9 +136,9 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 - [x] Workflow GitHub Actions configurado
 - [x] Snapshot atualiza apenas bloco marcado (não sobrescreve dashboard inteiro)
 - [x] Juarez validou clareza operacional
-- [ ] Action executou com sucesso no GitHub (pós-push)
-- [ ] Snapshot commit automático funciona sem conflito
-- [ ] Fluxo manual TASK/CRM/CRM intacto
+- [x] Action executou com sucesso no GitHub (pós-push)
+- [x] Snapshot commit automático funciona sem conflito
+- [x] Fluxo manual TASK/CRM/CRM intacto
 
 ---
 
@@ -146,10 +146,10 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 
 | Campo | Valor |
 |-------|-------|
-| **Status** | `executando` |
-| **Kanban** | [executando.md](executando.md) |
-| **Bloqueios** | Nenhum — aguarda push |
-| **Rodada** | 1 |
+| **Status** | `concluido` |
+| **Kanban** | [concluidas.md](concluidas.md) |
+| **Bloqueios** | Nenhum |
+| **Rodada** | 1 — encerrada |
 
 ---
 
@@ -174,7 +174,7 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 
 | Campo | Valor |
 |-------|-------|
-| **Veredito** | em andamento — aguarda execução Actions remota |
+| **Veredito** | ✅ aprovado — Actions + snapshot auto validados |
 | **Qualidade** | simples ✅ · auditável ✅ · markdown-first ✅ |
 
 ---
@@ -183,6 +183,7 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 
 | Data | Evento |
 |------|--------|
+| 2026-05-31 | Push main + Action OK (`fb102e2`); TASK concluída |
 | 2026-05-28 | TASK-003 criada |
 | 2026-05-28 | Dev entrega script + workflow; Juarez valida |
 
@@ -190,6 +191,6 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 
 ## Próximos passos
 
-1. Push para `main` — dispara workflow
-2. Validar commit automático do snapshot
-3. Ronaldo fecha E5 e registra aprendizado
+1. ~~Push para `main` — dispara workflow~~ ✅
+2. ~~Validar commit automático do snapshot~~ ✅
+3. ~~Ronaldo fecha E5 e registra aprendizado~~ ✅

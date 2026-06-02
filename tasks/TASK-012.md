@@ -5,10 +5,10 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-012 |
-| **Status** | executando |
-| **Dependências** | TASK-011 ✅ |
+| **Status** | aguardando |
+| **Dependências** | TASK-011 ✅ · PROJ-002 pausado |
 | **Iniciada em** | 2026-05-31 |
-| **Kanban** | tasks/executando.md |
+| **Kanban** | tasks/aguardando.md |
 
 ## Objetivo
 
@@ -17,9 +17,10 @@ Home/Camada 1 com KPIs calculados (nunca digitados): financeiro, projetos, tasks
 ## Critérios de aceite
 
 - [ ] Abrir cockpit em ~10s: Vitor entende situação, atenção, travamentos, avanços
-- [ ] KPIs derivados de views/agregações Supabase
-- [ ] Placeholder "ações propostas pelo Negão" (vazio até TASK-020)
-- [ ] Só `vitoroliv.com` / repo `centralvitor`
+- [x] KPIs derivados de `snapshot_estado()` expandido (migration 002)
+- [x] Blocos atenção + tasks por coluna na camada Macro
+- [x] Placeholder Negão mantido
+- [x] Só `centralvitor` / deploy vitoroliv.com
 
 ## Escopo ref
 

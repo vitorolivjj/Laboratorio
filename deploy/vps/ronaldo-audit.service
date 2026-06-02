@@ -1,0 +1,16 @@
+[Unit]
+Description=Ronaldo Maestro — auditoria pós-conclusão (audita tasks concluídas, delega e cria follow-ups)
+After=network-online.target laboratorio-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=laboratorio
+Group=laboratorio
+WorkingDirectory=/opt/laboratorio/Laboratorio/backend
+Environment=PYTHONPATH=/opt/laboratorio/Laboratorio/backend/src
+ExecStart=/opt/laboratorio/Laboratorio/backend/.venv/bin/python -m laboratorio ronaldo-audit
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

@@ -17,13 +17,18 @@ Log do que o Ronaldo **incorpora** após conferências — alimenta briefings fu
 
 ### 2026-05-31 — pós TASK-010 e TASK-011 (VitorOS A0–A1)
 
-- **Padrão que funcionou:** Loide entrega mockup + spec na fábrica (Lab) → Dev implementa só no `centralvitor`; aceite Vitor antes de fechar.
+- **Padrão que funcionou:** Loide entrega mockup + spec na fábrica (Lab) → Dev implementa só no `centralvitor`.
 - **Erro a não repetir:** Specs/skills de agente versionadas no repo produto; confunde fábrica e deploy.
 - **Ajuste permanente no briefing:**
   - Todo briefing Dev PROJ-002: citar `dev-vitoros` + path spec em `docs/ux/vitoros/`
   - Todo briefing Loide: citar `loide-ux` + salvar artefatos só no Laboratório
-  - Conferência: testar login/CRUD com Vitor antes de `concluído`
+  - **Fluxo total (2026-05-31):** Ronaldo fecha após auditoria técnica; informa Vitor via WhatsApp/painel — aceite não bloqueia kanban
   - Supabase: Site URL = domínio prod antes de enviar e-mail auth
+
+### 2026-05-31 — pós TASK-022 (fluxo total liberado)
+
+- **Decisão Vitor:** Ciclo completo autônomo — Ronaldo não aguarda OK entre status.
+- **Ajuste permanente:** Ao fechar TASK, repor WIP da fila PROJ-002; briefings em `planejando` antes de slot abrir.
 
 ### 2026-05-31 — pós TASK-022 (Skills Dev + Loide)
 

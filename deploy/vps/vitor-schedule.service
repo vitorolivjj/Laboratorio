@@ -1,0 +1,14 @@
+[Unit]
+Description=WhatsApp Vitor — lembretes agendados
+After=network-online.target laboratorio-api.service
+
+[Service]
+Type=oneshot
+User=laboratorio
+Group=laboratorio
+WorkingDirectory=/opt/laboratorio/Laboratorio/backend
+Environment=PYTHONPATH=/opt/laboratorio/Laboratorio/backend/src
+ExecStart=/opt/laboratorio/Laboratorio/backend/.venv/bin/python -m laboratorio vitor-schedule
+
+[Install]
+WantedBy=multi-user.target

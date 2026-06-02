@@ -32,6 +32,14 @@ PAINEL_DIR = REPO_ROOT / "frontend" / "painel-maestro"
 if PAINEL_DIR.is_dir():
     app.mount("/painel", StaticFiles(directory=str(PAINEL_DIR), html=True), name="painel")
 
+DASHBOARD_DIR = REPO_ROOT / "dashboard"
+if DASHBOARD_DIR.is_dir():
+    app.mount("/dashboard", StaticFiles(directory=str(DASHBOARD_DIR)), name="dashboard")
+
+LP_PREVIAS_DIR = REPO_ROOT / "frontend" / "lp-pintor" / "dist"
+if LP_PREVIAS_DIR.is_dir():
+    app.mount("/previas", StaticFiles(directory=str(LP_PREVIAS_DIR), html=True), name="lp-previas")
+
 
 @app.on_event("startup")
 def _maybe_start_autopilot() -> None:

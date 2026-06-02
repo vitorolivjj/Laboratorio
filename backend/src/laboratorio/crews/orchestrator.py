@@ -16,6 +16,7 @@ from crewai import Crew, Process, Task
 
 from laboratorio.agents.builder import build_agent
 from laboratorio.agents.loader import load_memory_file
+from laboratorio.memory.context import augment_with_semantic_memory
 from laboratorio.ops import interactions
 from laboratorio.ops.retrieval import relevant_excerpt
 
@@ -59,10 +60,12 @@ def build_orchestrator_crew(user_objective: str) -> Crew:
     caio = build_agent("caio_manteiga", verbose=True)
     donizete = build_agent("donizete_social", verbose=True)
 
+    semantic_block = augment_with_semantic_memory(user_objective)
+
     task = Task(
         description=(
             f"Objetivo do Vitor:\n{user_objective}\n"
-            f"{_memory_block(user_objective)}\n\n"
+            f"{_memory_block(user_objective)}{semantic_block}\n\n"
             "Como Ronaldo Maestro, coordene os especialistas (Juarez=operação, "
             "Dev=software, Loide=UX, Caio=comercial, Donizete=captação de leads). "
             "Acione SOMENTE quem o objetivo exige. Use suas ferramentas para "

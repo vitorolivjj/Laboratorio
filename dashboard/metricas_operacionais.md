@@ -4,87 +4,115 @@ Visão centralizada da operação do Laboratório multiagente.
 
 **Dono:** Ronaldo Maestro · **Atualização:** manual + automática (GitHub Actions) · **Frequência:** rodada ou diária
 
-> Fontes: `tasks/` · `crm/leads.md` · `memoria/aprendizados.md` · `memoria/hipoteses_testadas.md` · `logs/eventos.md`  
+> Fontes: `tasks/` · `crm/crm_*.md` (segmentado) · `memoria/aprendizados.md` · `memoria/hipoteses_testadas.md` · `logs/eventos.md`  
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
-**Última atualização automática:** 2026-06-02 (GitHub Actions)
+**Última atualização automática:** 2026-06-02 (script local / GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-02 16:23 UTC** · script `scripts/update_dashboard_snapshot.py`
+> **Snapshot automático** · gerado em **2026-06-02 19:46 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução (WIP) | 0 / 3 |
+| TASKs em execução | 1 (cadência 10min entre starts) |
 | TASKs em planejamento | 0 |
-| Entregáveis (TASKs `executando`) | 4 / 5 |
-| Total leads CRM | 0 |
+| Entregáveis (tasks `executando`) | 0 / 0 |
+| **Total leads (todos CRMs)** | **2** |
+| KPI LP — ativos | 1 |
+| KPI LP — taxa ativação | 100% |
 | Hipóteses `a_testar` | 2 |
-| Taxa lead → convertido | — |
-| Taxa entregue → abordado | — |
 
 ### Pipeline Kanban
 
-| Status | Qtd | TASKs |
+| Status | Qtd | Tasks |
 |--------|-----|-------|
-| `executando` | 0 | — |
+| `executando` | 1 | LP-PINTOR-007 |
 | `planejando` | 0 | — |
-| `aguardando` | 0 | — |
-| `backlog` | 0 | — |
-| `concluído` (kanban) | 8 | TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-003, TASK-000 |
+| `aguardando` | 3 | LP-PINTOR-006, TASK-012, TASK-013 |
+| `backlog` | 12 | LP-PINTOR-008, LP-PINTOR-001, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
+| `concluído` (kanban) | 16 | LP-PINTOR-004, LAB-006, LP-PINTOR-002, LAB-005, LAB-004, LAB-003, LAB-002, TASK-022, TASK-003, TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-000 |
 | `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
 
-### TASKs (arquivos persistentes)
+### Tasks (arquivos persistentes)
 
-| TASK | Status | Entregáveis | Progresso |
+| Task | Status | Entregáveis | Progresso |
 |------|--------|-------------|-----------|
+| [LAB-002](../tasks/LAB-002.md) | `desconhecido` | 0/0 | — |
+| [LAB-003](../tasks/LAB-003.md) | `concluido` | 0/3 | 0% |
+| [LAB-004](../tasks/LAB-004.md) | `concluido` | 4/4 | 100% |
+| [LAB-005](../tasks/LAB-005.md) | `concluido` | 0/0 | — |
+| [LAB-006](../tasks/LAB-006.md) | `concluido` | 0/0 | — |
+| [LP-PINTOR-001](../tasks/LP-PINTOR-001.md) | `backlog` | 0/0 | — |
+| [LP-PINTOR-002](../tasks/LP-PINTOR-002.md) | `concluido` | 0/0 | — |
+| [LP-PINTOR-003](../tasks/LP-PINTOR-003.md) | `backlog` | 0/0 | — |
+| [LP-PINTOR-004](../tasks/LP-PINTOR-004.md) | `concluido` | 0/0 | — |
+| [LP-PINTOR-005](../tasks/LP-PINTOR-005.md) | `backlog` | 0/0 | — |
+| [LP-PINTOR-006](../tasks/LP-PINTOR-006.md) | `aguardando` | 0/0 | — |
+| [LP-PINTOR-007](../tasks/LP-PINTOR-007.md) | `executando` | 0/0 | — |
+| [LP-PINTOR-008](../tasks/LP-PINTOR-008.md) | `backlog` | 0/0 | — |
 | [TASK-001](../tasks/TASK-001.md) | `arquivado` | 5/8 | 62% |
 | [TASK-002](../tasks/TASK-002.md) | `arquivado` | 1/5 | 20% |
-| [TASK-003](../tasks/TASK-003.md) | `executando` | 4/5 | 80% |
-| [TASK-005-relatorio-modelos](../tasks/TASK-005-relatorio-modelos.md) | `desconhecido` | 0/0 | — |
+| [TASK-003](../tasks/TASK-003.md) | `concluido` | 5/5 | 100% |
 | [TASK-005](../tasks/TASK-005.md) | `concluido` | 6/6 | 100% |
 | [TASK-006](../tasks/TASK-006.md) | `concluido` | 6/6 | 100% |
 | [TASK-007](../tasks/TASK-007.md) | `concluido` | 7/7 | 100% |
 | [TASK-008](../tasks/TASK-008.md) | `concluido` | 5/5 | 100% |
 | [TASK-009](../tasks/TASK-009.md) | `concluido` | 0/0 | — |
-| [TASK-010](../tasks/TASK-010.md) | `desconhecido` | 5/5 | 100% |
-| [TASK-011](../tasks/TASK-011.md) | `desconhecido` | 4/4 | 100% |
-| [TASK-012](../tasks/TASK-012.md) | `desconhecido` | 0/0 | — |
-| [TASK-013](../tasks/TASK-013.md) | `desconhecido` | 0/0 | — |
-| [TASK-014](../tasks/TASK-014.md) | `desconhecido` | 0/0 | — |
-| [TASK-015](../tasks/TASK-015.md) | `desconhecido` | 0/0 | — |
-| [TASK-016](../tasks/TASK-016.md) | `desconhecido` | 0/0 | — |
-| [TASK-017](../tasks/TASK-017.md) | `desconhecido` | 0/0 | — |
-| [TASK-018](../tasks/TASK-018.md) | `desconhecido` | 0/0 | — |
-| [TASK-019](../tasks/TASK-019.md) | `desconhecido` | 0/0 | — |
-| [TASK-020](../tasks/TASK-020.md) | `desconhecido` | 0/0 | — |
-| [TASK-021](../tasks/TASK-021.md) | `desconhecido` | 0/4 | 0% |
-| [TASK-022](../tasks/TASK-022.md) | `desconhecido` | 6/6 | 100% |
+| [TASK-010](../tasks/TASK-010.md) | `concluído` | 5/5 | 100% |
+| [TASK-011](../tasks/TASK-011.md) | `concluído` | 4/4 | 100% |
+| [TASK-012](../tasks/TASK-012.md) | `aguardando` | 0/0 | — |
+| [TASK-013](../tasks/TASK-013.md) | `aguardando` | 0/0 | — |
+| [TASK-014](../tasks/TASK-014.md) | `backlog` | 0/0 | — |
+| [TASK-015](../tasks/TASK-015.md) | `backlog` | 0/0 | — |
+| [TASK-016](../tasks/TASK-016.md) | `backlog` | 0/0 | — |
+| [TASK-017](../tasks/TASK-017.md) | `backlog` | 0/0 | — |
+| [TASK-018](../tasks/TASK-018.md) | `backlog` | 0/0 | — |
+| [TASK-019](../tasks/TASK-019.md) | `backlog` | 0/0 | — |
+| [TASK-020](../tasks/TASK-020.md) | `backlog` | 0/0 | — |
+| [TASK-021](../tasks/TASK-021.md) | `backlog` | 0/4 | 0% |
+| [TASK-022](../tasks/TASK-022.md) | `concluido` | 6/6 | 100% |
 
-### Funil CRM
+### CRM segmentado
 
-| Status | Qtd |
-|--------|-----|
+#### CRM Laboratório (`crm_laboratorio.md`)
+
+| Etapa | Qtd |
+|-------|-----|
 | `novo` | 0 |
-| `qualificado` | 0 |
-| `entregue_caio` | 0 |
+| `qualificacao` | 0 |
+| `diagnostico` | 1 |
+| `proposta` | 0 |
+| `negociacao` | 0 |
+| `fechado` | 0 |
+| `perdido` | 0 |
+| **Total** | **1** |
+
+#### CRM Landing Page Pintor (`crm_landing_pintor.md`)
+
+| Etapa | Qtd |
+|-------|-----|
+| `prospectado` | 0 |
+| `pronto_pra_pagina` | 0 |
+| `previa_no_ar` | 0 |
 | `abordado` | 0 |
-| `convertido` | 0 |
-| `sem_resposta` | 0 |
-| `descartado` | 0 |
-| **Total** | **0** |
+| `ativo` | 1 |
+| `recusou` | 0 |
+| **Total** | **1** |
 
-### Leads (índice)
+### Leads (todos os CRMs)
 
-| ID | Nome | Score | Status |
-|----|------|-------|--------|
-| _—_ | _nenhum lead_ | — | — |
+| ID | CRM | Nome | Status | Captura |
+|----|-----|------|--------|---------|
+| LEAD-VIOLA | CRM Laboratório | Dr. Viola | `diagnostico` | 2026-05-31 |
+| LEAD-001 | CRM Landing Page Pintor | Stephanie Turnley | `ativo` | 2026-06-02 |
 
 <!-- AUTO-SNAPSHOT:END -->
 

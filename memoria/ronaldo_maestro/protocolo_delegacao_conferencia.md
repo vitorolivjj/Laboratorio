@@ -25,6 +25,8 @@ flowchart LR
 
 **Regra de ouro:** `executando` **só** com briefing Ronaldo · `concluído` **só** com auditoria Ronaldo preenchida.
 
+**Fluxo total (2026-05-31):** Vitor liberou ciclo autônomo — Ronaldo move kanban, audita e fecha sem OK intermediário. Escalacao ao Vitor só via [autorizacao_vitor_whatsapp.md](../../memoria/autorizacao_vitor_whatsapp.md).
+
 ---
 
 ## Fase 1 — Delegar
@@ -42,7 +44,7 @@ Antes de mover TASK para `executando.md`:
 
 - [ ] Briefing Dev / Loide / Juarez / Caio / Donizete (quem for acionado)
 - [ ] PROJ-002: reforçar separação Lab vs `centralvitor`
-- [ ] WIP ≤ 3 em `executando.md`
+- [ ] Cadência: ≥ 10 min desde a última task iniciada em `executando.md`
 - [ ] Entrada em `historico_de_orquestracao.md` se ciclo novo
 
 ---
@@ -74,6 +76,10 @@ Antes de mover TASK para `concluidas.md`:
 4. Veredito: `aprovado` | `retrabalho` | `cancelado`
 5. Se `retrabalho` → volta `executando` com briefing de correção
 6. Se `aprovado` → mover kanban + evento `[auditoria]` em `logs/eventos.md`
+
+**Automação (2026-06-01):** ao entrar em `concluidas.md`, a [rotina pós-task](rotina_pos_task.md) (`ronaldo-audit.timer`, 10 min) audita, registra em `logs/auditorias.md` e — se houver gap — cria follow-ups no backlog com briefing. Escala ao Vitor só quando precisa de decisão dele.
+
+**Governança contínua (2026-06-02):** `governanca-audit` / patrulha valida kanban ↔ task files, briefings em `executando`, P0 vs `contexto_global`, auditorias pendentes — ver `logs/governanca_auditoria.md`.
 
 ### Checklist conferência
 

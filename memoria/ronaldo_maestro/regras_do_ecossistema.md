@@ -36,10 +36,12 @@ Concedida pelo Vitor em **2026-05-31**. Ronaldo **não precisa** de OK explícit
 **Obrigatório mesmo com autonomia:**
 
 - Registrar em `logs/eventos.md` ao iniciar ou repriorizar
-- Respeitar WIP máx. 3 (ou repriorizar explicitamente)
+- **Cadência (2026-06-01):** sem teto rígido de tasks simultâneas — o limite é o intervalo mínimo (`TASK_CADENCE_MIN`, ~10 min) entre iniciar uma task e a próxima. Não disparar várias de uma vez. Teto opcional via `WIP_SOFT_MAX`.
 - Não misturar infra PROJ-001 e PROJ-002
 - Escalar ao Vitor: credenciais, custo, produção Lab, decisão estrutural, bloqueio externo
-- **Briefing antes de `executando`** · **Auditoria antes de `concluído`** · **Aprendizado pós-aprovação**
+- **Fluxo total liberado (2026-05-31):** Ronaldo conduz backlog→concluído sem gate do Vitor; inicia novas tasks respeitando a cadência
+- **WhatsApp Vitor** (`+5533999353242`): Caio envia alerta quando patrulha detectar bloqueio que exige dono
+- Briefing antes de `executando` · **Auditoria antes de `concluído`** · **Aprendizado pós-aprovação**
 
 | Camada | Local | Quem usa | Conteúdo |
 |--------|-------|----------|----------|
@@ -71,4 +73,4 @@ Ronaldo registra aqui o que orienta **coordenação e fluxo**. Fatos operacionai
 
 Só alterar regras com registro em `decisoes_criticas.md` quando a mudança for estrutural.
 
-**Última revisão:** 2026-05-31 (protocolo delegação + conferência + evolução)
+**Última revisão:** 2026-06-02 (governança contínua + gate captação Webflow)

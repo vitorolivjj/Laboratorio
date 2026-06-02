@@ -153,7 +153,7 @@ def parse_lead_sections(content: str) -> list[dict]:
 def parse_executando_tasks(content: str) -> list[dict]:
     tasks: list[dict] = []
     for m in re.finditer(
-        r"^### (TASK-\d+) — (.+?)\n(.*?)(?=^### |\n---|\Z)",
+        r"^### ([A-Z][A-Z0-9\-]*-\d+) — (.+?)\n(.*?)(?=^### |\n---|\Z)",
         content,
         re.MULTILINE | re.DOTALL,
     ):
@@ -168,6 +168,7 @@ def parse_executando_tasks(content: str) -> list[dict]:
                 "title": m.group(2).strip(),
                 "agents": agents,
                 "status": _field(block, "Status") or "em_progresso",
+                "projeto": _field(block, "Projeto"),
                 "proxima_acao": _field(block, "Próxima ação"),
                 "bloqueio": _field(block, "Bloqueio"),
                 "entregaveis": _field(block, "Entregáveis"),
@@ -179,22 +180,24 @@ def parse_executando_tasks(content: str) -> list[dict]:
 def parse_briefings_from_task(content: str, task_id: str) -> list[dict]:
     """Extrai briefings Ronaldo → agente de TASK-XXX.md."""
     delegations: list[dict] = []
-    title_m = re.search(r"^# TASK-\d+ — (.+?)$", content, re.MULTILINE)
+    title_m = re.search(r"^# [A-Z][A-Z0-9\-]*-\d+ — (.+?)$", content, re.MULTILINE)
     task_title = title_m.group(1).strip() if title_m else task_id
     for m in re.finditer(
-        r"^### Briefing — (.+?) — (TASK-\d+)(?: — (\d{4}-\d{2}-\d{2}))?\n(.*?)(?=^### |\Z)",
+        r"^### Briefing — (.+?) — ([A-Z][A-Z0-9\-]*-\d+)(?: — (\d{4}-\d{2}-\d{2}))?\n(.*?)(?=^### |\Z)",
         content,
         re.MULTILINE | re.DOTALL,
     ):
         agent_label = m.group(1).strip()
         obj = _field(m.group(4), "Objetivo desta rodada") or task_title
+        task_ref = m.group(2)
         delegations.append(
             {
                 "from": "ronaldo_maestro",
                 "from_label": "Ronaldo",
                 "to": _normalize_agent_id(agent_label),
                 "to_label": agent_label,
-                "task": f"{obj} ({m.group(2)})",
+                "task_id": task_ref,
+                "task": f"{obj} ({task_ref})",
                 "status": "delegado",
                 "priority": "P1",
                 "datetime": m.group(3) or "—",
@@ -215,7 +218,7 @@ def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list
         if briefings:
             delegations.extend(briefings)
             continue
-        title_m = re.search(r"^# TASK-\d+ — (.+?)$", content, re.MULTILINE)
+        title_m = re.search(r"^# [A-Z][A-Z0-9\-]*-\d+ — (.+?)$", content, re.MULTILINE)
         task_title = title_m.group(1).strip() if title_m else task_id
 
         in_table = False
@@ -242,6 +245,7 @@ def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list
                             "from_label": "Ronaldo",
                             "to": _normalize_agent_id(agente),
                             "to_label": agente,
+                            "task_id": task_id,
                             "task": f"{acao} ({task_id})",
                             "status": status,
                             "priority": "P1",
@@ -306,13 +310,196 @@ def parsers_count(path: Path, section: str) -> list[str]:
     content = read_text(path)
     if not content:
         return []
-    match = re.search(
-        rf"{re.escape(section)}\s*\n(.*?)(?=\n## |\Z)",
-        content,
-        re.DOTALL,
-    )
-    block = match.group(1) if match else content
-    return re.findall(r"^### (TASK-\d+)", block, re.MULTILINE)
+    pattern = rf"{re.escape(section)}\s*\n(.*?)(?=\n## |\Z)"
+    blocks = re.findall(pattern, content, re.DOTALL)
+    block = "\n".join(blocks) if blocks else content
+    # dedupe preserving order
+    seen: set[str] = set()
+    ids: list[str] = []
+    for tid in re.findall(r"^### ([A-Z][A-Z0-9\-]*-\d+)", block, re.MULTILINE):
+        if tid not in seen:
+            seen.add(tid)
+            ids.append(tid)
+    return ids
+
+
+# ---------------------------------------------------------------------------
+# Projetos (registry) + classificação de tasks por projeto
+# ---------------------------------------------------------------------------
+def parse_projects_registry(content: str) -> list[dict]:
+    """Lê projetos/projetos.md → lista de projetos estruturados."""
+    projects: list[dict] = []
+    # Pula blocos antes de "## Projetos" e ignora o template
+    anchor = content.find("## Projetos")
+    body = content[anchor:] if anchor != -1 else content
+    for m in re.finditer(r"^### (.+?)\n(.*?)(?=^### |\Z)", body, re.MULTILINE | re.DOTALL):
+        name = m.group(1).strip()
+        block = m.group(2)
+        if name.lower().startswith("[") or "Nome do projeto" in name:
+            continue
+        pid = _field(block, "ID")
+        if not pid:
+            continue
+        legado = _field(block, "Legado")
+        projects.append(
+            {
+                "id": pid,
+                "name": name,
+                "prefix": _field(block, "Prefixo"),
+                "nature": _field(block, "Natureza") or "—",
+                "status": _field(block, "Status") or "ativo",
+                "crm": _field(block, "CRM"),
+                "legacy": legado,
+                "repo": _field(block, "Repo / deploy") or _field(block, "Repo"),
+                "description": _field(block, "Descrição"),
+            }
+        )
+    return projects
+
+
+def _build_project_index(projects: list[dict]) -> dict[str, str]:
+    """Mapa de chaves (PROJ-XXX, prefixo, TASK-id legado) → id do projeto."""
+    index: dict[str, str] = {}
+    for p in projects:
+        pid = p["id"]
+        index[pid.upper()] = pid
+        if p.get("prefix"):
+            index[p["prefix"].upper()] = pid
+        legacy = p.get("legacy") or ""
+        for token in re.split(r"[·,;]", legacy):
+            token = token.strip().upper()
+            if not token or token in ("—", "-"):
+                continue
+            # Faixas "TASK-010 a TASK-021"
+            rng = re.match(r"TASK-(\d+)\s+A\s+TASK-(\d+)", token)
+            if rng:
+                lo, hi = int(rng.group(1)), int(rng.group(2))
+                for n in range(lo, hi + 1):
+                    index[f"TASK-{n:03d}"] = pid
+                continue
+            index[token] = pid
+    return index
+
+
+def project_for_task(task: dict, projects: list[dict]) -> dict | None:
+    """Resolve o projeto de uma task (campo Projeto, prefixo do ID, ou legado)."""
+    index = _build_project_index(projects)
+    by_id = {p["id"]: p for p in projects}
+
+    # 1) Campo Projeto explícito
+    explicit = (task.get("projeto") or "").strip().upper()
+    if explicit:
+        # pode citar "PROJ-001 (transversal PROJ-002)" — pega primeiro token
+        first = re.split(r"[\s(]", explicit)[0].strip()
+        if first in index:
+            return by_id.get(index[first])
+
+    # 2) Prefixo do próprio ID da task (ex.: VITOROS-003)
+    tid = (task.get("id") or "").upper()
+    prefix_m = re.match(r"([A-Z\-]+)-\d+", tid)
+    if prefix_m:
+        pref = prefix_m.group(1)
+        if pref in index:
+            return by_id.get(index[pref])
+
+    # 3) ID legado TASK-XXX
+    if tid in index:
+        return by_id.get(index[tid])
+
+    return None
+
+
+# ---------------------------------------------------------------------------
+# CRM segmentado
+# ---------------------------------------------------------------------------
+def parse_crm_meta(content: str) -> dict:
+    """Lê o bloco <!-- crm-meta ... --> de um arquivo de CRM."""
+    m = re.search(r"<!--\s*crm-meta\s*(.*?)-->", content, re.DOTALL)
+    meta: dict = {"funil": []}
+    if not m:
+        return meta
+    for line in m.group(1).splitlines():
+        if ":" not in line:
+            continue
+        key, _, val = line.partition(":")
+        key = key.strip()
+        val = val.strip()
+        if key == "funil":
+            meta["funil"] = [s.strip() for s in val.split(",") if s.strip()]
+        elif key:
+            meta[key] = val
+    return meta
+
+
+def parse_crm_leads(content: str) -> list[dict]:
+    """Leads de um CRM — seções ## LEAD-XXX (id alfanumérico) + fallback índice."""
+    leads: list[dict] = []
+    for m in re.finditer(r"^## (LEAD-[\w-]+) — (.+?)$", content, re.MULTILINE):
+        lead_id = m.group(1)
+        nome = m.group(2).strip()
+        start = m.end()
+        next_h = re.search(r"^## ", content[start:], re.MULTILINE)
+        block = content[start : start + next_h.start()] if next_h else content[start:]
+
+        def fld(key: str) -> str:
+            fm = re.search(rf"\|\s*\*\*{re.escape(key)}\*\*\s*\|\s*(.+?)\s*\|", block)
+            return fm.group(1).strip() if fm else ""
+
+        leads.append(
+            {
+                "id": lead_id,
+                "nome": fld("Nome") or nome,
+                "cidade": fld("Cidade"),
+                "servico": fld("Serviço"),
+                "contato": fld("Contato"),
+                "origem": fld("Origem") or "—",
+                "status": (fld("Status") or "novo").strip("`"),
+                "etapa": (fld("Status") or "novo").strip("`"),
+                "responsavel": fld("Responsável") or "—",
+                "projeto": fld("Projeto"),
+                "score": fld("Score") or "—",
+                "temperatura": fld("Temperatura"),
+                "prioridade": fld("Prioridade"),
+                "tags": fld("Tags"),
+                "observacoes": fld("Observações"),
+                "proxima_acao": fld("Próxima ação") or fld("Observações") or "—",
+                "captura": fld("Data captura"),
+            }
+        )
+    if leads:
+        return leads
+    # Fallback: índice tabular (ID, Nome, Score, Temp, Prioridade, Status, TASK, Captura)
+    return parse_leads_index(content)
+
+
+def normalize_crm_status(raw: str) -> str:
+    """Extrai etapa canônica — ex.: `**ativo** — PIX` → `ativo`."""
+    s = raw.lower().strip().strip("`")
+    s = re.sub(r"\*+", "", s)
+    m = re.match(r"([a-z_]+)", s)
+    return m.group(1) if m else (s.split()[0] if s else "")
+
+
+def parse_crm_segment(content: str) -> dict:
+    """Arquivo de CRM completo → meta + leads + contagem por etapa do funil."""
+    meta = parse_crm_meta(content)
+    leads = parse_crm_leads(content)
+    funnel = meta.get("funil") or []
+    counts = {stage: 0 for stage in funnel}
+    for lead in leads:
+        st = normalize_crm_status(lead.get("etapa") or lead.get("status") or "")
+        lead["etapa"] = st or lead.get("etapa", "")
+        if st in counts:
+            counts[st] += 1
+    return {
+        "segment": meta.get("segmento", "crm"),
+        "name": meta.get("nome", "CRM"),
+        "description": meta.get("descricao", ""),
+        "funnel": funnel,
+        "funnel_counts": counts,
+        "leads": leads,
+        "total": len(leads),
+    }
 
 
 def group_whatsapp_threads(entries: list[dict]) -> list[dict]:

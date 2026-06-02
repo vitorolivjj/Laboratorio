@@ -1,8 +1,15 @@
 """Caminhos e variáveis de ambiente do monorepo."""
 
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+# Cadência de tasks (substitui o teto rígido de WIP):
+# intervalo mínimo em minutos entre iniciar uma task e a próxima.
+TASK_CADENCE_MIN = int(os.getenv("TASK_CADENCE_MIN", "10"))
+# Teto opcional de tasks simultâneas. 0 = sem teto (só vale a cadência).
+WIP_SOFT_MAX = int(os.getenv("WIP_SOFT_MAX", "0"))
 
 # backend/
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
