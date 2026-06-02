@@ -15,14 +15,14 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-02 19:46 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-02 20:28 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução | 1 (cadência 10min entre starts) |
+| TASKs em execução | 0 (cadência 10min entre starts) |
 | TASKs em planejamento | 0 |
 | Entregáveis (tasks `executando`) | 0 / 0 |
 | **Total leads (todos CRMs)** | **2** |
@@ -34,7 +34,7 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | Tasks |
 |--------|-----|-------|
-| `executando` | 1 | LP-PINTOR-007 |
+| `executando` | 0 | — |
 | `planejando` | 0 | — |
 | `aguardando` | 3 | LP-PINTOR-006, TASK-012, TASK-013 |
 | `backlog` | 12 | LP-PINTOR-008, LP-PINTOR-001, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
