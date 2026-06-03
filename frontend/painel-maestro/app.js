@@ -576,7 +576,9 @@ async function refresh() {
       ui.showToast("success", "Painel atualizado", { key: "refresh-ok" });
       manualRefresh = false;
     }
+    if (window.setMaestroApiOnline) window.setMaestroApiOnline(true);
   } catch (err) {
+    if (window.setMaestroApiOnline) window.setMaestroApiOnline(false);
     $("footer-meta").textContent = `Erro: ${err.message}`;
     $("hero-headline").textContent = "Falha ao conectar";
     $("hero-sub").textContent = err.message;

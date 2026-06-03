@@ -1,0 +1,20 @@
+{
+  "id_crm": "LEAD-EXEMPLO",
+  "slug": "exemplo",
+  "capturado_em": "2026-06-02",
+  "capturado_por": "donizete_social",
+  "perfis": {
+    "instagram": "",
+    "facebook": ""
+  },
+  "bio_raw": "",
+  "servicos_mencionados": [],
+  "imagens": [],
+  "loide_resumo": {
+    "aprovadas": 0,
+    "rejeitadas": 0,
+    "pendentes": 0,
+    "fallback_stock": false,
+    "fallback_ia": false
+  }
+}

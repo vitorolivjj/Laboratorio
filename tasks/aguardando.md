@@ -10,6 +10,16 @@ Ver: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
 
 ## Bloqueadas
 
+### VITOR-001 — Desbloqueio: Webflow: template + coleção Pintores (página oficial)
+- **Bloqueio:** Conta Webflow Premium + domínio/subpath — aguardando Vitor
+- **Desbloqueia:** Vitor
+- **Origem:** orquestração Ronaldo · desbloqueia LP-PINTOR-007
+- **Prioridade:** alta
+- **Agente:** vitor
+- **Projeto:** PROJ-LP
+- **Criada em:** 2026-06-02
+- **Documento:** [VITOR-001.md](VITOR-001.md)
+
 ### LP-PINTOR-006 — Template Meta WhatsApp (abertura proativa)
 
 - **Bloqueio:** aguardando Vitor cadastrar/aprovar template `abertura_pintor_contato` no Meta Business Manager (erro 132001)

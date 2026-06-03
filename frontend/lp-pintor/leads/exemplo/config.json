@@ -1,11 +1,66 @@
 {
   "slug": "exemplo-pintor",
+  "id_crm": "LEAD-EXEMPLO",
   "nome": "João Silva Pinturas",
+  "headline": "Pintura residencial e comercial com acabamento profissional",
+  "subtitulo": "Atendimento rápido para casas, apartamentos, fachadas e comércios em Viçosa — MG.",
   "cidade": "Viçosa — MG",
-  "servico": "Pintura residencial, comercial e acabamento",
+  "logo_url": "assets/logo.png",
+  "logo_nome": "João Silva",
+  "logo_tagline": "Pinturas & Acabamentos",
+  "foto_capa": "assets/hero-capa.png",
+  "comparacao_antes": "assets/compare-antes.png",
+  "comparacao_depois": "assets/compare-depois.png",
+  "hero_bullets": [
+    "Orçamento pelo WhatsApp",
+    "Pintura interna e externa",
+    "Serviço limpo e organizado",
+    "Acabamento de qualidade"
+  ],
+  "instagram": "https://instagram.com/joaosilvapinturas",
+  "facebook": "https://facebook.com/joaosilvapinturas",
+  "servicos": [
+    {
+      "titulo": "Pintura residencial",
+      "descricao": "Casas, apartamentos, quartos, salas, áreas externas e muros."
+    },
+    {
+      "titulo": "Pintura comercial",
+      "descricao": "Lojas, escritórios, salas comerciais e pequenos negócios."
+    },
+    {
+      "titulo": "Fachadas e áreas externas",
+      "descricao": "Renovação da aparência do imóvel com preparação adequada."
+    },
+    {
+      "titulo": "Massa corrida e acabamento",
+      "descricao": "Correção de imperfeições para uma pintura mais bonita e durável."
+    }
+  ],
+  "diferenciais": [
+    "Proteção de pisos e móveis",
+    "Preparação correta das paredes",
+    "Organização durante o serviço",
+    "Cumprimento de prazo combinado",
+    "Limpeza básica após a execução"
+  ],
+  "fotos": [
+    "assets/galeria-interna.png",
+    "assets/galeria-fachada.png",
+    "assets/galeria-acabamento.png",
+    "assets/hero-capa.png"
+  ],
+  "fotos_legendas": [
+    "Pintura interna",
+    "Fachada",
+    "Acabamento",
+    "Ambiente renovado"
+  ],
+  "cta_final_titulo": "Quer renovar seu imóvel sem dor de cabeça?",
+  "cta_final_texto": "Envie uma mensagem agora e solicite um orçamento rápido pelo WhatsApp.",
   "whatsapp": "5533999353242",
-  "whatsapp_text": "Oi! Vi sua página de pintor e quero saber sobre orçamento.",
-  "theme": "azul",
-  "model": "classico",
-  "fotos": []
+  "whatsapp_text": "Oi João! Vi sua página de pintor e quero um orçamento.",
+  "theme": "neutro",
+  "ativo": false,
+  "preview_expires": "2026-06-09"
 }
