@@ -15,11 +15,7 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-<<<<<<< HEAD
 > **Snapshot automático** · gerado em **2026-06-02 20:35 UTC** · script `scripts/update_dashboard_snapshot.py`  
-=======
-> **Snapshot automático** · gerado em **2026-06-02 20:28 UTC** · script `scripts/update_dashboard_snapshot.py`  
->>>>>>> 54b3fb7295f41c6bd31a43a4ab6b699c20314f25
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
