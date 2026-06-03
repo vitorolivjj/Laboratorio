@@ -192,6 +192,18 @@ def _answer_whatsapp(s: dict) -> tuple[str, str]:
     return panel, fala
 
 
+def _answer_capture(snapshot: dict) -> tuple[str, str]:
+    from laboratorio.ops.donizete_capture import format_capture_whatsapp
+
+    panel = format_capture_whatsapp()
+    speech = (
+        "Captação: ver painel para detalhe."
+        if len(panel) > 200
+        else panel.replace("\n", ". ")[:260]
+    )
+    return panel, _sanitize_speech(speech)
+
+
 # Verbos de criação/ação que exigem o LLM (não são consultas de status).
 _ACTION_WORDS = (
     "criar", "cria ", "crie", "adiciona", "adicionar", "nova task", "novo card",
@@ -212,18 +224,6 @@ _INTENTS: list[tuple[tuple[str, ...], callable]] = [
       "visao geral", "situacao", "briefing"), _answer_status),
     (("captura", "donizete", "leads pintor", "lead pintor", "lp pintor"), _answer_capture),
 ]
-
-
-def _answer_capture(snapshot: dict) -> tuple[str, str]:
-    from laboratorio.ops.donizete_capture import format_capture_whatsapp
-
-    panel = format_capture_whatsapp()
-    speech = (
-        f"Captação: ver painel para detalhe."
-        if len(panel) > 200
-        else panel.replace("\n", ". ")[:260]
-    )
-    return panel, _sanitize_speech(speech)
 
 
 def _fast_answer(normalized: str, snapshot: dict) -> tuple[str, str] | None:
