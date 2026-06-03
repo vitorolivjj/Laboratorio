@@ -44,8 +44,8 @@ Antes de mover TASK para `executando.md`:
 
 - [ ] Briefing Dev / Loide / Juarez / Caio / Donizete (quem for acionado)
 - [ ] PROJ-002: reforçar separação Lab vs `centralvitor`
-- [ ] Cadência: ≥ 5 min desde a última task iniciada em `executando.md`
-- [ ] WIP: ≤ 2 em `executando.md` (ou justificar no evento)
+- [ ] Cadência: ≥ 2 min desde a última task iniciada em `executando.md`
+- [ ] WIP: ≤ 4 em `executando.md` (captação + até 3× produção 009)
 - [ ] Entrada em `historico_de_orquestracao.md` se ciclo novo
 
 ---

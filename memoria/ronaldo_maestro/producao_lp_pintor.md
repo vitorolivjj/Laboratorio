@@ -30,6 +30,6 @@ Ver campos em `leads/exemplo/config.json`. Principais: `slug`, `nome`, `headline
 
 Donizete (captura + stalk) → Loide (mídia) → Dev (build) → Juarez (QA) → Caio (venda) → Vitor (PIX → `ativo: true` + rebuild).
 
-**Plano Donizete:** [plano_atuacao_donizete_lp.md](plano_atuacao_donizete_lp.md)
+**Plano Donizete:** [plano_atuacao_donizete_lp.md](plano_atuacao_donizete_lp.md) · **Publish:** `scripts/lp_publish_lead.py` · **Fase 2:** [fase2_velocidade_lp.md](fase2_velocidade_lp.md)
 
 **Webflow (legado):** [webflow_lp_pintor.md](webflow_lp_pintor.md) — não usar.

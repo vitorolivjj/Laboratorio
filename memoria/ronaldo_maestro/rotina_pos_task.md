@@ -67,9 +67,10 @@ Só quando precisa de decisão/autorização dele: dispara WhatsApp via Caio ([n
 |----------|---------|--------|
 | `AUDIT_LLM_MODEL` | `VITOR_WHATSAPP_MODEL` → `gpt-4o-mini` | Modelo da auditoria |
 | `OPENAI_API_KEY` | — | Sem ela → fallback heurístico |
-| `TASK_CADENCE_MIN` | 5 | Intervalo entre promoções a `executando` |
-| `WIP_SOFT_MAX` | 2 | Teto de tasks simultâneas (alerta patrulha) |
-| `TASK_STALE_HOURS` | 24 | Alerta se parada em executando |
+| `TASK_CADENCE_MIN` | 2 | Intervalo entre promoções a `executando` |
+| `WIP_SOFT_MAX` | 4 | Teto de tasks simultâneas (alerta patrulha) |
+| `TASK_STALE_HOURS` | 12 | Alerta se parada em executando |
+| `CAPTURE_ZERO_CRITICAL_MINUTES` | 30 | Crítico captação sem progresso |
 
 - **Governança contínua:** `./run.sh governanca-audit --log` · integrado na patrulha · `logs/governanca_auditoria.md`
 

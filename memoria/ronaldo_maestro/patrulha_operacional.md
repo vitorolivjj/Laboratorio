@@ -8,11 +8,11 @@ Check periódico do ecossistema: tasks, estrutura, infra e erros. Mantém **anda
 
 ## Objetivo
 
-A cada ciclo (30 min padrão):
+A cada ciclo (**10 min** no sprint LP):
 
 1. Ler snapshot Maestro (kanban, agentes, logs, delegações)
-2. Verificar WIP, bloqueios, erros, infra (VPS, WhatsApp)
-3. Registrar resumo em `logs/ronaldo_patrol.md`
+2. Verificar WIP, **captação Donizete**, bloqueios, erros, infra (VPS, WhatsApp)
+3. Registrar resumo em `logs/ronaldo_patrol.md` + `logs/donizete_captura.md`
 4. Se precisar **Vitor** → Caio envia WhatsApp `+5533999353242`
 5. Se só operacional → registrar evento; Ronaldo age na próxima delegação
 
@@ -22,7 +22,8 @@ A cada ciclo (30 min padrão):
 
 | # | Verificação | Ação se falhar |
 |---|-------------|----------------|
-| 1 | WIP ≤ 3 em `executando.md` | Alerta se > 3; repriorizar na próxima rodada |
+| 1 | WIP ≤ 4 (`WIP_SOFT_MAX`) | Alerta se > 4; repriorizar |
+| 1b | Captação LP sem progresso 30 min | **Crítico** WhatsApp — Donizete posts/grupos |
 | 2 | TASKs em `executando` com briefing | Mover para `planejando` ou emitir briefing |
 | 3 | Bloqueio citando Vitor / credencial / autorização | **WhatsApp Vitor** |
 | 4 | VPS (`laboratorio-api`) online | **WhatsApp Vitor** se off |
@@ -64,9 +65,11 @@ Mesmo alerta **não** reenvia em 4 h (`logs/ronaldo_patrol_state.json`).
 cd backend && ./run.sh ronaldo-patrol
 
 # VPS (automático)
-systemctl status ronaldo-patrol.timer   # a cada 15 min
+systemctl status ronaldo-patrol.timer   # a cada 10 min (sprint)
 
-**Task parada:** se em `executando` >24h (`TASK_STALE_HOURS`), patrulha pede checkpoint — fatiar, concluir parcial ou backlog.
+**Captação:** `donizete-captura` · crítico 30 min sem pronto/prospectado/pasta.
+
+**Task parada:** >12h (`TASK_STALE_HOURS`) → fatiar ou backlog.
 ```
 
 **Última revisão:** 2026-05-31

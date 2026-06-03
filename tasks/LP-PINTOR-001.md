@@ -1,4 +1,4 @@
-# LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
+# LP-PINTOR-001 — Captação Facebook lote 1 (5 leads)
 
 ## Metadados
 
@@ -11,38 +11,35 @@
 | **Prioridade** | alta |
 | **Agente responsável** | donizete_social |
 | **Dependências** | LP-PINTOR-007 ✓ (in-house) · modelo `/previas/exemplo-pintor/` |
-| **Meta sprint** | **10 leads** `pronto_pra_pagina` (2026-06-03) |
+| **Meta sprint** | **5 leads** `pronto_pra_pagina` (lote 1 de 10) |
 | **Criada em** | 2026-05-31 |
 | **Iniciada em** | 2026-06-03 |
 
 ## Objetivo
 
-Operar captação Facebook (Canal A post-isca + Canal B garimpo), **stalk completo do perfil**, salvar mídia para Loide, qualificar e registrar no CRM até `pronto_pra_pagina`.
+Lote 1 de captação Facebook (Canal A + B) — **5 leads** `pronto_pra_pagina` com stalk e mídia completa. Lote 2: **LP-PINTOR-001B**.
 
-**Plano oficial:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
+**Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · **Modo sprint** §4
 
 ## Ritmo (kanban)
 
-- Task-mãe pode ficar em `executando` durante o sprint; **cada lead** `pronto_pra_pagina` conta como entregável do dia.
-- Se **>24h** sem novo lead qualificado → registrar bloqueio no CRM/evento ou fatiar (ex. LP-PINTOR-001a lote 5 leads).
+- **Cada lead** `pronto_pra_pagina` = entregável → evento `logs/eventos.md` + abrir **LP-PINTOR-009** (produção) em paralelo
+- Patrulha: crítico se **30 min** sem pronto/prospectado/pasta captura
 
 ## Critérios de aceite
 
-- [ ] Lista de 10+ grupos mapeados (classificados, bairro, compra/venda)
-- [ ] Banco de 8+ variações de post-isca em uso (sem repetição no mesmo dia)
-- [ ] Rotina diária: 3–5 posts, rodízio, intervalo 40–120 min, janela humana
-- [ ] Leads com tag `indicacao` ou `autopromocao` + pasta `captura/raw` + `manifest.json`
-- [ ] **10 leads** em `pronto_pra_pagina` com pacote completo
-- [ ] Zero burst · 1× por grupo/dia · sem madrugada
+- [ ] 10+ grupos mapeados
+- [ ] 8 variações post-isca em uso
+- [ ] Modo sprint: 6–8 posts/dia · 25–60 min entre posts · até 2 leads/h
+- [ ] **5 leads** `pronto_pra_pagina` com captura/raw + manifest
+- [ ] Zero ban
 
 ## Ref
 
-[operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md) · LP-PINTOR-003
+[operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md) · LP-PINTOR-001B · LP-PINTOR-009
 
-### Briefing — Donizete — LP-PINTOR-001 — 2026-06-03 (início operação)
+### Briefing — Donizete — LP-PINTOR-001 — lote 1
 
-- **Objetivo desta rodada:** Executar plano §1–12 — **10 leads** `pronto_pra_pagina` · grupos genéricos FB (qualquer região)
-- **Entregável esperado:** 10+ grupos mapeados + 10 leads com stalk/mídia no repo
-- **Restrições:** anti-ban inalteradas · **não vender no FB** · cidade = dado do lead/grupo do post
-- **Critério de pronto:** 10 leads qualificados handoff produção sem dados faltando
-- **Não fazer:** mencionar R$ 69 · Webflow · pedir material ao pintor
+- **Objetivo:** 5 leads `pronto_pra_pagina` · modo sprint
+- **Handoff:** cada lead → CRM + pasta captura → avisar Ronaldo → LP-PINTOR-009
+- **Não fazer:** R$ 69 no FB · pedir material ao pintor

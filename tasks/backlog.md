@@ -33,6 +33,14 @@ Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operac
 
 > Histórico reset Fase 0: [arquivado.md](arquivado.md#reset-fase-0--2026-06-01)
 
+### LP-PINTOR-001B — Captação Facebook lote 2 (5 leads)
+
+- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Após:** LP-PINTOR-001 · [LP-PINTOR-001B.md](LP-PINTOR-001B.md)
+
+### LP-PINTOR-009 — Produzir prévia in-house (1 lead) — modelo repetível
+
+- **Projeto:** PROJ-LP · **Agentes:** loide · dev · juarez · **Dispara:** cada lead `pronto_pra_pagina` · [LP-PINTOR-009.md](LP-PINTOR-009.md)
+
 ### LP-PINTOR-008 — Automação CRM → build in-house + takedown
 
 - **Projeto:** PROJ-LP · **Agente:** dev · juarez · [LP-PINTOR-008.md](LP-PINTOR-008.md)

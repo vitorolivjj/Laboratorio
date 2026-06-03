@@ -230,7 +230,7 @@ def build_snapshot() -> str:
     arquivado = count_kanban_tasks(tasks_dir / "arquivado.md", "## Arquivo")
 
     wip = len(executando)
-    cadence_min = int(os.getenv("TASK_CADENCE_MIN", "5"))
+    cadence_min = int(os.getenv("TASK_CADENCE_MIN", "2"))
     planning = len(planejando)
 
     active_tasks = [t for t in tasks if t["status"] == "executando"]

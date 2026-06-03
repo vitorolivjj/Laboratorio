@@ -25,6 +25,12 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-06-03 — [orquestracao] Sprint velocidade LP — patrulha 30 min · WIP 4
+
+- **Agente(s):** ronaldo_maestro · dev
+- **Detalhe:** Patrulha captação crítica 30 min sem progresso · WIP 4 cadência 2 min · tasks 001 (5)+001B (5)+009/lead · modo sprint Donizete · `donizete-captura` + `lp_publish_lead.py` · Fase 2 doc
+- **Ref:** fase2_velocidade_lp.md · donizete_capture.py · LP-PINTOR-001
+
 ### 2026-06-03 — [decisao] Governança LP — Webflow revogado · captação 10 leads
 
 - **Agente(s):** ronaldo_maestro · dev · vitor

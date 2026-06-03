@@ -260,10 +260,43 @@ def _scan_infra(snapshot: dict) -> list[PatrolIssue]:
     return issues
 
 
+def _scan_donizete_capture(capture_report) -> list[PatrolIssue]:
+    issues: list[PatrolIssue] = []
+    for item in capture_report.issues:
+        issues.append(
+            PatrolIssue(
+                code=item["code"],
+                severity=item["severity"],
+                title=item["title"],
+                detail=item["detail"],
+                action="Ver captura Donizete · CRM · plano_atuacao_donizete_lp.md",
+                ref="LP-PINTOR-001",
+                notify=item["severity"] == "critical",
+            )
+        )
+    return issues
+
+
 def run_patrol(*, dry_run: bool = False, notify: bool = True) -> PatrolReport:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     snapshot = build_maestro_snapshot()
-    issues = _scan_tasks() + _scan_governance() + _scan_infra(snapshot)
+    from laboratorio.ops.donizete_capture import (
+        append_capture_log,
+        build_capture_report,
+        maybe_notify_milestones,
+    )
+
+    capture_report = build_capture_report()
+    if not dry_run:
+        append_capture_log(capture_report)
+    capture_notified = maybe_notify_milestones(capture_report, dry_run=dry_run)
+
+    issues = (
+        _scan_tasks()
+        + _scan_governance()
+        + _scan_infra(snapshot)
+        + _scan_donizete_capture(capture_report)
+    )
 
     o = snapshot.get("overview", {})
     active = o.get("active_tasks") or []
@@ -271,6 +304,7 @@ def run_patrol(*, dry_run: bool = False, notify: bool = True) -> PatrolReport:
     summary = (
         f"Em execução {o.get('wip_tasks', 0)} · cadência {cad}min · "
         f"Tasks: {', '.join(active) or 'nenhuma'} · "
+        f"Captação: {capture_report.pronto_count}/{capture_report.meta_goal} pronto · "
         f"Issues: {len(issues)} ({sum(1 for i in issues if i.notify)} escaláveis)"
     )
 
@@ -299,8 +333,13 @@ def run_patrol(*, dry_run: bool = False, notify: bool = True) -> PatrolReport:
 
         append_governance_log(run_governance_audit())
 
-    report.notified = notified_codes
-    logger.info("Patrulha: %s | notificados: %s", summary, notified_codes)
+    report.notified = notified_codes + capture_notified
+    logger.info(
+        "Patrulha: %s | notificados: %s | captura: %s",
+        summary,
+        report.notified,
+        capture_report.summary_line(),
+    )
     return report
 
 

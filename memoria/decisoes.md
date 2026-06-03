@@ -133,6 +133,17 @@ Registro de **decisões** visíveis a **todos os agentes**.
 - **Validade / revisar em:** revisar quando o volume de follow-ups exigir ajuste do teto (hoje 2/task)
 - **Ref:** `memoria/ronaldo_maestro/rotina_pos_task.md` · `backend/src/laboratorio/ops/ronaldo_audit.py`
 
+### Sprint velocidade LP — patrulha 30 min + WIP 4 — 2026-06-03
+
+- **Contexto:** Meta 10 leads/dia; fluxo lento; patrulha tardia (24h/72h).
+- **Decisão:**
+  - Captação: crítico **30 min** sem pronto/prospectado/pasta captura; warn **15 min**
+  - `WIP_SOFT_MAX=4`, `TASK_CADENCE_MIN=2`, patrulha timer **10 min**
+  - Tasks fatiadas: LP-PINTOR-001 (5) + 001B (5); produção **LP-PINTOR-009** por lead
+  - Donizete modo sprint 48h (6–8 posts, 25–60 min, 2 leads/h)
+  - Script [`lp_publish_lead.py`](../../scripts/lp_publish_lead.py); Fase 2 em [fase2_velocidade_lp.md](ronaldo_maestro/fase2_velocidade_lp.md)
+- **Ref:** `donizete_capture.py` · `config.py`
+
 ### Cadência de tasks — ajuste ritmo (menos tempo parado) — 2026-06-03
 
 - **Contexto:** Tasks ficando muito tempo em `executando` sem fechar frente.

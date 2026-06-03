@@ -54,6 +54,7 @@ CONSULTAR
 • delegações / delegacoes
 • erros / logs
 • patrulha (último check)
+• captura / donizete — monitor LP-PINTOR-001 (CRM + pastas)
 
 EXECUTAR
 • patrulha agora — roda check completo

@@ -1,9 +1,9 @@
 [Unit]
-Description=Timer patrulha Ronaldo — a cada 15 min
+Description=Timer patrulha Ronaldo — a cada 10 min (sprint captação)
 
 [Timer]
 OnBootSec=5min
-OnUnitActiveSec=15min
+OnUnitActiveSec=10min
 Persistent=true
 
 [Install]

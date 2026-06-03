@@ -4,7 +4,7 @@
 
 ## Foco atual
 
-**Captação Donizete (LP-PINTOR-001)** — meta **10 leads** `pronto_pra_pagina` · grupos FB **genéricos** (qualquer região; cidade vem do lead). Produção LP = **in-house** `/previas/{slug}/` — Webflow **revogado**.
+**Sprint captação LP** — **LP-PINTOR-001** (5 leads) + **001B** (5) · patrulha **crítica 30 min** sem progresso · WIP **4** · produção **LP-PINTOR-009**/lead em paralelo.
 
 **KPI vitrine:** **1/1 ativo** ✓ — LEAD-001 Stephanie Turnley · R$ 69 · [crm/crm_landing_pintor.md](../crm/crm_landing_pintor.md)
 

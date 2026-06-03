@@ -15,7 +15,7 @@
 
 Script-ponte: CRM `pronto_pra_pagina` → (opcional IA copy) → `config.json` + build → publish `/previas/{slug}/` → Juarez confere → `previa_no_ar`. Job diário remove ou expira prévias vencidas (3–5 dias sem PIX) → `recusou`.
 
-**Nota:** escopo Webflow **cancelado** — automação só no pipeline in-house (`lp_publish_lead.py` / build / rsync).
+**Nota:** Fase 1 = [`scripts/lp_publish_lead.py`](../scripts/lp_publish_lead.py). Fase 2 = rsync VPS + fila CRM + takedown — ver [fase2_velocidade_lp.md](../memoria/ronaldo_maestro/fase2_velocidade_lp.md).
 
 ## Critérios de aceite
 

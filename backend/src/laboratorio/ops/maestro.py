@@ -259,6 +259,21 @@ def build_maestro_snapshot() -> dict[str, Any]:
     exec_ids = [t["id"] for t in executando]
     cadence = _task_cadence(exec_ids)
     stale_tasks = executando_stale_report(exec_ids)
+    lp_capture: dict[str, Any] = {}
+    try:
+        from laboratorio.ops.donizete_capture import build_capture_report
+
+        cr = build_capture_report()
+        lp_capture = {
+            "pronto": cr.pronto_count,
+            "meta": cr.meta_goal,
+            "progress_pct": cr.progress_pct,
+            "prospectado": cr.prospectado_count,
+            "folders": len(cr.folders),
+            "summary": cr.summary_line(),
+        }
+    except Exception:
+        lp_capture = {}
 
     errors = [e for e in events if e["type"] == "erro"]
     # Alertas = só erros reais (marcos ficam em Eventos)
@@ -335,6 +350,7 @@ def build_maestro_snapshot() -> dict[str, Any]:
         "planning_tasks": len(planejando),
         "active_tasks": exec_ids,
         "planning_task_ids": [t["id"] for t in planejando],
+        "lp_capture": lp_capture,
     }
     append_metric_from_overview(overview)
 

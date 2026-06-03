@@ -178,6 +178,16 @@ def main() -> None:
         help="Roda check sem enviar WhatsApp ao Vitor",
     )
 
+    p_cap = sub.add_parser(
+        "donizete-captura",
+        help="Monitor captura Donizete — CRM LP + pastas captura/ (LP-PINTOR-001)",
+    )
+    p_cap.add_argument(
+        "--log",
+        action="store_true",
+        help="Grava entrada em logs/donizete_captura.md",
+    )
+
     sub.add_parser(
         "vitor-schedule",
         help="Envia lembretes WhatsApp Vitor vencidos",
@@ -272,6 +282,19 @@ def main() -> None:
             print(f"  {flag} [{issue.severity}] {issue.title}")
         if report.notified:
             print(f"\nWhatsApp Vitor: {', '.join(report.notified)}")
+        sys.exit(0)
+    if args.command == "donizete-captura":
+        from laboratorio.ops.donizete_capture import (
+            append_capture_log,
+            build_capture_report,
+            format_capture_cli,
+        )
+
+        report = build_capture_report()
+        print(format_capture_cli(report))
+        if args.log:
+            append_capture_log(report)
+            print(f"\nLog: logs/donizete_captura.md")
         sys.exit(0)
     if args.command == "ronaldo-audit":
         load_env()

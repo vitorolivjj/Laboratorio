@@ -1,31 +1,31 @@
 # Executando
 
-Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
+Tarefas **em andamento agora**. Sprint LP: WIP até **4** (`WIP_SOFT_MAX`).
 
 **Estado:** `executando` · Ciclo de vida: [docs/ciclo-de-vida-tasks.md](../docs/ciclo-de-vida-tasks.md)
 
 ## Regra
 
-- Máximo recomendado: **2** tarefas simultâneas (`WIP_SOFT_MAX=2` na API/patrulha).
-- **Cadência entre starts:** **5 min** (`TASK_CADENCE_MIN`) — não empilhar novas tasks sem fechar frente anterior.
-- **SLA em executando:** se **>24h** sem entregável novo → Ronaldo fatia (sub-task), conclui parcial ou move para `backlog` com nota.
-- Ao concluir → mover para `concluidas.md`.
-- Se pausar → voltar para `backlog.md` com nota.
+- Máximo recomendado: **4** tarefas simultâneas (captação + até 3× LP-PINTOR-009 produção).
+- **Cadência entre starts:** **2 min** (`TASK_CADENCE_MIN`).
+- **Captação:** patrulha **crítica** se 30 min sem pronto/prospectado/pasta `captura/`.
+- **SLA task genérica:** >12h sem entregável → fatiar ou backlog.
+- Ao concluir lote → `concluidas.md` · próximo lote **LP-PINTOR-001B** do backlog.
 
 ---
 
 ## Em andamento
 
-### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
+### LP-PINTOR-001 — Captação Facebook lote 1 (5 leads)
 
 - **Iniciada em:** 2026-06-03
 - **Agente:** donizete_social
 - **Projeto:** PROJ-LP
-- **Status:** operação iniciada — gate exemplo-pintor OK
-- **Meta:** **10 leads** `pronto_pra_pagina` (sprint 2026-06-03)
-- **Próxima ação:** mapear 10+ grupos genéricos (multi-região) · posts-isca · stalk + CRM por lead
-- **Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · [LP-PINTOR-001.md](LP-PINTOR-001.md)
+- **Meta:** **5** leads `pronto_pra_pagina` · sprint 10 total (001B = +5)
+- **Próxima ação:** posts modo sprint · grupos · stalk + CRM por lead
+- **Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
+- **Monitor:** `donizete-captura` · WhatsApp `captura`
 
 ---
 
-<!-- Tarefas ativas abaixo -->
+<!-- Tarefas ativas abaixo — LP-PINTOR-009 por lead quando pronto -->

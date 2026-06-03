@@ -220,6 +220,20 @@ def _vitor_fast_answer(text: str, snapshot: dict) -> str | None:
             return format_delegations(snapshot)
         if any(k in folded for k in ("log", "evento", "decis")):
             return format_logs_summary(snapshot)
+        if any(
+            k in folded
+            for k in (
+                "captura",
+                "donizete",
+                "leads lp",
+                "lead lp",
+                "pintor capt",
+                "pronto_pra_pagina",
+            )
+        ):
+            from laboratorio.ops.donizete_capture import format_capture_whatsapp
+
+            return format_capture_whatsapp()
         panel, _ = _answer_status(snapshot)
         return panel
 

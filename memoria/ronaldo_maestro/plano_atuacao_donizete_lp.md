@@ -48,18 +48,29 @@ Monitorar pintores que **postam próprios trabalhos** (fotos de obra, antes/depo
 
 ---
 
-## 4. Anti-ban (obrigatório)
+## 4. Anti-ban e modo sprint (48h — 2026-06-03)
+
+### Modo normal (fora do sprint)
 
 | Regra | Valor |
 |-------|--------|
-| Posts por dia | 3–5 (fase inicial; pode subir com cuidado se meta 10 exigir) |
-| Mesmo grupo | **1× por dia**, rodízio ≥3 dias antes de repetir |
-| Intervalo entre posts | **40–120 min** aleatório |
-| Horário | Manhã · almoço · fim de tarde/noite — **sem madrugada** |
-| Entre posts | Scroll, curtir, 1 comentário humano ocasional |
-| Texto | **Sempre variado** — banco §5 |
+| Posts por dia | 3–5 |
+| Intervalo entre posts | 40–120 min |
+| Qualificação | até 1 lead/hora |
 
-**Limite qualificação:** até **1 lead qualificado/hora** (fase inicial) — priorizar completar stalk/CRM de leads já indicados antes de acelerar posts.
+### Modo sprint (ativo — meta 10 leads)
+
+| Regra | Valor |
+|-------|--------|
+| Posts por dia | **6–8** |
+| Mesmo grupo | **1× por dia**, rodízio ≥3 dias |
+| Intervalo entre posts | **25–60 min** aleatório |
+| Horário | Manhã · almoço · tarde/noite — sem madrugada |
+| Entre posts | Scroll, curtir, 1 comentário humano |
+| Texto | Sempre variado — banco §5 |
+| Qualificação | até **2 leads/hora** se thread quente; senão completar stalk pendente |
+
+**Patrulha:** crítico se **30 min** sem pronto, prospectado ou pasta `captura/` (ver §13).
 
 ---
 
@@ -171,7 +182,7 @@ Donizete **não** fala com pintor sobre venda.
 | Tarde | Stalk de leads qualificados + salvar mídia + CRM |
 | Noite | 1–2 posts (grupos C/D) + atualizar status leads |
 
-**Meta sprint:** **10 leads** `pronto_pra_pagina` (qualidade mantida; stalk completo obrigatório).
+**Meta sprint:** **10 leads** total — **LP-PINTOR-001** lote 1 (5) + **LP-PINTOR-001B** lote 2 (5).
 
 ---
 
@@ -191,7 +202,18 @@ Donizete entrega **lista de 10–15 grupos** mapeados (nome + link + cidade/regi
 
 ---
 
-## 13. Referências
+## 13. Monitoramento (Ronaldo / Vitor)
+
+- **CLI:** `python -m laboratorio donizete-captura`
+- **Log:** `logs/donizete_captura.md` (patrulha **10 min**)
+- **WhatsApp:** `captura` ou `donizete`
+- **Crítico:** 30 min sem pronto **e** sem prospectado **e** sem pasta `captura/`
+- **Warn:** 15 min sem progresso
+- **Marcos:** 1/3/5/10 `pronto_pra_pagina` → WhatsApp · cada lead → **LP-PINTOR-009**
+
+---
+
+## 14. Referências
 
 - Manual: [operacao_landing_pintor.md](operacao_landing_pintor.md)
 - Produção: [producao_lp_pintor.md](producao_lp_pintor.md)

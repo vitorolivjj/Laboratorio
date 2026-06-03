@@ -24,7 +24,7 @@ Produz **primeiro**, entrega prévia, cobra ativação depois. **Nada é pedido 
 
 - **Grupos:** qualquer grupo **genérico** (classificados, bairro, compra/venda, serviços) — **não** precisa ser grupo de pintores
 - **Região:** vem do **perfil do lead** (cidade que ele atende) — sem cidade fixa de operação
-- **Meta atual:** **10 leads** `pronto_pra_pagina`
+- **Meta sprint:** **10 leads** (001: 5 + 001B: 5) · produção paralela **LP-PINTOR-009**/lead
 - Canal A post-isca · Canal B garimpo · anti-ban · stalk → `captura/`
 
 ## 4. Qualificação
