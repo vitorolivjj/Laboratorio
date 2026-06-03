@@ -316,7 +316,8 @@ def parsers_count(path: Path, section: str) -> list[str]:
     # dedupe preserving order
     seen: set[str] = set()
     ids: list[str] = []
-    for tid in re.findall(r"^### ([A-Z][A-Z0-9\-]*-\d+)", block, re.MULTILINE):
+    # Título deve ser "### ID — nome" (evita LP-PINTOR-001B ser lido como LP-PINTOR-001)
+    for tid in re.findall(r"^### ([A-Z][A-Z0-9\-]+)(?:\s|—)", block, re.MULTILINE):
         if tid not in seen:
             seen.add(tid)
             ids.append(tid)

@@ -38,8 +38,9 @@ Kanban zerado para recomeço com trava de aprovação WhatsApp. Documentos `TASK
 - **Arquivada em:** 2026-06-01 · estava em `executando.md`
 - **Projeto:** PROJ-002 · **Documento:** [TASK-012.md](TASK-012.md)
 
-### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
+### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo) — histórico Fase 0
 - **Arquivada em:** 2026-06-01 · estava em `executando.md`
+- **Nota:** reativada 2026-06-03 — kanban ativo só em `executando.md` (não duplicar aqui)
 - **Projeto:** PROJ-LP · **Documento:** [LP-PINTOR-001.md](LP-PINTOR-001.md)
 
 ### LP-PINTOR-002 — Template landing (2×4) + host grátis

@@ -176,6 +176,18 @@ def test_owner_detection():
     assert not owner._is_action("qual o status?")
 
 
+def test_parsers_count_distinct_lp_pintor_suffix(tmp: Path):
+    backlog = tmp / "backlog.md"
+    backlog.write_text(
+        "## Fila\n\n"
+        "### LP-PINTOR-001B — lote 2\n- x\n"
+        "### LP-PINTOR-009 — produção\n- y\n",
+        encoding="utf-8",
+    )
+    ids = parsers.parsers_count(backlog, "## Fila")
+    assert ids == ["LP-PINTOR-001B", "LP-PINTOR-009"]
+    assert "LP-PINTOR-001" not in ids
+
 
 # pytest: expõe a fixture `tmp` se pytest estiver instalado
 try:
