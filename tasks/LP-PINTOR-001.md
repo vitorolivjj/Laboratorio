@@ -21,6 +21,11 @@ Operar captação Facebook (Canal A post-isca + Canal B garimpo), **stalk comple
 
 **Plano oficial:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
 
+## Ritmo (kanban)
+
+- Task-mãe pode ficar em `executando` durante o sprint; **cada lead** `pronto_pra_pagina` conta como entregável do dia.
+- Se **>24h** sem novo lead qualificado → registrar bloqueio no CRM/evento ou fatiar (ex. LP-PINTOR-001a lote 5 leads).
+
 ## Critérios de aceite
 
 - [ ] Lista de 10+ grupos mapeados (classificados, bairro, compra/venda)

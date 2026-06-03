@@ -1,9 +1,9 @@
 [Unit]
-Description=Timer auditoria pós-conclusão Ronaldo — a cada 10 min (cadência)
+Description=Timer auditoria pós-conclusão Ronaldo — a cada 5 min (cadência)
 
 [Timer]
 OnBootSec=7min
-OnUnitActiveSec=10min
+OnUnitActiveSec=5min
 Persistent=true
 
 [Install]

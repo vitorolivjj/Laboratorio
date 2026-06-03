@@ -8,7 +8,7 @@ Quando uma task é concluída, o ciclo não termina: o Ronaldo **audita**, regis
 
 ## Gatilho
 
-- **Automático:** `systemd` roda `python -m laboratorio ronaldo-audit` a cada **10 min** (alinhado à cadência de tasks).
+- **Automático:** `systemd` roda `python -m laboratorio ronaldo-audit` a cada **5 min** (alinhado à cadência de tasks).
 - **Manual:** `python -m laboratorio ronaldo-audit [--dry-run] [--no-create] [--no-notify]`.
 - **Idempotente:** cada task é auditada **uma única vez** (estado em `logs/ronaldo_audit_state.json`). Tasks anteriores ao deploy ficam marcadas como já auditadas.
 
@@ -45,7 +45,7 @@ Para cada follow-up:
 - Resolve o **projeto** da task-mãe (via `projetos/projetos.md`) e gera o próximo ID com o **prefixo do projeto** (ex.: `LP-PINTOR-006`, `LAB-007`).
 - Cria `tasks/<ID>.md` em **`backlog`** com `### Briefing` para o agente (a delegação já nasce escrita).
 - Adiciona a entrada em `tasks/backlog.md` com a origem `follow-up auditoria <ID-mãe>`.
-- **Não** promove sozinho para `executando` — a promoção respeita a **cadência de 10 min** e segue o fluxo normal de delegação.
+- **Não** promove sozinho para `executando` — a promoção respeita a **cadência de 5 min** e segue o fluxo normal de delegação.
 
 ### 4. Escalar ao Vitor (exceção)
 Só quando precisa de decisão/autorização dele: dispara WhatsApp via Caio ([notify](../../backend/src/laboratorio/whatsapp/notify.py)) com ref para `logs/auditorias.md`. Caso contrário, opera em autonomia total.
@@ -67,7 +67,9 @@ Só quando precisa de decisão/autorização dele: dispara WhatsApp via Caio ([n
 |----------|---------|--------|
 | `AUDIT_LLM_MODEL` | `VITOR_WHATSAPP_MODEL` → `gpt-4o-mini` | Modelo da auditoria |
 | `OPENAI_API_KEY` | — | Sem ela → fallback heurístico |
-| `TASK_CADENCE_MIN` | 10 | Intervalo entre promoções a `executando` |
+| `TASK_CADENCE_MIN` | 5 | Intervalo entre promoções a `executando` |
+| `WIP_SOFT_MAX` | 2 | Teto de tasks simultâneas (alerta patrulha) |
+| `TASK_STALE_HOURS` | 24 | Alerta se parada em executando |
 
 - **Governança contínua:** `./run.sh governanca-audit --log` · integrado na patrulha · `logs/governanca_auditoria.md`
 

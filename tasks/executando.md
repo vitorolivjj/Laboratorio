@@ -6,7 +6,9 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 
 ## Regra
 
-- Máximo recomendado: **3** tarefas simultâneas no ecossistema.
+- Máximo recomendado: **2** tarefas simultâneas (`WIP_SOFT_MAX=2` na API/patrulha).
+- **Cadência entre starts:** **5 min** (`TASK_CADENCE_MIN`) — não empilhar novas tasks sem fechar frente anterior.
+- **SLA em executando:** se **>24h** sem entregável novo → Ronaldo fatia (sub-task), conclui parcial ou move para `backlog` com nota.
 - Ao concluir → mover para `concluidas.md`.
 - Se pausar → voltar para `backlog.md` com nota.
 

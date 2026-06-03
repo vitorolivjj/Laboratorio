@@ -64,7 +64,9 @@ Mesmo alerta **não** reenvia em 4 h (`logs/ronaldo_patrol_state.json`).
 cd backend && ./run.sh ronaldo-patrol
 
 # VPS (automático)
-systemctl status ronaldo-patrol.timer
+systemctl status ronaldo-patrol.timer   # a cada 15 min
+
+**Task parada:** se em `executando` >24h (`TASK_STALE_HOURS`), patrulha pede checkpoint — fatiar, concluir parcial ou backlog.
 ```
 
 **Última revisão:** 2026-05-31

@@ -133,11 +133,21 @@ Registro de **decisões** visíveis a **todos os agentes**.
 - **Validade / revisar em:** revisar quando o volume de follow-ups exigir ajuste do teto (hoje 2/task)
 - **Ref:** `memoria/ronaldo_maestro/rotina_pos_task.md` · `backend/src/laboratorio/ops/ronaldo_audit.py`
 
+### Cadência de tasks — ajuste ritmo (menos tempo parado) — 2026-06-03
+
+- **Contexto:** Tasks ficando muito tempo em `executando` sem fechar frente.
+- **Decisão:**
+  - `TASK_CADENCE_MIN` padrão **5 min** (antes 10) entre starts
+  - `WIP_SOFT_MAX` padrão **2** tasks simultâneas
+  - Alerta patrulha/painel se task em executando **>24h** (crítico **>48h**) — fatiar, concluir parcial ou backlog
+  - Timers VPS: patrulha **15 min**, auditoria **5 min**
+- **Ref:** `config.py` · `ronaldo_patrol.py` · `tasks/executando.md`
+
 ### Cadência de tasks substitui teto de WIP — 2026-06-01
 
 - **Contexto:** WIP rígido (máx. 3 simultâneas) limitava o volume; com múltiplos projetos/agentes, faz mais sentido controlar o **ritmo de início** que o total simultâneo.
 - **Decisão:**
-  - **Sem teto rígido.** O limite passa a ser **cadência**: intervalo mínimo entre iniciar uma task e a próxima (`TASK_CADENCE_MIN`, padrão **10 min**).
+  - **Sem teto rígido.** O limite passa a ser **cadência**: intervalo mínimo entre iniciar uma task e a próxima (`TASK_CADENCE_MIN`, padrão ~~10~~ **5 min** desde 2026-06-03).
   - Ronaldo pode ter várias frentes abertas, mas **não dispara várias de uma vez** — espaça os starts.
   - Teto opcional `WIP_SOFT_MAX` (0 = sem teto) para quem quiser um limite duro.
   - Painel mostra "Em execução: N" + "Cadência Xmin (livre / aguarda Ymin)". Patrulha alerta só se cadência for violada (2 starts em < intervalo) ou teto opcional excedido.

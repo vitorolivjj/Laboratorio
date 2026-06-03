@@ -19,6 +19,8 @@ from laboratorio.config import (
     MEMORIA_DIR,
     REPO_ROOT,
     TASK_CADENCE_MIN,
+    TASK_STALE_CRITICAL_HOURS,
+    TASK_STALE_HOURS,
     TASKS_DIR,
     WIP_SOFT_MAX,
 )
@@ -89,6 +91,42 @@ def _task_cadence(executando_ids: list[str]) -> dict[str, Any]:
         "last_task": last_tid,
         "violation": violation,
     }
+
+
+def executando_stale_report(executando_ids: list[str]) -> list[dict[str, Any]]:
+    """Tasks em executando há mais que TASK_STALE_HOURS (start em task_cadence_state)."""
+    if not executando_ids:
+        return []
+    now_dt = datetime.now(timezone.utc)
+    try:
+        state = json.loads(CADENCE_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        state = {}
+    starts: dict[str, str] = state.get("starts", {})
+    out: list[dict[str, Any]] = []
+    for tid in executando_ids:
+        iso = starts.get(tid)
+        if not iso:
+            continue
+        try:
+            started = datetime.fromisoformat(iso)
+        except ValueError:
+            continue
+        hours = (now_dt - started).total_seconds() / 3600
+        if hours < TASK_STALE_HOURS:
+            continue
+        severity = "critical" if hours >= TASK_STALE_CRITICAL_HOURS else "warn"
+        out.append(
+            {
+                "id": tid,
+                "hours": round(hours, 1),
+                "started_at": iso,
+                "severity": severity,
+            }
+        )
+    out.sort(key=lambda x: x["hours"], reverse=True)
+    return out
+
 
 CRM_DIR = REPO_ROOT / "crm"
 PROJETOS_REGISTRY = REPO_ROOT / "projetos" / "projetos.md"
@@ -218,7 +256,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
     estimated_cost, cost_is_real = _resolve_cost(messages_today, len(active_work))
     briefing = _build_briefing(agents, active_work, wa_log, leads, last_error, vps_online, wa_online)
 
-    cadence = _task_cadence([t["id"] for t in executando])
+    exec_ids = [t["id"] for t in executando]
+    cadence = _task_cadence(exec_ids)
+    stale_tasks = executando_stale_report(exec_ids)
 
     errors = [e for e in events if e["type"] == "erro"]
     # Alertas = só erros reais (marcos ficam em Eventos)
@@ -248,6 +288,22 @@ def build_maestro_snapshot() -> dict[str, Any]:
             },
             *alerts,
         ]
+    for st in stale_tasks:
+        h = st["hours"]
+        alerts = [
+            {
+                "datetime": now,
+                "type": "alerta",
+                "title": f"{st['id']} parada em executando — {h}h",
+                "detail": (
+                    f"Concluir, fatiar em sub-task ou mover para backlog "
+                    f"(limite {TASK_STALE_HOURS}h warn / {TASK_STALE_CRITICAL_HOURS}h crítico)"
+                ),
+                "agents": "ronaldo_maestro",
+                "ref": st["id"],
+            },
+            *alerts,
+        ]
     # Decisões formais vão ao painel Decisões; timeline Eventos = operacional
     events_timeline = [e for e in events if e["type"] != "decisao"]
     decision_titles = {d["title"].lower() for d in decisions}
@@ -273,8 +329,11 @@ def build_maestro_snapshot() -> dict[str, Any]:
         "can_start_next": cadence["can_start_next"],
         "next_start_in_min": cadence["next_start_in_min"],
         "last_task_started": cadence["last_task"],
+        "stale_tasks": stale_tasks,
+        "stale_hours_warn": TASK_STALE_HOURS,
+        "stale_hours_critical": TASK_STALE_CRITICAL_HOURS,
         "planning_tasks": len(planejando),
-        "active_tasks": [t["id"] for t in executando],
+        "active_tasks": exec_ids,
         "planning_task_ids": [t["id"] for t in planejando],
     }
     append_metric_from_overview(overview)

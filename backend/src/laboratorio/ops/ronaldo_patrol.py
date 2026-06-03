@@ -10,9 +10,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from laboratorio.config import LOGS_DIR, TASKS_DIR, WIP_SOFT_MAX
+from laboratorio.config import LOGS_DIR, TASKS_DIR, TASK_STALE_CRITICAL_HOURS, TASK_STALE_HOURS, WIP_SOFT_MAX
 from laboratorio.ops import parsers
-from laboratorio.ops.maestro import build_maestro_snapshot
+from laboratorio.ops.maestro import build_maestro_snapshot, executando_stale_report
 from laboratorio.whatsapp.notify import notify_vitor
 
 logger = logging.getLogger("laboratorio.ops.ronaldo_patrol")
@@ -141,6 +141,23 @@ def _scan_tasks() -> list[PatrolIssue]:
                 action="Concluir uma TASK ou ajustar WIP_SOFT_MAX",
                 ref="tasks/executando.md",
                 notify=True,
+            )
+        )
+
+    for st in executando_stale_report([t["id"] for t in tasks]):
+        sev = "critical" if st["severity"] == "critical" else "warn"
+        issues.append(
+            PatrolIssue(
+                code="task_stale",
+                severity=sev,
+                title=f"{st['id']} em executando há {st['hours']}h",
+                detail=(
+                    f"Start {st['started_at'][:10]} · fatiar, concluir parcial ou mover para backlog "
+                    f"(>{TASK_STALE_HOURS}h / crítico >{TASK_STALE_CRITICAL_HOURS}h)"
+                ),
+                action="Ronaldo: checkpoint — entregável do dia ou nova task menor",
+                ref=st["id"],
+                notify=st["severity"] == "critical",
             )
         )
 

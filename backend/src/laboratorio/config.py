@@ -7,9 +7,12 @@ from dotenv import load_dotenv
 
 # Cadência de tasks (substitui o teto rígido de WIP):
 # intervalo mínimo em minutos entre iniciar uma task e a próxima.
-TASK_CADENCE_MIN = int(os.getenv("TASK_CADENCE_MIN", "10"))
+TASK_CADENCE_MIN = int(os.getenv("TASK_CADENCE_MIN", "5"))
 # Teto opcional de tasks simultâneas. 0 = sem teto (só vale a cadência).
-WIP_SOFT_MAX = int(os.getenv("WIP_SOFT_MAX", "0"))
+WIP_SOFT_MAX = int(os.getenv("WIP_SOFT_MAX", "2"))
+# Alerta se task ficar em executando sem concluir (horas, desde o start registrado).
+TASK_STALE_HOURS = int(os.getenv("TASK_STALE_HOURS", "24"))
+TASK_STALE_CRITICAL_HOURS = int(os.getenv("TASK_STALE_CRITICAL_HOURS", "48"))
 
 # backend/
 BACKEND_ROOT = Path(__file__).resolve().parents[2]

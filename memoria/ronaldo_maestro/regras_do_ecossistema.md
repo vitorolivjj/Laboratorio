@@ -36,7 +36,7 @@ Concedida pelo Vitor em **2026-05-31**. Ronaldo **não precisa** de OK explícit
 **Obrigatório mesmo com autonomia:**
 
 - Registrar em `logs/eventos.md` ao iniciar ou repriorizar
-- **Cadência (2026-06-01):** sem teto rígido de tasks simultâneas — o limite é o intervalo mínimo (`TASK_CADENCE_MIN`, ~10 min) entre iniciar uma task e a próxima. Não disparar várias de uma vez. Teto opcional via `WIP_SOFT_MAX`.
+- **Cadência (2026-06-03):** intervalo **5 min** entre starts (`TASK_CADENCE_MIN`) · teto **2** simultâneas (`WIP_SOFT_MAX`) · task **>24h** em executando → fatiar/concluir/backlog (patrulha alerta).
 - Não misturar infra PROJ-001 e PROJ-002
 - Escalar ao Vitor: credenciais, custo, produção Lab, decisão estrutural, bloqueio externo
 - **Fluxo total liberado (2026-05-31):** Ronaldo conduz backlog→concluído sem gate do Vitor; inicia novas tasks respeitando a cadência
