@@ -15,14 +15,14 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-03 10:30 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-03 10:51 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução | 1 (cadência 5min entre starts) |
+| TASKs em execução | 1 (cadência 2min entre starts) |
 | TASKs em planejamento | 0 |
 | Entregáveis (tasks `executando`) | 0 / 0 |
 | **Total leads (todos CRMs)** | **2** |
@@ -37,7 +37,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | `executando` | 1 | LP-PINTOR-001 |
 | `planejando` | 0 | — |
 | `aguardando` | 3 | LP-PINTOR-006, TASK-012, TASK-013 |
-| `backlog` | 11 | LP-PINTOR-008, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
+| `backlog` | 13 | LP-PINTOR-001, LP-PINTOR-009, LP-PINTOR-008, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
 | `concluído` (kanban) | 17 | LP-PINTOR-007, LP-PINTOR-004, LAB-006, LP-PINTOR-002, LAB-005, LAB-004, LAB-003, LAB-002, TASK-022, TASK-003, TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-000 |
 | `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
 
@@ -58,6 +58,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | [LP-PINTOR-006](../tasks/LP-PINTOR-006.md) | `aguardando` | 0/0 | — |
 | [LP-PINTOR-007](../tasks/LP-PINTOR-007.md) | `**concluido**` | 0/0 | — |
 | [LP-PINTOR-008](../tasks/LP-PINTOR-008.md) | `backlog` | 0/0 | — |
+| [LP-PINTOR-009](../tasks/LP-PINTOR-009.md) | `backlog` | 0/0 | — |
 | [TASK-001](../tasks/TASK-001.md) | `arquivado` | 5/8 | 62% |
 | [TASK-002](../tasks/TASK-002.md) | `arquivado` | 1/5 | 20% |
 | [TASK-003](../tasks/TASK-003.md) | `concluido` | 5/5 | 100% |
