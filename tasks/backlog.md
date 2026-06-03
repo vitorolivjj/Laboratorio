@@ -33,18 +33,13 @@ Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operac
 
 > Histórico reset Fase 0: [arquivado.md](arquivado.md#reset-fase-0--2026-06-01)
 
-### LP-PINTOR-008 — Automação CRM → Webflow API + takedown
+### LP-PINTOR-008 — Automação CRM → build in-house + takedown
 
-- **Projeto:** PROJ-LP · **Agente:** loide · dev · juarez · **Depende:** LP-PINTOR-007 · [LP-PINTOR-008.md](LP-PINTOR-008.md)
-
-### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
-
-- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Depende:** LP-PINTOR-007 ✋ **só iniciar após página oficial Webflow no ar**
-- **Documento:** [LP-PINTOR-001.md](LP-PINTOR-001.md)
+- **Projeto:** PROJ-LP · **Agente:** dev · juarez · [LP-PINTOR-008.md](LP-PINTOR-008.md)
 
 ### LP-PINTOR-003 — CRM pintores + handoff Donizete→produção
 
-- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Depende:** LP-PINTOR-007 · [LP-PINTOR-003.md](LP-PINTOR-003.md)
+- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Paralelo a:** LP-PINTOR-001 · [LP-PINTOR-003.md](LP-PINTOR-003.md)
 
 ### LP-PINTOR-005 — KPIs, escopo de alterações e auditoria
 

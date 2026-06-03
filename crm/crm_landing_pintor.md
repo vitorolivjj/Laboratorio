@@ -9,8 +9,9 @@ funil: prospectado, pronto_pra_pagina, previa_no_ar, abordado, ativo, recusou
 
 Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, entrega prévia, cobra ativação **R$ 69 (PIX)**.
 
-**Captação:** Donizete Social (Facebook) · **Produção:** Loide + Dev · **Venda:** Caio (WhatsApp) · **Auditoria:** Ronaldo  
-**Projeto:** PROJ-LP · **Manual:** [operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md)
+**Captação:** Donizete Social — **ativa** · meta sprint **10 leads** `pronto_pra_pagina` · grupos FB genéricos (qualquer região)  
+**Produção:** Loide + Dev · **Venda:** Caio · **Auditoria:** Ronaldo  
+**Projeto:** PROJ-LP · **Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · **Produção LP:** [producao_lp_pintor.md](../memoria/ronaldo_maestro/producao_lp_pintor.md)
 
 ## Funil (invertido)
 

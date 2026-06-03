@@ -27,20 +27,20 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
-### Webflow como plataforma de produção LP — 2026-06-02
+### Produção LP in-house (Webflow revogado) — 2026-06-03
 
-- **Contexto:** KPI vitrine 1/1 (Stephanie) provou funil; escala exige páginas profissionais sem Dev montar HTML por lead.
+- **Contexto:** Após avaliar Webflow por dentro, fricção operacional sem ganho proporcional. Template `/previas/exemplo-pintor/` aprovado (3 dobras, R$ 69).
 - **Decisão:**
-  - **Alugar Webflow** (Premium ~US$ 25/mês) — não construir template in-house como produção principal
-  - 1 site · coleção **Pintores** · ~20k páginas · subpath `dominio/slug`
-  - 1 template-matriz + **4 variantes de cor** (Azul, Verde, Grafite-Laranja, Neutro)
-  - Prévia/takedown por item via **API CMS** · ativo = tarja prévia off
-  - **Ativo real em casa:** automação CRM → Webflow API + job expiração (Loide + Dev)
-  - In-house (`frontend/lp-pintor/`) = vitrine fase 1 only; migrar novos leads
-- **Schema fechado (2026-06-02):** campos fixos serviços/depoimentos · ativar = só tarja · handoff Donizete→IA→Loide+Dev→Juarez→Caio→Vitor(PIX)
-- **Gate captação (2026-06-02):** Donizete **só inicia posts após LP-PINTOR-007** (página oficial Webflow)
-- **Responsável:** Vitor · Loide (template) · Dev (API) · Juarez (conferência prévia)
-- **Ref:** `memoria/ronaldo_maestro/webflow_lp_pintor.md` · LP-PINTOR-007/008
+  - **Produção oficial:** HTML/CSS + `config.json` + build estático · URL `api.laboratorioagentes.com.br/previas/{slug}/`
+  - **Webflow revogado** — não contratar Premium; `webflow_lp_pintor.md` = legado
+  - **Captação Donizete liberada** — meta **10 leads** `pronto_pra_pagina`; grupos **genéricos** FB (não só pintores); **sem cidade fixa** (cidade = dado do lead)
+  - Ativar = `ativo: true` + rebuild · takedown = remove dist ou expira prévia
+- **Responsável:** Loide + Dev (produção) · Donizete (captação)
+- **Ref:** [producao_lp_pintor.md](ronaldo_maestro/producao_lp_pintor.md) · [plano_atuacao_donizete_lp.md](ronaldo_maestro/plano_atuacao_donizete_lp.md)
+
+### Webflow como plataforma LP — 2026-06-02 — **REVOGADA**
+
+- **Substituída por:** decisão 2026-06-03 in-house acima. Não executar LP-PINTOR-007 Webflow nem VITOR-001.
 
 ### Templates Meta WhatsApp — abertura proativa LP — 2026-06-02
 

@@ -19,6 +19,14 @@ Histórico de tarefas **finalizadas** (mais recentes no topo).
 
 ## Concluídas
 
+### LP-PINTOR-007 — Template produção LP in-house
+
+- **Concluída em:** 2026-06-03
+- **Agente:** loide · dev · vitor
+- **Projeto:** PROJ-LP
+- **Resultado:** `/previas/exemplo-pintor/` no ar · Webflow revogado · captação Donizete liberada
+- **Ref:** `memoria/ronaldo_maestro/producao_lp_pintor.md` · decisão 2026-06-03
+
 ### LP-PINTOR-004 — Venda WhatsApp + primeira ativação R$ 69
 
 - **Concluída em:** 2026-06-02

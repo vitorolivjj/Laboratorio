@@ -25,6 +25,18 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 
 ## Log
 
+### 2026-06-03 — [decisao] Governança LP — Webflow revogado · captação 10 leads
+
+- **Agente(s):** ronaldo_maestro · dev · vitor
+- **Detalhe:** Produção oficial in-house (`producao_lp_pintor.md`) · LP-PINTOR-007 concluída · VITOR-001 cancelada · contexto/backlog/tasks alinhados · Donizete: grupos genéricos FB qualquer região · **meta 10** `pronto_pra_pagina` · início captação
+- **Ref:** memoria/decisoes.md · LP-PINTOR-001 · operacao_landing_pintor.md
+
+### 2026-06-03 — [orquestracao] Donizete — plano de atuação LP-PINTOR-001 liberado
+
+- **Agente(s):** ronaldo_maestro
+- **Detalhe:** Gate captação aberto (exemplo-pintor aprovado). Plano oficial: stalk + captura/raw + manifest · post-isca · anti-ban · grupos genéricos multi-região
+- **Ref:** plano_atuacao_donizete_lp.md · LP-PINTOR-001
+
 ### 2026-06-02 — [auditoria] Governança — kanban realinhado + backfill auditorias
 
 - **Agente(s):** ronaldo_maestro · dev

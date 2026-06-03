@@ -8,7 +8,7 @@
 | **Projeto** | PROJ-LP |
 | **Status** | backlog |
 | **Kanban** | tasks/backlog.md |
-| **Dependências** | LP-PINTOR-007 |
+| **Dependências** | LP-PINTOR-001 (captação ativa) |
 | **Prioridade** | media |
 | **Agente responsável** | donizete_social |
 | **Agentes auxiliares** | ronaldo_maestro |
@@ -18,13 +18,13 @@
 
 Operacionalizar o CRM `crm_landing_pintor` com o funil invertido e o pacote de handoff Donizete → produção, garantindo que todo lead siga `prospectado → pronto_pra_pagina → previa_no_ar → abordado → ativo/recusou`.
 
-**Gate:** Donizete só opera CRM/captação após LP-PINTOR-007 (página oficial Webflow).
+**Gate:** liberado 2026-06-03 · ver [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
 
 ## Critérios de aceite
 
-- [ ] Campos do lead preenchidos (nome, WhatsApp, cidade, serviço, fotos, link origem, quem indicou, tag)
+- [ ] Campos do lead + slug + pasta `captura/` preenchidos
 - [ ] Pipeline movido por Donizete conforme o estágio real
-- [ ] Pacote de handoff padronizado entregue à Loide (nome, cidade, serviço, melhores fotos, WhatsApp)
+- [ ] Pacote handoff: captura/raw + manifest (Loide curadoria → assets/)
 - [ ] Tag de origem registrada (indicacao/autopromocao) para medir conversão por canal
 
 ## Ref

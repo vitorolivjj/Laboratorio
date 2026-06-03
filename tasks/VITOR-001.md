@@ -1,17 +1,13 @@
-# VITOR-001 — Desbloqueio: Webflow: template + coleção Pintores (página oficial)
+# VITOR-001 — Desbloqueio Webflow (CANCELADA)
 
 | Campo | Valor |
 |-------|-------|
-| **ID** | VITOR-001 |
-| **Status** | aguardando |
-| **Projeto** | PROJ-LP |
-| **Origem** | LP-PINTOR-007 |
+| **Status** | **cancelada** |
+| **Cancelada em** | 2026-06-03 |
+| **Motivo** | Webflow revogado — produção in-house LP-PINTOR-007 concluída |
 
-## O que o Vitor precisa fazer
+## Histórico
 
-Conta Webflow Premium + domínio/subpath — aguardando Vitor
+Aguardava conta Webflow Premium para LP-PINTOR-007. Substituído por template `/previas/exemplo-pintor/`.
 
-## Critérios de aceite
-
-- [ ] Ação concluída e confirmada no WhatsApp ou Cursor
-- [ ] LP-PINTOR-007 desbloqueada
+**Ref:** `memoria/decisoes.md` · `memoria/ronaldo_maestro/producao_lp_pintor.md`

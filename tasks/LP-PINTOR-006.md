@@ -6,14 +6,14 @@
 | **Projeto** | PROJ-LP |
 | **Status** | aguardando |
 | **Kanban** | tasks/aguardando.md |
-| **Prioridade** | baixa (após LP-PINTOR-007) |
+| **Prioridade** | baixa |
 | **Agente** | caio_manteiga · dev · vitor |
 
 ## Objetivo
 
 Cadastrar e operar template Meta aprovado para **primeiro contato** proativo — desbloquear funil LP sem erro 131047.
 
-**Bloqueio:** Vitor cadastra template no Meta · prioridade baixa até página Webflow oficial (LP-PINTOR-007).
+**Bloqueio:** Vitor cadastra template no Meta · prioridade baixa — captação FB ativa (LP-PINTOR-001).
 
 ## Critérios de aceite
 

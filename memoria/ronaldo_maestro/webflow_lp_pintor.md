@@ -1,8 +1,8 @@
-# Webflow — PROJ-LP (produção e escala)
+# Webflow — PROJ-LP (DEPRECATED)
 
-**Decisão:** alugar a máquina pronta (Webflow), não construir em casa. Construir página não é o diferencial (o **funil** é); mensalidade irrisória no volume.
+> **Revogado 2026-06-02 / confirmado 2026-06-03.** Produção oficial = in-house · [producao_lp_pintor.md](producao_lp_pintor.md). Não iniciar conta Webflow nem LP-PINTOR-007 Webflow.
 
-**Vitrine fase 1 (concluída):** template in-house `frontend/lp-pintor/` + API `/previas/` — LEAD-001 Stephanie ativo. **Migrar novos leads para Webflow.**
+**Histórico:** proposta descartada após avaliação interna. Vitrine e escala usam `frontend/lp-pintor/` + `/previas/{slug}/`.
 
 ---
 

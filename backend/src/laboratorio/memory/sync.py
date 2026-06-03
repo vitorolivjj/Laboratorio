@@ -16,7 +16,8 @@ SYNC_PATHS: list[tuple[Path, str]] = [
     (MEMORIA_DIR / "aprovacao_whatsapp_fase0.md", "global"),
     (MEMORIA_DIR / "caio_manteiga" / "playbook_comercial_lp_pintor.md", "caio_comercial"),
     (MEMORIA_DIR / "caio_manteiga" / "script_lp_pintor_r69.md", "caio_comercial"),
-    (MEMORIA_RONALDO_DIR / "webflow_lp_pintor.md", "global"),
+    (MEMORIA_RONALDO_DIR / "producao_lp_pintor.md", "global"),
+    (MEMORIA_RONALDO_DIR / "plano_atuacao_donizete_lp.md", "global"),
 ]
 
 RONALDO_MEMORY_FILES = (

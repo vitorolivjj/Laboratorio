@@ -63,6 +63,16 @@ Somente dados **públicos** e úteis para abordagem:
 - Descrição profissional
 - Observações para abordagem comercial
 
+### PROJ-LP — captação pintor (ativo)
+
+**Plano de atuação:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · Task **LP-PINTOR-001**
+
+- Post-isca + garimpo Facebook · **grupos genéricos** (classificados, bairro, compra/venda) — não só pintores · **qualquer região** (cidade do lead no CRM)
+- Meta sprint: **10 leads** `pronto_pra_pagina` · anti-ban · CRM `crm_landing_pintor.md`
+- **Stalk perfil inteiro** → `frontend/lp-pintor/leads/{slug}/captura/raw/` + `manifest.json`
+- Status handoff produção: `pronto_pra_pagina` (Loide curadoria mídia — Donizete não filtra fotos)
+- **Nunca** vender ou citar R$ 69 no Facebook
+
 ## Limites operacionais (obrigatórios)
 
 | Regra | Limite |

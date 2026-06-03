@@ -70,9 +70,9 @@ Fonte única para o Painel Maestro (seção **Projetos**) e para classificar tas
 - **Status:** ativo
 - **CRM:** crm_landing_pintor
 - **Legado:** TASK-001, TASK-002
-- **Repo / deploy:** Webflow (Premium) · subpath `dominio/slug` · legado vitrine: `frontend/lp-pintor/` + API `/previas/`
-- **Descrição:** Produto comercial funil invertido R$ 69 PIX. **KPI vitrine 1/1** (Stephanie). **P0:** LP-PINTOR-007 Webflow oficial · captação gateada até página no ar.
-- **Última atualização:** 2026-06-02
+- **Repo / deploy:** `frontend/lp-pintor/` + build → API `/previas/{slug}/` (in-house)
+- **Descrição:** Produto comercial funil invertido R$ 69 PIX. **KPI vitrine 1/1** (Stephanie). **P0:** LP-PINTOR-001 captação Donizete — meta **10 leads** `pronto_pra_pagina`.
+- **Última atualização:** 2026-06-03
 
 ### Consultoria Dr. Viola
 - **ID:** PROJ-VIOLA

@@ -6,40 +6,38 @@
 |-------|-------|
 | **ID** | LP-PINTOR-001 |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
-| **Kanban** | tasks/backlog.md |
-| **Prioridade** | alta (após LP-PINTOR-007) |
+| **Status** | executando |
+| **Kanban** | tasks/executando.md |
+| **Prioridade** | alta |
 | **Agente responsável** | donizete_social |
-| **Dependências** | LP-PINTOR-007 ✋ página oficial Webflow no ar |
+| **Dependências** | LP-PINTOR-007 ✓ (in-house) · modelo `/previas/exemplo-pintor/` |
+| **Meta sprint** | **10 leads** `pronto_pra_pagina` (2026-06-03) |
 | **Criada em** | 2026-05-31 |
+| **Iniciada em** | 2026-06-03 |
 
 ## Objetivo
 
-Estruturar e operar a captação de pintores no Facebook em 2 canais (post-isca + garimpo), respeitando as regras anti-ban, qualificando e registrando no CRM com tag de origem.
+Operar captação Facebook (Canal A post-isca + Canal B garimpo), **stalk completo do perfil**, salvar mídia para Loide, qualificar e registrar no CRM até `pronto_pra_pagina`.
+
+**Plano oficial:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
 
 ## Critérios de aceite
 
-- [ ] Lista de grupos da cidade mapeada (genéricos: compra/venda, bairro, classificados)
-- [ ] Banco de 8+ variações de texto de post-isca (sem repetição entre grupos)
-- [ ] Rotina diária: 3–5 posts, rodízio de grupos, intervalo 40–120 min, janela humana
-- [ ] Leads qualificados (indicação ≥ autopromoção) cadastrados no CRM com tag de origem
+- [ ] Lista de 10+ grupos mapeados (classificados, bairro, compra/venda)
+- [ ] Banco de 8+ variações de post-isca em uso (sem repetição no mesmo dia)
+- [ ] Rotina diária: 3–5 posts, rodízio, intervalo 40–120 min, janela humana
+- [ ] Leads com tag `indicacao` ou `autopromocao` + pasta `captura/raw` + `manifest.json`
+- [ ] **10 leads** em `pronto_pra_pagina` com pacote completo
 - [ ] Zero burst · 1× por grupo/dia · sem madrugada
 
 ## Ref
 
-Manual §3, §4, §5 — `memoria/ronaldo_maestro/operacao_landing_pintor.md`
+[operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md) · LP-PINTOR-003
 
-### Briefing — Donizete — LP-PINTOR-001 — 2026-05-31
-- **Objetivo desta rodada:** Operar captação Facebook (Canal A post-isca + Canal B garimpo) e qualificar pintores
-- **Entregável esperado:** leads qualificados no `crm_landing_pintor` com nome, WhatsApp, cidade, fotos, link origem, tag (indicacao/autopromocao)
-- **Restrições:** regras anti-ban (1×/grupo/dia, rodízio, 40–120 min, sem burst, sem madrugada, texto variado)
-- **Critério de pronto:** primeiros leads qualificados prontos para handoff à Loide
-- **Não fazer:** vender ou falar preço no Facebook (venda é só WhatsApp/Caio)
+### Briefing — Donizete — LP-PINTOR-001 — 2026-06-03 (início operação)
 
-### Briefing — Donizete — LP-PINTOR-001 — 2026-06-02 (redelegação)
-
-- **Objetivo desta rodada:** _(aguardando LP-PINTOR-007)_ — só então operar captação Facebook (Canal A + B)
-- **Entregável esperado:** leads qualificados no `crm_landing_pintor` com tag de origem
-- **Restrições:** **não iniciar posts antes da página oficial Webflow publicada** · regras anti-ban inalteradas
-- **Critério de pronto:** primeiros leads `pronto_pra_pagina` com pacote completo para automação
-- **Não fazer:** captação ou posts enquanto LP-PINTOR-007 não fechar
+- **Objetivo desta rodada:** Executar plano §1–12 — **10 leads** `pronto_pra_pagina` · grupos genéricos FB (qualquer região)
+- **Entregável esperado:** 10+ grupos mapeados + 10 leads com stalk/mídia no repo
+- **Restrições:** anti-ban inalteradas · **não vender no FB** · cidade = dado do lead/grupo do post
+- **Critério de pronto:** 10 leads qualificados handoff produção sem dados faltando
+- **Não fazer:** mencionar R$ 69 · Webflow · pedir material ao pintor

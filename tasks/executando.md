@@ -10,23 +10,19 @@ Tarefas **em andamento agora**. Manter poucas (WIP baixo, máx. 3).
 - Ao concluir → mover para `concluidas.md`.
 - Se pausar → voltar para `backlog.md` com nota.
 
-## Template
-
-```markdown
-### TASK-XXX — [Título]
-- **Iniciada em:** YYYY-MM-DD
-- **Agente:**
-- **Projeto:**
-- **Status:** em_progresso | bloqueada
-- **Bloqueio:** (se houver)
-- **Próxima ação:**
-```
-
 ---
 
 ## Em andamento
 
-_(nenhuma task — recomeço limpo em 2026-06-01; histórico em [arquivado.md](arquivado.md))_
+### LP-PINTOR-001 — Captação Facebook (post-isca + garimpo)
+
+- **Iniciada em:** 2026-06-03
+- **Agente:** donizete_social
+- **Projeto:** PROJ-LP
+- **Status:** operação iniciada — gate exemplo-pintor OK
+- **Meta:** **10 leads** `pronto_pra_pagina` (sprint 2026-06-03)
+- **Próxima ação:** mapear 10+ grupos genéricos (multi-região) · posts-isca · stalk + CRM por lead
+- **Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · [LP-PINTOR-001.md](LP-PINTOR-001.md)
 
 ---
 
