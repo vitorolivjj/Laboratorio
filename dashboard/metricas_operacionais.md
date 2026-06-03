@@ -8,21 +8,21 @@ Visão centralizada da operação do Laboratório multiagente.
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
-**Última atualização automática:** 2026-06-02 (script local / GitHub Actions)
+**Última atualização automática:** 2026-06-03 (script local / GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-02 20:35 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-03 10:16 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução | 0 (cadência 10min entre starts) |
+| TASKs em execução | 1 (cadência 10min entre starts) |
 | TASKs em planejamento | 0 |
 | Entregáveis (tasks `executando`) | 0 / 0 |
 | **Total leads (todos CRMs)** | **2** |
@@ -34,11 +34,11 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | Tasks |
 |--------|-----|-------|
-| `executando` | 0 | — |
+| `executando` | 1 | LP-PINTOR-001 |
 | `planejando` | 0 | — |
 | `aguardando` | 3 | LP-PINTOR-006, TASK-012, TASK-013 |
-| `backlog` | 12 | LP-PINTOR-008, LP-PINTOR-001, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
-| `concluído` (kanban) | 16 | LP-PINTOR-004, LAB-006, LP-PINTOR-002, LAB-005, LAB-004, LAB-003, LAB-002, TASK-022, TASK-003, TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-000 |
+| `backlog` | 11 | LP-PINTOR-008, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
+| `concluído` (kanban) | 17 | LP-PINTOR-007, LP-PINTOR-004, LAB-006, LP-PINTOR-002, LAB-005, LAB-004, LAB-003, LAB-002, TASK-022, TASK-003, TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-000 |
 | `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
 
 ### Tasks (arquivos persistentes)
@@ -50,13 +50,13 @@ Visão centralizada da operação do Laboratório multiagente.
 | [LAB-004](../tasks/LAB-004.md) | `concluido` | 4/4 | 100% |
 | [LAB-005](../tasks/LAB-005.md) | `concluido` | 0/0 | — |
 | [LAB-006](../tasks/LAB-006.md) | `concluido` | 0/0 | — |
-| [LP-PINTOR-001](../tasks/LP-PINTOR-001.md) | `backlog` | 0/0 | — |
+| [LP-PINTOR-001](../tasks/LP-PINTOR-001.md) | `executando` | 0/0 | — |
 | [LP-PINTOR-002](../tasks/LP-PINTOR-002.md) | `concluido` | 0/0 | — |
 | [LP-PINTOR-003](../tasks/LP-PINTOR-003.md) | `backlog` | 0/0 | — |
 | [LP-PINTOR-004](../tasks/LP-PINTOR-004.md) | `concluido` | 0/0 | — |
 | [LP-PINTOR-005](../tasks/LP-PINTOR-005.md) | `backlog` | 0/0 | — |
 | [LP-PINTOR-006](../tasks/LP-PINTOR-006.md) | `aguardando` | 0/0 | — |
-| [LP-PINTOR-007](../tasks/LP-PINTOR-007.md) | `executando` | 0/0 | — |
+| [LP-PINTOR-007](../tasks/LP-PINTOR-007.md) | `**concluido**` | 0/0 | — |
 | [LP-PINTOR-008](../tasks/LP-PINTOR-008.md) | `backlog` | 0/0 | — |
 | [TASK-001](../tasks/TASK-001.md) | `arquivado` | 5/8 | 62% |
 | [TASK-002](../tasks/TASK-002.md) | `arquivado` | 1/5 | 20% |
@@ -79,6 +79,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | [TASK-020](../tasks/TASK-020.md) | `backlog` | 0/0 | — |
 | [TASK-021](../tasks/TASK-021.md) | `backlog` | 0/4 | 0% |
 | [TASK-022](../tasks/TASK-022.md) | `concluido` | 6/6 | 100% |
+| [VITOR-001](../tasks/VITOR-001.md) | `**cancelada**` | 0/0 | — |
 
 ### CRM segmentado
 
