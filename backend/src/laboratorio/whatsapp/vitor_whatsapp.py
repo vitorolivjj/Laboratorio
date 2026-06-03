@@ -16,6 +16,7 @@ from laboratorio.config import (
     LOGS_DIR,
     load_env,
 )
+from laboratorio.memory.context import augment_with_semantic_memory
 from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
 from laboratorio.ops.ronaldo_voice import (
     _answer_agents,
