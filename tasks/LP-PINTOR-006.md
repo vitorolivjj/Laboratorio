@@ -4,8 +4,8 @@
 |-------|-------|
 | **ID** | LP-PINTOR-006 |
 | **Projeto** | PROJ-LP |
-| **Status** | aguardando |
-| **Kanban** | tasks/aguardando.md |
+| **Status** | arquivado (cancelada) |
+| **Kanban** | tasks/concluidas.md |
 | **Prioridade** | baixa |
 | **Agente** | caio_manteiga · dev · vitor |
 
@@ -13,7 +13,7 @@
 
 Cadastrar e operar template Meta aprovado para **primeiro contato** proativo — desbloquear funil LP sem erro 131047.
 
-**Bloqueio:** Vitor cadastra template no Meta · prioridade baixa — captação FB ativa (LP-PINTOR-001).
+**Desbloqueio:** Template `abertura_pintor_contato` aprovado no Meta (2026-06-03) — Caio pode abordagem proativa.
 
 ## Critérios de aceite
 

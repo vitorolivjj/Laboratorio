@@ -20,8 +20,9 @@ if str(_SRC) not in sys.path:
 
 _REPO = Path(__file__).resolve().parents[2]
 
-from laboratorio.ops import crm_store, markdown_io, memory_store  # noqa: E402
-from laboratorio.ops import parsers, retrieval, tasks_store, usage  # noqa: E402
+from laboratorio.ops import crm_lp_store, crm_store, markdown_io, memory_store  # noqa: E402
+from laboratorio.ops import parsers, retrieval, task_kanban_api, tasks_store, usage  # noqa: E402
+from laboratorio.evolution import propose as evolution_propose  # noqa: E402
 
 
 def test_markdown_insert_helpers():
@@ -62,6 +63,25 @@ def test_crm_add_and_update(tmp: Path):
     except ValueError:
         bad = True
     assert bad, "status inválido deve falhar"
+
+
+def test_crm_lp_add_and_update(tmp: Path):
+    crm = tmp / "crm_landing_pintor.md"
+    shutil.copy(_REPO / "crm" / "crm_landing_pintor.md", crm)
+    expected_id = crm_lp_store.next_lead_id(markdown_io.read_text(crm))
+    lead = crm_lp_store.add_lead_lp(
+        nome="Pintor Teste FB",
+        cidade="Viçosa — MG",
+        status="prospectado",
+        link_origem="https://facebook.com/teste",
+        path=crm,
+    )
+    assert lead["id"] == expected_id
+    assert "pintor-teste-fb" in lead["slug"]
+    crm_lp_store.update_lead_lp(lead["id"], "pronto_pra_pagina", nota="3 fotos", path=crm)
+    text = markdown_io.read_text(crm)
+    assert "pronto_pra_pagina" in text
+    assert crm_lp_store.slugify("João Silva!!!") == "joao-silva"
 
 
 def test_tasks_create_and_move(tmp: Path):
@@ -174,6 +194,39 @@ def test_owner_detection():
     assert owner._is_action("cria uma task de teste")
     assert owner._is_action("interrompe a TASK-012")
     assert not owner._is_action("qual o status?")
+
+
+def test_task_kanban_api(tmp: Path):
+    tasks_dir = tmp / "tasks"
+    shutil.copytree(_REPO / "tasks", tasks_dir)
+
+    board = task_kanban_api.build_kanban_board(tasks_dir=tasks_dir)
+    assert "columns" in board
+    assert "backlog" in board["columns"]
+
+    created = task_kanban_api.create_task_api(
+        titulo="API test", agente="dev", tasks_dir=tasks_dir
+    )
+    tid = created["task_id"]
+    assert tid.startswith("TASK-")
+    detail = task_kanban_api.get_task_detail(tid, tasks_dir=tasks_dir)
+    assert detail["state"] == "backlog"
+
+    task_kanban_api.move_task_api(tid, "planejando", tasks_dir=tasks_dir)
+    detail2 = task_kanban_api.get_task_detail(tid, tasks_dir=tasks_dir)
+    assert detail2["state"] == "planejando"
+
+
+def test_evolution_propose_queue(tmp: Path):
+    evolution_propose.QUEUE_FILE = tmp / "evolution_proposals_queue.jsonl"
+    entry = evolution_propose.queue_proposal(
+        title="Teste", body="Mudar fluxo X", target="aprendizados"
+    )
+    assert entry["id"] == 1
+    pending = evolution_propose.list_pending_proposals()
+    assert len(pending) == 1
+    ack = evolution_propose.format_proposal_ack(entry)
+    assert f"#{entry['id']}" in ack and "autoevolução" in ack
 
 
 def test_parsers_count_distinct_lp_pintor_suffix(tmp: Path):

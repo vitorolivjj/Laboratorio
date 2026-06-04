@@ -9,23 +9,25 @@ Tarefas **em andamento agora**. Sprint LP: WIP até **4** (`WIP_SOFT_MAX`).
 - Máximo recomendado: **4** tarefas simultâneas (captação + até 3× LP-PINTOR-009 produção).
 - **Cadência entre starts:** **2 min** (`TASK_CADENCE_MIN`).
 - **Captação:** patrulha **crítica** se 30 min sem pronto/prospectado/pasta `captura/`.
-- **SLA task genérica:** >12h sem entregável → fatiar ou backlog.
+- **Donizete busca:** `PlayDonizete` → task vai para `standby` · `StopDonizete` → volta aqui.
 - Ao concluir lote → `concluidas.md` · próximo lote **LP-PINTOR-001B** do backlog.
 
 ---
 
 ## Em andamento
 
-### LP-PINTOR-001 — Captação Facebook lote 1 (5 leads)
+### LP-PINTOR-011 — Monitor 20min — painel kanban
+- **Objetivo:** Captura intermitente Facebook (grupo fixo)
+- **Prioridade:** alta
+- **Agente responsável:** donizete_social
+- **Grupo FB:** https://www.facebook.com/groups/124168141645517/
+- **Modo captura:** grupo_fixo
+- **Status:** executando
 
-- **Iniciada em:** 2026-06-03
-- **Agente:** donizete_social
-- **Projeto:** PROJ-LP
-- **Meta:** **5** leads `pronto_pra_pagina` · sprint 10 total (001B = +5)
-- **Próxima ação:** posts modo sprint · grupos · stalk + CRM por lead
-- **Plano:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md)
-- **Monitor:** `donizete-captura` · WhatsApp `captura`
+
+_Kanban zerado em 2026-06-03 — tasks anteriores canceladas e arquivadas. Novas tasks entram pelo backlog._
 
 ---
 
-<!-- Tarefas ativas abaixo — LP-PINTOR-009 por lead quando pronto -->
+<!-- Tarefas ativas abaixo -->
+- synced from VPS

@@ -67,6 +67,11 @@ def _resolve_agent_id(task: dict) -> str:
     return aid if aid in _VALID_AGENTS else "ronaldo_maestro"
 
 
+def _is_lp_capture_task(task: dict) -> bool:
+    tid = (task.get("id") or "").upper()
+    return tid.startswith("LP-PINTOR-001") or tid == "LP-PINTOR-003"
+
+
 def _advance_task(task: dict) -> str:
     """Aciona o agente responsável para dar sequência a UMA task. Retorna o output."""
     from crewai import Crew, Process, Task
@@ -74,6 +79,20 @@ def _advance_task(task: dict) -> str:
     from laboratorio.agents.builder import build_agent
 
     agent_id = _resolve_agent_id(task)
+    if agent_id == "donizete_social" and _is_lp_capture_task(task):
+        from laboratorio.ops.donizete_runner import busca_ativa
+        from laboratorio.social.facebook_cdp import facebook_available
+
+        if busca_ativa():
+            raise RuntimeError(
+                "Donizete em busca WhatsApp (PlayDonizete). "
+                "Use StopDonizete antes do autopilot nesta task."
+            )
+        if not facebook_available():
+            raise RuntimeError(
+                "Donizete LP exige Facebook no Mac (CDP). "
+                "Rode ./scripts/facebook-cdp-mac.sh — autopilot na VPS não captura FB."
+            )
     context = f"autopilot:{task['id']}"
     interactions.record_interaction(
         kind="autopilot",
@@ -82,6 +101,16 @@ def _advance_task(task: dict) -> str:
         detail=f"Acionando {agent_id} para avançar {task['id']} — {task.get('title', '')}",
     )
 
+    fb_block = ""
+    if agent_id == "donizete_social" and _is_lp_capture_task(task):
+        fb_block = (
+            "\n\nMODO FACEBOOK — Donizete escolhe grupos SOZINHO (2 atuações):\n"
+            "A) NAVEGAÇÃO: fb_ciclo_navegacao OU fb_escolher_grupo → scroll lento → "
+            "fb_analisar_posts → fb_qualificar_perfil → fb_stalk se lead → CRM LP\n"
+            "B) POST: fb_ciclo_post — publicação autorizada (post-isca)\n"
+            "Leads vêm de POSTS JÁ EXISTENTES no grupo — assimilar post → visitar perfil → qualificar.\n"
+            "PROIBIDO chutar URL de grupo. PROIBIDO inventar leads.\n"
+        )
     objetivo = (
         f"TASK {task['id']} — {task.get('title', '')}.\n"
         f"Próxima ação atual: {task.get('proxima_acao') or '—'}.\n"
@@ -92,6 +121,7 @@ def _advance_task(task: dict) -> str:
         "NÃO crie novas tarefas nem subtarefas — apenas avance e relate a TASK "
         "atual. Se estiver bloqueada, registre o bloqueio e o que precisa para "
         "destravar. Seja objetivo (máx. 8 linhas)."
+        f"{fb_block}"
     )
 
     # Remove a ferramenta de criar TASK para o autopilot não multiplicar tarefas.
@@ -150,6 +180,18 @@ def run_cycle() -> dict:
         if len(worked) >= max_tasks:
             break
         tid = task["id"]
+        agent_id = _resolve_agent_id(task)
+        try:
+            from laboratorio.ops.donizete_runner import blocks_autopilot_for_task
+
+            if blocks_autopilot_for_task(tid, agent_id):
+                skipped.append(f"{tid}(busca_whatsapp)")
+                logger.info(
+                    "Autopilot ignorou %s — busca Donizete ativa (PlayDonizete)", tid
+                )
+                continue
+        except ImportError:
+            pass
         last = float(state.get(tid, 0))
         if now - last < cooldown:
             skipped.append(tid)

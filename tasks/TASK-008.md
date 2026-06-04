@@ -2,7 +2,7 @@
 
 **ID:** TASK-008  
 **Projeto:** PROJ-001  
-**Status:** `concluido`  
+**Status:** `arquivado` (cancelada)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-31  
 **Concluída em:** 2026-05-31  

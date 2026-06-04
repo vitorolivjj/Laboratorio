@@ -24,6 +24,7 @@ STATE_FILES: dict[str, tuple[str, str]] = {
     "backlog": ("backlog.md", "## Fila"),
     "planejando": ("planejando.md", "## Em planejamento"),
     "executando": ("executando.md", "## Em andamento"),
+    "standby": ("standby.md", "## Em standby"),
     "aguardando": ("aguardando.md", "## Bloqueadas"),
     "concluidas": ("concluidas.md", "## Concluídas"),
     "arquivado": ("arquivado.md", "## Arquivo"),
@@ -117,13 +118,31 @@ def _extract_block(text: str, task_id: str) -> tuple[str, str] | None:
     return block, new_text
 
 
+def _task_has_briefing(task_id: str, *, tasks_dir: Path) -> bool:
+    doc = read_text(tasks_dir / f"{task_id}.md")
+    if not doc:
+        return False
+    return bool(re.search(r"###\s+Briefing|##\s+Briefing", doc, re.I))
+
+
 def move_task(
-    task_id: str, to_state: str, nota: str = "", *, tasks_dir: Path = TASKS_DIR
+    task_id: str,
+    to_state: str,
+    nota: str = "",
+    *,
+    tasks_dir: Path = TASKS_DIR,
+    force: bool = False,
 ) -> str:
     """Move o bloco de uma TASK de um arquivo kanban para outro."""
     task_id = task_id.strip().upper()
     if to_state not in STATE_FILES:
         raise ValueError(f"Estado inválido: {to_state}. Use {list(STATE_FILES)}.")
+
+    if to_state == "executando" and not force and not _task_has_briefing(task_id, tasks_dir=tasks_dir):
+        raise ValueError(
+            f"{task_id}: gate briefing — adicione seção ### Briefing em tasks/{task_id}.md "
+            "antes de mover para executando (ou use force=true com token MAESTRO)."
+        )
 
     # Acha o bloco em qualquer arquivo de estado.
     found: tuple[str, str, str] | None = None  # (state, block, new_src_text)
@@ -178,6 +197,10 @@ def list_tasks(tasks_dir: Path = TASKS_DIR) -> str:
     out: list[str] = []
     for state, (fname, heading) in STATE_FILES.items():
         text = read_text(tasks_dir / fname)
-        ids = re.findall(r"^### (TASK-\d+)", text, re.MULTILINE)
+        ids = re.findall(
+            r"^### ((?:TASK-\d+)|(?:LP-PINTOR-\d{3}[A-Z]?)|(?:LAB-\d+))",
+            text,
+            re.MULTILINE,
+        )
         out.append(f"{state}: {', '.join(ids) if ids else '—'}")
     return "\n".join(out)

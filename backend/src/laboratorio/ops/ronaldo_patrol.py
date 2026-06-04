@@ -13,12 +13,13 @@ from pathlib import Path
 from laboratorio.config import LOGS_DIR, TASKS_DIR, TASK_STALE_CRITICAL_HOURS, TASK_STALE_HOURS, WIP_SOFT_MAX
 from laboratorio.ops import parsers
 from laboratorio.ops.maestro import build_maestro_snapshot, executando_stale_report
-from laboratorio.whatsapp.notify import notify_vitor
+from laboratorio.whatsapp.notify import notify_vitor_digest
 
 logger = logging.getLogger("laboratorio.ops.ronaldo_patrol")
 
 PATROL_LOG = LOGS_DIR / "ronaldo_patrol.md"
 PATROL_STATE = LOGS_DIR / "ronaldo_patrol_state.json"
+RESOLVED_ALERTS = LOGS_DIR / "alertas_resolvidos.json"
 DEDUP_HOURS = 4
 
 ESCALATION_KEYWORDS = (
@@ -81,8 +82,25 @@ def _save_state(state: dict) -> None:
     PATROL_STATE.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
 
+def _load_resolved_alerts() -> tuple[set[str], set[str]]:
+    codes: set[str] = set()
+    titles: set[str] = set()
+    if not RESOLVED_ALERTS.is_file():
+        return codes, titles
+    try:
+        data = json.loads(RESOLVED_ALERTS.read_text(encoding="utf-8"))
+        codes = {str(c) for c in data.get("issue_codes") or []}
+        titles = {str(t) for t in data.get("titles") or []}
+    except (json.JSONDecodeError, OSError):
+        pass
+    return codes, titles
+
+
 def _should_notify(state: dict, issue: PatrolIssue) -> bool:
     if not issue.notify:
+        return False
+    resolved_codes, resolved_titles = _load_resolved_alerts()
+    if issue.code in resolved_codes or issue.title in resolved_titles:
         return False
     h = _issue_hash(issue)
     last = state.get("notified", {}).get(h)
@@ -228,16 +246,18 @@ def _scan_infra(snapshot: dict) -> list[PatrolIssue]:
             )
         )
 
-    if b.get("had_error") and str(b.get("last_error", "")).strip() not in (
-        "",
-        "Nenhum erro recente",
+    last_err = str(b.get("last_error", "")).strip()
+    if (
+        b.get("had_error")
+        and last_err not in ("", "Nenhum erro recente")
+        and last_err not in _load_resolved_alerts()[1]
     ):
         issues.append(
             PatrolIssue(
                 code="last_error",
                 severity="warn",
                 title="Erro operacional recente",
-                detail=str(b.get("last_error", ""))[:200],
+                detail=last_err[:200],
                 action="Ver painel Logs ou responder aqui no WhatsApp",
                 ref="logs/eventos.md",
                 notify=True,
@@ -245,7 +265,10 @@ def _scan_infra(snapshot: dict) -> list[PatrolIssue]:
         )
 
     errors = snapshot.get("logs", {}).get("errors") or []
+    resolved_codes, resolved_titles = _load_resolved_alerts()
     for err in errors[:2]:
+        if err.get("title") in resolved_titles:
+            continue
         issues.append(
             PatrolIssue(
                 code=f"evento_erro_{err.get('title', '')[:20]}",
@@ -258,6 +281,36 @@ def _scan_infra(snapshot: dict) -> list[PatrolIssue]:
         )
 
     return issues
+
+
+def _scan_donizete_busca_stale() -> list[PatrolIssue]:
+    """Play armado na VPS sem thread local e sem ciclo recente no Mac."""
+    from laboratorio.ops.donizete_runner import (
+        _last_cycle_recent,
+        _load_busca_state,
+        is_running,
+    )
+
+    st = _load_busca_state()
+    if not st.get("armed_vps") or is_running():
+        return []
+    if _last_cycle_recent(st, minutes=28):
+        return []
+    tid = st.get("active_task_id") or "—"
+    return [
+        PatrolIssue(
+            code="donizete_armed_stale",
+            severity="warn",
+            title="Play armado na VPS — sem ciclo no Mac",
+            detail=(
+                f"TASK {tid} · último ciclo: {st.get('last_cycle_at') or 'nunca'} · "
+                f"ciclos: {int(st.get('cycles') or 0)}"
+            ),
+            action="Rode executor no Mac (donizete-mac-executor) ou StopDonizete no painel/WhatsApp",
+            ref=str(tid),
+            notify=True,
+        )
+    ]
 
 
 def _scan_donizete_capture(capture_report) -> list[PatrolIssue]:
@@ -295,6 +348,7 @@ def run_patrol(*, dry_run: bool = False, notify: bool = True) -> PatrolReport:
         _scan_tasks()
         + _scan_governance()
         + _scan_infra(snapshot)
+        + _scan_donizete_busca_stale()
         + _scan_donizete_capture(capture_report)
     )
 
@@ -313,16 +367,20 @@ def run_patrol(*, dry_run: bool = False, notify: bool = True) -> PatrolReport:
     notified_codes: list[str] = []
 
     if notify:
-        for issue in issues:
-            if _should_notify(state, issue):
-                ok = notify_vitor(
-                    issue.title,
-                    issue.detail,
-                    action=issue.action,
-                    ref=issue.ref,
-                    dry_run=dry_run,
-                )
-                if ok:
+        to_notify: list[PatrolIssue] = [i for i in issues if _should_notify(state, i)]
+        if to_notify:
+            alerts = [
+                {
+                    "title": i.title,
+                    "detail": i.detail,
+                    "action": i.action,
+                    "ref": i.ref,
+                }
+                for i in to_notify
+            ]
+            ok = notify_vitor_digest(alerts, dry_run=dry_run)
+            if ok:
+                for issue in to_notify:
                     _mark_notified(state, issue)
                     notified_codes.append(issue.code)
 

@@ -43,6 +43,9 @@ def apply_proposals(proposals: list[dict[str, Any]]) -> list[str]:
         else:
             text = text.rstrip() + "\n" + block
         path.write_text(text, encoding="utf-8")
+        from laboratorio.evolution.propose import mark_proposal_applied
+
+        mark_proposal_applied(title=title)
         results.append(f"✓ #{p.get('id')} → {target}")
 
     return results

@@ -2,7 +2,7 @@
 
 **ID:** TASK-006  
 **Projeto:** PROJ-001  
-**Status:** `concluido`  
+**Status:** `arquivado` (cancelada)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-30  
 **Concluída em:** 2026-05-30  

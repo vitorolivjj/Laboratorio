@@ -84,7 +84,9 @@ def run_daily_digest(*, dry_run: bool = False, force: bool = False) -> DigestRes
     context = collect_daily_context()
     package = generate_digest_package(context)
     summary = package.get("summary", "")
-    proposals = package.get("proposals") or []
+    from laboratorio.evolution.propose import filter_digest_proposals
+
+    proposals = filter_digest_proposals(package.get("proposals") or [])
 
     if dry_run:
         print(_format_whatsapp_body(today, summary, proposals, "DRY0"))

@@ -6,4 +6,6 @@ window.MAESTRO_CONFIG = {
   metricsDashboardPath: "/dashboard/metricas_operacionais.md",
   /** Fallback local quando miroBoardUrl vazio */
   agentMapLocalPath: "mapa-agentes.html",
+  /** Kanban operacional (tasks/*.md) */
+  tasksKanbanPath: "tasks.html",
 };

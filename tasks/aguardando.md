@@ -10,31 +10,6 @@ Ver: [workflows/pipeline_operacional.md](../workflows/pipeline_operacional.md)
 
 ## Bloqueadas
 
-### LP-PINTOR-006 — Template Meta WhatsApp (abertura proativa)
-
-- **Bloqueio:** aguardando Vitor cadastrar/aprovar template `abertura_pintor_contato` no Meta Business Manager (erro 132001)
-- **Prioridade:** baixa — vitrine fechou via janela 24h; captação FB ativa (001)
-- **Desbloqueia:** Vitor (Meta) · depois Dev valida envio
-- **Agente:** caio_manteiga · dev · vitor
-- **Projeto:** PROJ-LP
-- **Documento:** [LP-PINTOR-006.md](LP-PINTOR-006.md)
-
-### TASK-012 — VitorOS A1: Home cockpit + KPIs derivados
-
-- **Bloqueio:** PROJ-002 pausado — foco PROJ-LP (captação + produção in-house)
-- **Desbloqueia:** Ronaldo após meta captação LP estável
-- **Agente:** dev · loide
-- **Projeto:** PROJ-002
-- **Documento:** [TASK-012.md](TASK-012.md)
-
-### TASK-013 — VitorOS A2: Finanças
-
-- **Bloqueio:** depende TASK-012 · PROJ-002 pausado
-- **Desbloqueia:** Ronaldo
-- **Agente:** dev · loide
-- **Projeto:** PROJ-002
-- **Documento:** [TASK-013.md](TASK-013.md)
-
 ---
 
 <!-- Ao desbloquear: mover para executando.md ou backlog.md -->

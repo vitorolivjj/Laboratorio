@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-007 |
 | **Projeto** | PROJ-LP |
-| **Status** | **concluido** |
+| **Status** | arquivado (cancelada) |
 | **Prioridade** | — |
 | **Agentes** | loide · dev · vitor |
 | **Concluída em** | 2026-06-03 |

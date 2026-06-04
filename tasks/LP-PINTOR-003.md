@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-003 |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/backlog.md |
 | **Dependências** | LP-PINTOR-001 (captação ativa) |
 | **Prioridade** | media |

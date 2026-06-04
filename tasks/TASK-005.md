@@ -2,7 +2,7 @@
 
 **ID:** TASK-005  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `concluido` (E6 ✅ · validação operacional §4.3 pendente)  
+**Status:** `arquivado` (cancelada) (E6 ✅ · validação operacional §4.3 pendente)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-30  
 **Atualizada em:** 2026-05-30  

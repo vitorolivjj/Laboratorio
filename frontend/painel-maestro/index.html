@@ -40,6 +40,7 @@
       <div class="nav-sub" id="nav-projetos"></div>
 
       <a href="central-comunicacao.html" class="nav-item nav-plantao">Central de Comunicação</a>
+      <a href="tasks.html" class="nav-item nav-kanban" id="nav-kanban-tasks">Kanban de tasks</a>
       <a href="mapa-agentes.html" class="nav-item nav-miro" id="nav-mapa-agentes">Mapa de agentes</a>
     </nav>
 
@@ -132,9 +133,12 @@
 
       <!-- TASKS -->
       <section class="panel-section" id="tarefas">
-        <div class="section-head">
-          <h2>Tasks por projeto</h2>
-          <p><span id="wip-counter">—</span> · filtro por projeto</p>
+        <div class="section-head section-head--row">
+          <div>
+            <h2>Tasks por projeto</h2>
+            <p><span id="wip-counter">—</span> · filtro por projeto</p>
+          </div>
+          <a href="tasks.html" class="btn btn-kanban-cta" id="btn-open-kanban">Kanban de tasks →</a>
         </div>
         <div class="proj-filter" id="task-filter"></div>
         <div class="task-toolbar">

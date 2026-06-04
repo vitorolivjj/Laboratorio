@@ -2,7 +2,7 @@
 
 **ID:** TASK-007  
 **Projeto:** PROJ-001  
-**Status:** `concluido`  
+**Status:** `arquivado` (cancelada)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
 **Concluída em:** 2026-05-31  
@@ -114,7 +114,7 @@ Guia completo: [deploy/vps/README.md](../deploy/vps/README.md)
 | **Resposta Caio** | Apresentação como assistente do Laboratório de Agentes IA ✅ |
 | **Infra** | VPS Hetzner CPX21 · `api.laboratorioagentes.com.br` · HTTPS |
 | **Modelo** | `claude-sonnet-4-6` (migrado de `claude-sonnet-4-20250514`, descontinuado) |
-| **Status** | ✅ ok — primeira conversa real com humano |
+| **Status** | arquivado (cancelada) |
 
 Conversas subsequentes validadas no log (ex.: consulta sobre página institucional / marca de café).
 

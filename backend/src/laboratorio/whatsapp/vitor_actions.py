@@ -54,9 +54,18 @@ CONSULTAR
 • delegações / delegacoes
 • erros / logs
 • patrulha (último check)
-• captura / donizete — monitor LP-PINTOR-001 (CRM + pastas)
+• captura — monitor CRM LP (pastas + leads)
+• captura status / donizete busca — estado da busca ativa
 
-EXECUTAR
+EXECUTAR — captura intermitente (TASK + grupo fixo)
+• Criar captura https://www.facebook.com/groups/ID — cria LP-PINTOR-XXX
+• PlayDonizete LP-PINTOR-XXX — inicia (só aquele grupo, sem rotacionar)
+• PlayDonizete https://…/groups/ID — cria TASK + inicia no grupo
+• StopDonizete [TASK] — para e restaura kanban
+• Listar capturas — TASKs com grupo fixo
+• Mac: ./scripts/donizete-mac-executor.sh --watch
+
+EXECUTAR — operação geral
 • patrulha agora — roda check completo
 • registrar: [texto] — evento em logs/eventos.md
 • teste alerta — valida notificação

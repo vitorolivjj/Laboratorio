@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-008 |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Prioridade** | media |
 | **Agentes** | dev · juarez |
 | **Dependências** | LP-PINTOR-007 ✓ · LP-PINTOR-002 ✓ |

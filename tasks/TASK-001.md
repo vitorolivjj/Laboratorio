@@ -2,7 +2,7 @@
 
 **ID:** TASK-001  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `arquivado` (cancelada — teste descartado 2026-05-31)  
+**Status:** `arquivado` (cancelada) (cancelada — teste descartado 2026-05-31)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
 **Cancelada em:** 2026-05-31  
@@ -351,7 +351,7 @@ _Copy e script WhatsApp: ver última orquestração (Caio Manteiga) no históric
 
 | Campo | Valor |
 |-------|-------|
-| **Status** | `executando` |
+| **Status** | arquivado (cancelada) |
 | **Arquivo Kanban** | [executando.md](executando.md) |
 | **Bloqueios** | Nenhum crítico — WA placeholder |
 | **Rodada ativa** | Rodada 5 — deploy concluído |

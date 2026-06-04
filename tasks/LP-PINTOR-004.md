@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-004 |
 | **Projeto** | PROJ-LP |
-| **Status** | concluido |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/concluidas.md |
 | **Prioridade** | media |
 | **Agente responsável** | caio_manteiga |

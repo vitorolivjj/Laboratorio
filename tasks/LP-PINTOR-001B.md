@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-001B |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/backlog.md |
 | **Prioridade** | alta |
 | **Agente responsável** | donizete_social |

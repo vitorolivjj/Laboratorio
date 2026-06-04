@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-002 |
 | **Projeto** | PROJ-LP |
-| **Status** | concluido |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/executando.md |
 | **Prioridade** | alta |
 | **Agente responsável** | loide |

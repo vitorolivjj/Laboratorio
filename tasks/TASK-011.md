@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-011 |
-| **Status** | concluído |
+| **Status** | arquivado (cancelada) |
 | **Concluída em** | 2026-05-31 |
 | **Kanban** | tasks/concluidas.md |
 

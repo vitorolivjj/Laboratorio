@@ -11,8 +11,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from laboratorio.config import CONTEXTO_GLOBAL, TASKS_DIR
+from laboratorio.config import CONTEXTO_GLOBAL, MEMORIA_DIR, TASKS_DIR
 from laboratorio.ops import parsers
+from laboratorio.ops.donizete_capture_task import load_capture_config
 
 LOGS_DIR = TASKS_DIR.parent / "logs"
 AUDIT_STATE = LOGS_DIR / "ronaldo_audit_state.json"
@@ -237,6 +238,78 @@ def run_governance_audit(*, tasks_dir: Path | None = None) -> GovernanceReport:
                 ref="contexto/contexto_global.md",
             )
         )
+
+    # TASK-001 histórica usada como captura (pós-reset: só LP-PINTOR-*)
+    for path in sorted(tasks_dir.glob("TASK-*.md")):
+        doc = parsers.read_text(path)
+        if re.search(r"## Captura intermitente|grupo_fixo|Grupo Facebook", doc, re.I):
+            report.add(
+                GovernanceFinding(
+                    code="captura_task_prefixo_antigo",
+                    severity="warn",
+                    title=f"{path.stem} usa prefixo TASK para captura",
+                    detail="Capturas novas devem ser LP-PINTOR-XXX com grupo fixo",
+                    ref=str(path.relative_to(tasks_dir.parent)),
+                    action="Migrar para LP-PINTOR ou remover seção captura de TASK-*",
+                )
+            )
+
+    # LP-PINTOR sem grupo fixo na seção captura
+    for path in sorted(tasks_dir.glob("LP-PINTOR-*.md")):
+        cfg = load_capture_config(path.stem, tasks_dir=tasks_dir)
+        kid = path.stem
+        in_kanban = kid in kanban
+        if in_kanban and cfg and not cfg.get("group_url"):
+            report.add(
+                GovernanceFinding(
+                    code="captura_sem_grupo",
+                    severity="warn",
+                    title=f"{kid} no kanban sem URL de grupo",
+                    detail="PlayDonizete exige grupo fixo em ## Captura intermitente",
+                    ref=f"tasks/{kid}.md",
+                    action="Preencher | **Grupo Facebook** | ou Criar captura <url>",
+                )
+            )
+
+    # memoria/donizete_social — referências a tasks fora do kanban
+    mem_refs: set[str] = set(kanban.keys())
+    donizete_mem = MEMORIA_DIR / "donizete_social"
+    orphan_count = 0
+    if donizete_mem.is_dir():
+        for mp in donizete_mem.glob("*.md"):
+            text = parsers.read_text(mp)
+            for tid in re.findall(r"\bLP-PINTOR-\d{3}[A-Z]?\b", text):
+                if tid in mem_refs or orphan_count >= 5:
+                    continue
+                orphan_count += 1
+                report.add(
+                    GovernanceFinding(
+                        code="memoria_task_orfa",
+                        severity="info",
+                        title=f"{tid} em doc Donizete sem kanban ativo",
+                        detail=str(mp.relative_to(MEMORIA_DIR.parent)),
+                        ref=str(mp.relative_to(MEMORIA_DIR.parent)),
+                        action="Alinhar doc ao fluxo grupo fixo ou recriar task",
+                    )
+                )
+
+    # decisoes.md — entradas sem data no título
+    decisoes_path = MEMORIA_DIR / "decisoes.md"
+    dec_text = parsers.read_text(decisoes_path)
+    dec_section = dec_text.split("## Decisões", 1)[-1] if "## Decisões" in dec_text else dec_text
+    for m in re.finditer(r"^### (.+)$", dec_section, re.MULTILINE):
+        title = m.group(1).strip()
+        if title.startswith("[") or not re.search(r"\d{4}-\d{2}-\d{2}", title):
+            report.add(
+                GovernanceFinding(
+                    code="decisao_sem_data",
+                    severity="info",
+                    title="Decisão sem data no título",
+                    detail=title[:80],
+                    ref="memoria/decisoes.md",
+                    action="Padronizar: ### Título — YYYY-MM-DD",
+                )
+            )
 
     # Seções duplicadas em backlog (bug histórico)
     backlog_text = parsers.read_text(tasks_dir / "backlog.md")

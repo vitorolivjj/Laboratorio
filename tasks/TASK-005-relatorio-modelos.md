@@ -2,7 +2,7 @@
 
 **Autor:** Ronaldo Maestro  
 **Data:** 2026-05-30  
-**Status:** aguardando aprovação Vitor (E5/E6)  
+**Status:** `arquivado` (cancelada)
 **Regra aplicada:** desempenho operacional > economia > preferência pessoal
 
 ---

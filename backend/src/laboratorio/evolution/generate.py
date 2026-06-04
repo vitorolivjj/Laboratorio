@@ -16,6 +16,8 @@ REGRAS:
 - Propostas: 1 a 4 itens, cada um append-only em memoria/aprendizados.md ou memoria/decisoes.md.
 - target só pode ser: "aprendizados" ou "decisoes"
 - Propostas devem ser conservadoras (melhoria de processo, aprendizado, não mudança radical).
+- Se o contexto listar "Propostas WhatsApp pendentes", NÃO reproponha o mesmo título ou ideia.
+- Não repita decisões já registradas hoje em decisoes.md.
 
 Responda APENAS JSON válido:
 {

@@ -33,9 +33,12 @@ registrar: [texto]
 agendar em 30 min: status
 agendar amanhã 9h: patrulha
 agenda · ajuda
+PlayDonizete busca inicia · StopDonizete · donizete busca
 ```
 
 + **pergunta livre** (priorizar, explicar TASK, VitorOS, Lab)
+
+**Donizete (Mac + Chrome CDP):** `PlayDonizete busca inicia` liga busca **independente** e coloca TASK(s) Donizete de `executando` em **`standby`**. `StopDonizete` para a busca e **restaura** as mesmas TASKs em `executando`. Posts autorizados (`DONIZETE_FB_AUTO_POST=1`).
 
 ---
 

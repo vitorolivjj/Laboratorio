@@ -51,6 +51,11 @@ VITOR_SYSTEM = """Você é Ronaldo Maestro no canal WhatsApp autorizado do Vitor
 
 CANAL = mesmo poder do Cursor e Painel Maestro. NÃO é vendedor.
 
+REGRA KANBAN — NUNCA inventar TASK-XXX ou LP-PINTOR-XXX:
+- IDs só existem após Criar task / Criar captura (bridge já tratou comandos estruturados)
+- Captura Facebook = sempre LP-PINTOR-* com grupo fixo; PlayDonizete sem task válida = recusar
+- Decisões operacionais: orientar "Decisão: título | texto" para gravar em decisoes.md
+
 REGRA CRÍTICA — NUNCA:
 - Dizer "vou consultar", "aguarde", "já volto", "deixa eu ver", "em instantes"
 - Prometer retorno depois — os dados JÁ ESTÃO no CONTEXTO abaixo
@@ -245,6 +250,10 @@ def _vitor_fast_answer(text: str, snapshot: dict) -> str | None:
 
 def _needs_ack(text: str) -> bool:
     """Operações que podem demorar — manda ack antes."""
+    from laboratorio.ops.donizete_whatsapp import donizete_needs_ack
+
+    if donizete_needs_ack(text):
+        return True
     f = _fold(text)
     if any(k in f for k in ("patrulha", "patrol", "orquestr", "delega", "criar task")):
         return True
@@ -279,7 +288,9 @@ def _match_exec(text: str) -> str | None:
     if scheduled:
         return scheduled
 
-    return None
+    from laboratorio.ops.donizete_whatsapp import match_donizete_whatsapp
+
+    return match_donizete_whatsapp(text)
 
 
 def process_vitor_message(from_wa_id: str, user_message: str, *, fresh_snapshot: bool = False) -> str:
@@ -297,7 +308,21 @@ def process_vitor_message(from_wa_id: str, user_message: str, *, fresh_snapshot:
     # Snapshot: cache primeiro (rápido); refresh só se pedido ou LLM
     snapshot = get_cached_snapshot(max_age=20)
 
-    # 1) Ações executáveis
+    from laboratorio.whatsapp.ronaldo_bridge import try_ronaldo_bridge
+
+    bridge_reply = try_ronaldo_bridge(text)
+    if bridge_reply:
+        _append_history(from_wa_id, text, bridge_reply, source="ronaldo_bridge")
+        return _trim(bridge_reply)
+
+    from laboratorio.whatsapp.wa_tool_llm import try_tool_llm
+
+    tool_reply = try_tool_llm(text, _rich_context(snapshot, query=text))
+    if tool_reply:
+        _append_history(from_wa_id, text, tool_reply, source="tool_llm")
+        return _trim(tool_reply)
+
+    # 1) Ações executáveis (patrulha, agenda, Donizete explícito)
     exec_result = _match_exec(text)
     if exec_result:
         _append_history(from_wa_id, text, exec_result, source="exec")
@@ -348,19 +373,38 @@ def _trim(text: str, limit: int = 3800) -> str:
 
 
 def process_due_reminders() -> list[tuple[str, str]]:
-    """Chamado pelo timer — envia lembretes vencidos."""
+    """Chamado pelo timer — envia lembretes vencidos (um digest se vários no mesmo ciclo)."""
 
     def _run_cmd(command: str) -> str:
         fake_id = "schedule"
         return process_vitor_message(fake_id, command, fresh_snapshot=True)
 
     results = run_due_schedules(_run_cmd)
-    out: list[tuple[str, str]] = []
+    if not results:
+        return []
+
+    if len(results) == 1:
+        item = results[0]["item"]
+        body = (
+            f"⏰ Lembrete ({item.get('label', item.get('command'))})\n\n"
+            f"{results[0]['body']}"
+        )
+        return [(item.get("id", "schedule"), body)]
+
+    lines = [f"⏰ {len(results)} lembretes vencidos (digest único)", ""]
+    ids: list[str] = []
     for row in results:
         item = row["item"]
-        body = f"⏰ Lembrete ({item.get('label', item.get('command'))})\n\n{row['body']}"
-        out.append((item.get("id", ""), body))
-    return out
+        label = item.get("label") or item.get("command") or "lembrete"
+        ids.append(item.get("id", ""))
+        snippet = (row.get("body") or "").strip().replace("\n\n", "\n")
+        if len(snippet) > 420:
+            snippet = snippet[:420].rsplit("\n", 1)[0] + "\n…"
+        lines.append(f"• {label}")
+        lines.append(snippet)
+        lines.append("")
+    batch_id = "-".join(i for i in ids if i)[:24] or "batch"
+    return [(batch_id, "\n".join(lines).strip())]
 
 
 def vitor_needs_ack(text: str) -> bool:

@@ -6,14 +6,14 @@
 |-------|-------|
 | **ID** | LP-PINTOR-001 |
 | **Projeto** | PROJ-LP |
-| **Status** | executando |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/executando.md |
 | **Prioridade** | alta |
 | **Agente responsável** | donizete_social |
 | **Dependências** | LP-PINTOR-007 ✓ (in-house) · modelo `/previas/exemplo-pintor/` |
 | **Meta sprint** | **5 leads** `pronto_pra_pagina` (lote 1 de 10) |
 | **Criada em** | 2026-05-31 |
-| **Iniciada em** | 2026-06-03 |
+| **Iniciada em** | 2026-06-03 (deploy rodada 4 — 2026-06-03) |
 
 ## Objetivo
 
@@ -38,8 +38,12 @@ Lote 1 de captação Facebook (Canal A + B) — **5 leads** `pronto_pra_pagina` 
 
 [operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md) · LP-PINTOR-001B · LP-PINTOR-009
 
-### Briefing — Donizete — LP-PINTOR-001 — lote 1
+### Briefing — Donizete — LP-PINTOR-001 — rodada 4 (deploy)
 
 - **Objetivo:** 5 leads `pronto_pra_pagina` · modo sprint
-- **Handoff:** cada lead → CRM + pasta captura → avisar Ronaldo → LP-PINTOR-009
-- **Não fazer:** R$ 69 no FB · pedir material ao pintor
+- **WhatsApp Vitor:** `PlayDonizete busca inicia` / `StopDonizete` (task → standby ↔ executando)
+- **Quem escolhe grupos:** Donizete (`fb_escolher_grupo` / `fb_ciclo_navegacao`)
+- **2 atuações:** (1) navegação scroll lento + posts existentes → perfil → stalk (2) `fb_ciclo_post` publica isca (autorizado)
+- **Mac:** Chrome CDP `./scripts/facebook-cdp-mac.sh` · API local ou VPS recebe WA
+- **Caio:** template `abertura_pintor_contato` aprovado Meta — abordagem proativa liberada
+- **Não fazer:** chutar URL · R$ 69 no FB · inventar leads

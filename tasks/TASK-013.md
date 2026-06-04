@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-013 |
-| **Status** | aguardando |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/aguardando.md |
 | **Prioridade** | media |
 | **Agente responsável** | dev |

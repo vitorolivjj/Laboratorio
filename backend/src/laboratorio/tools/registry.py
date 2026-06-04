@@ -26,6 +26,29 @@ def tools_for(agent_id: str) -> list:
             AtualizarStatusLeadTool,
             LerCRMTool,
         )
+        from laboratorio.tools.crm_lp_tools import (
+            AdicionarLeadLPTool,
+            AtualizarStatusLeadLPTool,
+            LerCRMLPTool,
+        )
+        from laboratorio.tools.facebook_tools import (
+            FacebookAbrirGrupoTool,
+            FacebookAnalisarPostsTool,
+            FacebookBuscarGruposTool,
+            FacebookCicloNavegacaoTool,
+            FacebookCicloPostTool,
+            FacebookEscolherGrupoTool,
+            FacebookGarimpoTool,
+            FacebookMeusGruposTool,
+            FacebookNavegarTool,
+            FacebookPaginaAtualTool,
+            FacebookPostIscaTool,
+            FacebookQualificarPerfilTool,
+            FacebookRolarFeedTool,
+            FacebookStalkTool,
+            FacebookStatusTool,
+            facebook_tools_available,
+        )
         from laboratorio.tools.memory_tools import (
             LerMemoriaTool,
             RegistrarAprendizadoTool,
@@ -73,9 +96,30 @@ def tools_for(agent_id: str) -> list:
             EnviarWhatsAppTool(),
         ],
         "donizete_social": [
-            LerCRMTool(),
-            AdicionarLeadTool(),
-            AtualizarStatusLeadTool(),
+            LerCRMLPTool(),
+            AdicionarLeadLPTool(),
+            AtualizarStatusLeadLPTool(),
+            FacebookStatusTool(),
+            FacebookEscolherGrupoTool(),
+            FacebookCicloNavegacaoTool(),
+            FacebookCicloPostTool(),
+            FacebookMeusGruposTool(),
+            FacebookBuscarGruposTool(),
+            FacebookAnalisarPostsTool(),
+            FacebookQualificarPerfilTool(),
+            FacebookAbrirGrupoTool(),
+            FacebookRolarFeedTool(),
+            FacebookPaginaAtualTool(),
+            FacebookGarimpoTool(),
+            FacebookStalkTool(),
+            FacebookPostIscaTool(),
+            FacebookNavegarTool(),
+        ]
+        if facebook_tools_available()
+        else [
+            LerCRMLPTool(),
+            AdicionarLeadLPTool(),
+            AtualizarStatusLeadLPTool(),
         ],
         "loide": [ListarTasksTool()],
     }

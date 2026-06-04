@@ -2,7 +2,7 @@
 
 **ID:** TASK-002  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `arquivado` (cancelada — teste descartado 2026-05-31)  
+**Status:** `arquivado` (cancelada) (cancelada — teste descartado 2026-05-31)  
 **Prioridade:** alta  
 **Criada em:** 2026-05-28  
 **Cancelada em:** 2026-05-31  
@@ -194,7 +194,7 @@ Critério de sucesso: o mecanismo funcionar do início ao fim **sem caos**.
 
 | Campo | Valor |
 |-------|-------|
-| **Status** | `executando` |
+| **Status** | arquivado (cancelada) |
 | **Arquivo Kanban** | [executando.md](executando.md) |
 | **Bloqueios** | Nenhum |
 | **Rodada ativa** | Rodada 1 — captação + abordagem |

@@ -7,25 +7,32 @@ import logging
 from laboratorio.whatsapp.approvals import try_handle_approval_message
 from laboratorio.whatsapp.caio_handler import generate_caio_reply
 from laboratorio.whatsapp.client import send_text_message
+from laboratorio.whatsapp.caio_session import is_duplicate_outbound, record_outbound
 from laboratorio.whatsapp.dedup import mark_if_new
 from laboratorio.whatsapp.outbound import send_to_recipient
 from laboratorio.whatsapp.logger import log_exchange
 from laboratorio.whatsapp.owner import generate_owner_reply, is_owner
 from laboratorio.whatsapp.parser import InboundMessage
-from laboratorio.whatsapp.vitor_auth import get_vitor_wa_id, is_vitor_authorized
+from laboratorio.whatsapp.vitor_auth import is_vitor_authorized
 from laboratorio.whatsapp.vitor_handler import generate_vitor_reply
-from laboratorio.whatsapp.vitor_whatsapp import process_due_reminders, vitor_needs_ack
+from laboratorio.whatsapp.vitor_whatsapp import vitor_needs_ack
 
 logger = logging.getLogger("laboratorio.whatsapp.handler")
 
 
 def process_inbound_message(msg: InboundMessage) -> None:
-    if not mark_if_new(msg.message_id):
-        logger.info("Ignorando duplicata message_id=%s", msg.message_id)
+    if not mark_if_new(msg.message_id, wa_id=msg.from_wa_id, text=msg.text):
+        logger.info(
+            "Ignorando duplicata inbound de %s (id=%s)",
+            msg.from_wa_id,
+            msg.message_id,
+        )
         return
 
-    _flush_due_reminders()
+    # Lembretes só via vitor-schedule.timer (evita disparo duplo com inbound)
 
+    reply = ""
+    channel = "erro"
     try:
         if is_vitor_authorized(msg.from_wa_id):
             approval_reply = try_handle_approval_message(msg.text)
@@ -45,7 +52,12 @@ def process_inbound_message(msg: InboundMessage) -> None:
             reply = generate_caio_reply(msg.from_wa_id, msg.text)
             channel = "caio_comercial"
 
+        if is_duplicate_outbound(msg.from_wa_id, reply):
+            logger.info("Outbound duplicado ignorado para %s", msg.from_wa_id)
+            return
+
         send_to_recipient(msg.from_wa_id, reply, proactive=False)
+        record_outbound(msg.from_wa_id, reply)
         log_exchange(
             from_wa_id=msg.from_wa_id,
             inbound=msg.text,
@@ -55,26 +67,25 @@ def process_inbound_message(msg: InboundMessage) -> None:
         )
     except Exception as exc:
         logger.exception("Falha ao processar mensagem %s", msg.message_id)
+        err_msg = (
+            f"⚠️ Falha ao processar sua mensagem.\n\n"
+            f"{type(exc).__name__}: {str(exc)[:400]}\n\n"
+            "Tente: status · ajuda · ou repita em instantes."
+        )
+        try:
+            if is_vitor_authorized(msg.from_wa_id) and not is_duplicate_outbound(
+                msg.from_wa_id, err_msg
+            ):
+                send_to_recipient(msg.from_wa_id, err_msg, proactive=False)
+                record_outbound(msg.from_wa_id, err_msg)
+        except Exception as send_exc:
+            logger.warning("Não enviou erro ao usuário: %s", send_exc)
         log_exchange(
             from_wa_id=msg.from_wa_id,
             inbound=msg.text,
-            outbound="",
+            outbound=err_msg,
             message_id=msg.message_id,
             status=f"erro: {exc}",
         )
-        raise
 
 
-def _flush_due_reminders() -> None:
-    try:
-        for _id, body in process_due_reminders():
-            send_text_message(get_vitor_wa_id(), body)
-            log_exchange(
-                from_wa_id=get_vitor_wa_id(),
-                inbound="(lembrete agendado)",
-                outbound=body,
-                message_id=f"schedule-{_id}",
-                status="ok:schedule",
-            )
-    except Exception:
-        logger.exception("Falha ao enviar lembretes agendados")

@@ -302,6 +302,15 @@ def _execute_pending(item: dict[str, Any]) -> str:
                 f"✓ Template [{template_name}] não encontrado na Meta (132001) — "
                 f"enviado como texto (janela 24h) para +{to_wa[-11:]}"
             )
+        from laboratorio.whatsapp.caio_session import mark_script_sent, record_outbound
+
+        mark_script_sent(to_wa, "abertura")
+        dedup_body = (
+            body
+            if status == "ok:client_template_fallback_text"
+            else render_template_body(template_name, body_params)
+        )
+        record_outbound(to_wa, dedup_body)
         log_exchange(
             from_wa_id=to_wa,
             inbound="(template proativo aprovado)",
@@ -372,8 +381,43 @@ def handle_owner_decision(action: Decision, approval_id: str) -> str:
     return f"✓ Aprovado [{aid}]\n{result_detail}"
 
 
+_QUEUE_APPROVE_RE = re.compile(
+    r"^\s*aprovar\s+fila\s+([\d,\s]+)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _apply_queue_proposals(prop_ids: list[int]) -> str:
+    from laboratorio.evolution.apply import apply_proposals
+    from laboratorio.evolution.propose import list_pending_proposals, mark_proposal_applied
+
+    pending = {int(p["id"]): p for p in list_pending_proposals(limit=100)}
+    selected = [pending[i] for i in prop_ids if i in pending]
+    if not selected:
+        return "Nenhuma proposta pendente com esses IDs na fila."
+    batch = [
+        {
+            "id": p["id"],
+            "target": p.get("target", "aprendizados"),
+            "title": p.get("title", ""),
+            "body": p.get("body", ""),
+        }
+        for p in selected
+    ]
+    results = apply_proposals(batch)
+    for p in selected:
+        mark_proposal_applied(prop_id=int(p["id"]))
+    return "✓ Fila aplicada:\n" + "\n".join(results)
+
+
 def try_handle_approval_message(text: str) -> str | None:
     """Se for comando de aprovação, processa e retorna resposta; senão None."""
+    qm = _QUEUE_APPROVE_RE.match(text.strip())
+    if qm:
+        ids = [int(x) for x in re.findall(r"\d+", qm.group(1))]
+        if ids:
+            return _apply_queue_proposals(ids)
+
     parsed = parse_owner_decision(text)
     if not parsed:
         return None

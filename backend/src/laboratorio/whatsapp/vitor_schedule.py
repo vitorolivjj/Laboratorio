@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from laboratorio.config import LOGS_DIR
+from laboratorio.config import LOGS_DIR, TASKS_DIR
+
+logger = logging.getLogger("laboratorio.vitor_schedule")
 
 SCHEDULE_FILE = LOGS_DIR / "vitor_whatsapp_agenda.json"
 TZ = ZoneInfo("America/Sao_Paulo")
@@ -53,6 +56,18 @@ def cancel_item(item_id: str) -> bool:
     data["items"] = [i for i in data.get("items", []) if i.get("id") != item_id and not i.get("sent")]
     _save(data)
     return len(data["items"]) < before
+
+
+def cancel_all_pending() -> int:
+    """Remove lembretes WhatsApp ainda não enviados. Retorna quantidade removida."""
+    data = _load()
+    items = data.get("items", [])
+    kept = [i for i in items if i.get("sent")]
+    removed = len(items) - len(kept)
+    if removed:
+        data["items"] = kept
+        _save(data)
+    return removed
 
 
 def add_schedule(*, due_at: datetime, command: str, label: str = "") -> dict:
@@ -133,6 +148,40 @@ def parse_schedule_request(text: str) -> tuple[datetime, str, str] | None:
     return None
 
 
+_TASK_ID_RE = re.compile(
+    r"\b((?:LP-PINTOR|LAB|TASK|VITOR)-\d+[A-Z]?)\b",
+    re.I,
+)
+
+
+def _extract_task_id(command: str) -> str:
+    m = _TASK_ID_RE.search(command or "")
+    return m.group(1).upper() if m else ""
+
+
+def reminder_task_obsolete(command: str) -> tuple[bool, str]:
+    """Não cobrar tasks já concluídas, canceladas ou arquivadas."""
+    tid = _extract_task_id(command)
+    if not tid:
+        return False, ""
+
+    task_file = TASKS_DIR / f"{tid}.md"
+    if task_file.is_file():
+        body = task_file.read_text(encoding="utf-8").lower()
+        if "cancelad" in body[:800]:
+            return True, f"{tid} cancelada"
+
+    for fname in ("concluidas.md", "arquivado.md"):
+        path = TASKS_DIR / fname
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if re.search(rf"^###\s+{re.escape(tid)}\b", text, re.M | re.I):
+            return True, f"{tid} em {fname}"
+
+    return False, ""
+
+
 def run_due_schedules(processor) -> list[dict]:
     """Executa itens vencidos. `processor(command) -> str` gera a mensagem."""
     data = _load()
@@ -149,6 +198,15 @@ def run_due_schedules(processor) -> list[dict]:
             continue
         if due > now:
             continue
+
+        obsolete, reason = reminder_task_obsolete(item.get("command", ""))
+        if obsolete:
+            item["sent"] = True
+            item["sent_at"] = now.isoformat()
+            item["skipped"] = reason
+            logger.info("Lembrete ignorado (%s): %s", item.get("id"), reason)
+            continue
+
         try:
             body = processor(item.get("command", "status"))
             item["sent"] = True

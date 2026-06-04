@@ -31,59 +31,7 @@ Ver estrutura completa em [pipeline_operacional.md](../workflows/pipeline_operac
 
 ## Fila
 
-> Histórico reset Fase 0: [arquivado.md](arquivado.md#reset-fase-0--2026-06-01)
-
-### LP-PINTOR-001B — Captação Facebook lote 2 (5 leads)
-
-- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Após:** LP-PINTOR-001 · [LP-PINTOR-001B.md](LP-PINTOR-001B.md)
-
-### LP-PINTOR-009 — Produzir prévia in-house (1 lead) — modelo repetível
-
-- **Projeto:** PROJ-LP · **Agentes:** loide · dev · juarez · **Dispara:** cada lead `pronto_pra_pagina` · [LP-PINTOR-009.md](LP-PINTOR-009.md)
-
-### LP-PINTOR-008 — Automação CRM → build in-house + takedown
-
-- **Projeto:** PROJ-LP · **Agente:** dev · juarez · [LP-PINTOR-008.md](LP-PINTOR-008.md)
-
-### LP-PINTOR-003 — CRM pintores + handoff Donizete→produção
-
-- **Projeto:** PROJ-LP · **Agente:** donizete_social · **Paralelo a:** LP-PINTOR-001 · [LP-PINTOR-003.md](LP-PINTOR-003.md)
-
-### LP-PINTOR-005 — KPIs, escopo de alterações e auditoria
-
-- **Projeto:** PROJ-LP · **Agente:** ronaldo_maestro · [LP-PINTOR-005.md](LP-PINTOR-005.md)
-
-### TASK-014 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-014.md](TASK-014.md)
-
-### TASK-015 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-015.md](TASK-015.md)
-
-### TASK-016 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-016.md](TASK-016.md)
-
-### TASK-017 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-017.md](TASK-017.md)
-
-### TASK-018 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-018.md](TASK-018.md)
-
-### TASK-019 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-019.md](TASK-019.md)
-
-### TASK-020 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-020.md](TASK-020.md)
-
-### TASK-021 — VitorOS (pausado PROJ-002)
-
-- **Projeto:** PROJ-002 · **Status:** pausado · [TASK-021.md](TASK-021.md)
+> Reset **2026-06-03:** fila vazia — [arquivado.md](arquivado.md#reset-kanban--2026-06-03)
 
 ---
 

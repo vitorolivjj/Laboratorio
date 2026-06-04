@@ -1,5 +1,7 @@
 # Templates Meta WhatsApp — PROJ-LP (Caio)
 
+**Status (2026-06-03):** Template `abertura_pintor_contato` **aprovado** no Meta · LP-PINTOR-006 concluída · Caio pode abrir conversa proativa.
+
 **Gargalo identificado:** mensagem proativa com texto livre (`type: text`) **só funciona dentro da janela 24h** após o lead falar. Para **iniciar** conversa, a Meta exige **template aprovado**.
 
 **Fluxo correto (2 etapas):**

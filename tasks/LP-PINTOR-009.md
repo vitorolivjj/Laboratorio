@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-009 |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/backlog.md |
 | **Prioridade** | alta |
 | **Agentes** | loide · dev · juarez |

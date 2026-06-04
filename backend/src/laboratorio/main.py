@@ -188,6 +188,45 @@ def main() -> None:
         help="Grava entrada em logs/donizete_captura.md",
     )
 
+    p_fb = sub.add_parser(
+        "donizete-fb",
+        help="Donizete — Facebook via Chrome CDP no Mac + CRM LP",
+    )
+    p_fb_sub = p_fb.add_subparsers(dest="fb_command", required=True)
+    p_fb_sub.add_parser("status", help="Testa conexão CDP + aba Facebook")
+    p_iniciar = p_fb_sub.add_parser("iniciar", help="Reinicia captação + lista grupos do perfil")
+    p_iniciar.add_argument("--task", default="LP-PINTOR-001")
+    p_fb_sub.add_parser("grupos", help="Lista grupos do perfil (feed/joins)")
+    p_fb_busca = p_fb_sub.add_parser("buscar", help="Busca grupos no Facebook")
+    p_fb_busca.add_argument("termo", help="Termo de busca")
+    p_fb_abrir = p_fb_sub.add_parser("abrir", help="Abre grupo da última lista por índice")
+    p_fb_abrir.add_argument("indice", type=int, help="Número na lista (1-based)")
+    p_fb_abrir.add_argument("--nome", default="", help="Ou trecho do nome")
+    p_fb_nav = p_fb_sub.add_parser("navegar", help="Ciclo navegação autônomo (Donizete escolhe grupo)")
+    p_fb_nav.add_argument("--max-leads", type=int, default=1)
+    p_fb_post = p_fb_sub.add_parser("post", help="Ciclo post: escolhe grupo e cola post-isca")
+    p_fb_post.add_argument("--variacao", type=int, default=None)
+    p_fb_sub.add_parser("garimpo", help="Garimpo na página Facebook atual")
+    p_stalk = p_fb_sub.add_parser("stalk", help="Stalk perfil → captura/ + CRM LP")
+    p_stalk.add_argument("url", help="URL do perfil Facebook")
+    p_stalk.add_argument("nome", help="Nome do pintor")
+    p_stalk.add_argument("--cidade", default="", help="Cidade")
+    p_stalk.add_argument("--grupo", default="", help="Grupo origem")
+    p_stalk.add_argument("--tags", default="autopromocao", help="indicacao | autopromocao")
+    p_fb_run = p_fb_sub.add_parser("run", help="1 ciclo CrewAI na TASK LP em execução")
+    p_fb_run.add_argument("--task", default="LP-PINTOR-001", help="ID da task")
+
+    p_mac_prep = sub.add_parser(
+        "donizete-mac-prepare",
+        help="Mac: puxa task da VPS (painel) e alinha antes da busca",
+    )
+    p_mac_prep.add_argument("task_id", nargs="?", default="", help="LP-PINTOR-XXX (opcional)")
+
+    sub.add_parser(
+        "donizete-busca-local",
+        help="Mac: loop de busca Facebook (após PlayDonizete no WhatsApp)",
+    )
+
     sub.add_parser(
         "vitor-schedule",
         help="Envia lembretes WhatsApp Vitor vencidos",
@@ -210,6 +249,18 @@ def main() -> None:
         action="store_true",
         help="Grava resultado em logs/governanca_auditoria.md",
     )
+
+    p_orphan = sub.add_parser(
+        "orphan-memoria-audit",
+        help="Refs TASK/LP-PINTOR em memoria/ sem entrada no kanban",
+    )
+    p_orphan.add_argument("--list", action="store_true", help="Lista órfãs no stdout")
+    p_orphan.add_argument(
+        "--suggest-archive",
+        action="store_true",
+        help="Sugere mover arquivos para memoria/_arquivo/",
+    )
+    p_orphan.add_argument("--write-log", action="store_true", help="Grava relatório em logs/")
 
     sub.add_parser("memory-check", help="Valida Supabase + tabela lab_semantic_memories")
 
@@ -296,6 +347,38 @@ def main() -> None:
             append_capture_log(report)
             print(f"\nLog: logs/donizete_captura.md")
         sys.exit(0)
+    if args.command == "donizete-fb":
+        from laboratorio.ops import donizete_fb
+
+        if args.fb_command == "status":
+            sys.exit(donizete_fb.cmd_status())
+        if args.fb_command == "iniciar":
+            sys.exit(donizete_fb.cmd_iniciar(args.task))
+        if args.fb_command == "grupos":
+            sys.exit(donizete_fb.cmd_grupos())
+        if args.fb_command == "buscar":
+            sys.exit(donizete_fb.cmd_buscar(args.termo))
+        if args.fb_command == "abrir":
+            sys.exit(donizete_fb.cmd_abrir(args.indice, nome=args.nome))
+        if args.fb_command == "navegar":
+            sys.exit(donizete_fb.cmd_navegar(args.max_leads))
+        if args.fb_command == "post":
+            sys.exit(donizete_fb.cmd_post(args.variacao))
+        if args.fb_command == "garimpo":
+            sys.exit(donizete_fb.cmd_garimpo())
+        if args.fb_command == "stalk":
+            sys.exit(
+                donizete_fb.cmd_stalk(
+                    args.url,
+                    args.nome,
+                    cidade=args.cidade,
+                    grupo=args.grupo,
+                    tags=args.tags,
+                )
+            )
+        if args.fb_command == "run":
+            sys.exit(donizete_fb.cmd_run(args.task))
+        sys.exit(2)
     if args.command == "ronaldo-audit":
         load_env()
         from laboratorio.ops.ronaldo_audit import run_audit
@@ -334,6 +417,72 @@ def main() -> None:
             append_governance_log(report)
             print("\nLog: logs/governanca_auditoria.md")
         sys.exit(0 if report.ok else 1)
+    if args.command == "orphan-memoria-audit":
+        import subprocess
+
+        script = REPO_ROOT / "scripts" / "audit_orphan_memoria.py"
+        cmd = [sys.executable, str(script)]
+        if args.list:
+            cmd.append("--list")
+        if args.suggest_archive:
+            cmd.append("--suggest-archive")
+        if args.write_log:
+            cmd.append("--write-log")
+        if not (args.list or args.suggest_archive or args.write_log):
+            cmd.extend(["--list", "--write-log"])
+        sys.exit(subprocess.call(cmd))
+    if args.command == "donizete-mac-prepare":
+        load_env()
+        from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
+
+        task_arg = getattr(args, "task_id", None) or ""
+        tid, url, prep = prepare_mac_busca_start()
+        if task_arg.strip():
+            from laboratorio.ops.donizete_mac_sync import pull_capture_task_from_api
+
+            print(pull_capture_task_from_api(task_arg.strip()), flush=True)
+        elif prep:
+            print(prep, flush=True)
+        else:
+            print("Nada a sincronizar — use com task_id ou Play na VPS.", flush=True)
+        if tid:
+            print(f"Pronto para: donizete-busca-local · {tid} · {url or 'grupo da task'}", flush=True)
+        sys.exit(0)
+    if args.command == "donizete-busca-local":
+        load_env()
+        import sys
+        import time
+
+        from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
+        from laboratorio.ops.donizete_runner import is_running, start_busca, status_line, stop_busca
+
+        tid, url, prep = prepare_mac_busca_start()
+        if prep:
+            print(prep, flush=True)
+        msg = start_busca(
+            task_id=tid,
+            group_url=url,
+            allow_arm_without_cdp=False,
+        )
+        print(msg, flush=True)
+        time.sleep(0.5)
+        if not is_running():
+            print(
+                "ERRO: thread da busca não está ativa — CDP offline ou processo encerrou cedo.",
+                file=sys.stderr,
+                flush=True,
+            )
+            print(status_line(), flush=True)
+            sys.exit(1)
+        print("\n---\n", status_line(), "\n", flush=True)
+        print("Ctrl+C para parar — ou StopDonizete no WhatsApp.", flush=True)
+        try:
+            while is_running():
+                time.sleep(30)
+                print(status_line(), flush=True)
+        except KeyboardInterrupt:
+            print(stop_busca(), flush=True)
+        sys.exit(0)
     if args.command == "vitor-schedule":
         load_env()
         from laboratorio.whatsapp.client import send_text_message

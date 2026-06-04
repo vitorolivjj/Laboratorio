@@ -14,6 +14,9 @@ const PRECACHE = [
   "./voice.js",
   "./manifest.json",
   "./mapa-agentes.html",
+  "./tasks.html",
+  "./tasks-kanban.js",
+  "./tasks-kanban.css",
 ];
 
 self.addEventListener("install", (event) => {

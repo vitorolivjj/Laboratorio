@@ -46,9 +46,26 @@ def collect_daily_context() -> str:
         parts.append("## Em execução\n(nenhuma)")
 
     parts.append(
+        "## Decisões (trecho)\n"
+        + _tail_sections(MEMORIA_DIR / "decisoes.md", "## Decisões", 4)
+    )
+
+    parts.append(
         "## Aprendizados (trecho)\n"
         + _tail_sections(MEMORIA_DIR / "aprendizados.md", "## Aprendizados", 4)
     )
+
+    from laboratorio.evolution.propose import list_pending_proposals
+
+    pending = list_pending_proposals(limit=8)
+    if pending:
+        lines = [
+            f"- #{p['id']} [{p.get('target')}]: {p.get('title')} (via {p.get('source', '?')})"
+            for p in pending
+        ]
+        parts.append(
+            "## Propostas WhatsApp pendentes (não aplicar sem APROVAR)\n" + "\n".join(lines)
+        )
 
     patrol = LOGS_DIR / "ronaldo_patrol.md"
     if patrol.is_file():

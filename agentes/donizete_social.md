@@ -150,6 +150,13 @@ Cada lead entregue ao Caio deve existir em `crm/leads.md` com:
 - **Usa:** origem, contexto, observações para script e timing de abordagem
 - **Devolve:** feedback (convertido, sem resposta, descartado) — Donizete atualiza CRM e aprende
 
+### Facebook (PROJ-LP)
+
+- Chrome CDP no Mac · **Donizete escolhe os grupos** (não o operador)
+- **2 atuações:** (1) **Navegação** — scroll lento intermitente (WhatsApp PlayDonizete/StopDonizete); (2) **Post** — publica post-isca (autorizado pelo Vitor)
+- Ferramentas: `fb_ciclo_navegacao`, `fb_ciclo_post`, `fb_analisar_posts`, `fb_qualificar_perfil`, `fb_stalk`, CRM LP
+- Doc: [social_executor/README.md](../social_executor/README.md)
+
 ### TASKs operacionais
 
 - Donizete **não cria TASK** — opera dentro de TASK existente (ex.: TASK-001)

@@ -27,6 +27,18 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### Kanban pós-reset — captura LP-PINTOR + Ronaldo bridge — 2026-06-03
+
+- **Contexto:** Kanban operacional reiniciado; WhatsApp não pode inventar TASK-001 nem armar captura rotativa sem task.
+- **Decisão:**
+  - Capturas Facebook = sempre **LP-PINTOR-XXX** com **grupo fixo** em `tasks/LP-PINTOR-XXX.md` (`## Captura intermitente`)
+  - `PlayDonizete` sem task/grupo válido → recusa com instrução (não modo rotativo silencioso)
+  - Decisões Vitor no chat: `Decisão: título | texto` → `decisoes.md`; mudança de processo → fila autoevolução (APROVAR no digest)
+  - Painel: kanban editável em `/painel/tasks.html` via `/api/tasks`
+- **Responsável:** Vitor
+- **Agentes impactados:** ronaldo_maestro, donizete_social, dev
+- **Ref:** [fluxo_vitor_whatsapp.md](ronaldo_maestro/fluxo_vitor_whatsapp.md)
+
 ### Produção LP in-house (Webflow revogado) — 2026-06-03
 
 - **Contexto:** Após avaliar Webflow por dentro, fricção operacional sem ganho proporcional. Template `/previas/exemplo-pintor/` aprovado (3 dobras, R$ 69).

@@ -17,6 +17,8 @@ rsync -az --delete \
 ssh "root@$VPS" bash <<'REMOTE'
 set -euo pipefail
 chown -R laboratorio:laboratorio /opt/laboratorio/Laboratorio
+# tasks/ e logs/ costumam vir do rsync como root — API roda como laboratorio
+chmod -R u+rwX /opt/laboratorio/Laboratorio/tasks /opt/laboratorio/Laboratorio/logs 2>/dev/null || true
 BACKEND=/opt/laboratorio/Laboratorio/backend
 sudo -u laboratorio bash -c "
   cd '$BACKEND'

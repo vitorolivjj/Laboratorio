@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Status** | **cancelada** |
+| **Status** | arquivado (cancelada) |
 | **Cancelada em** | 2026-06-03 |
 | **Motivo** | Webflow revogado — produção in-house LP-PINTOR-007 concluída |
 

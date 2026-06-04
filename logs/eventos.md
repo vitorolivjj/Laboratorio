@@ -19,11 +19,29 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 - **Ref:** TASK-XXX | PROJ-XXX (opcional)
 ```
 
-**Tipos sugeridos:** `orquestracao` | `deploy` | `decisao` | `erro` | `marco` | `tarefa`
+**Tipos sugeridos:** `orquestracao` | `deploy` | `decisao` | `erro` | `resolvido` | `marco` | `tarefa`
+
+Para encerrar um erro: mude para `[resolvido]` ou adicione `- **Status:** resolvido` no bloco.
 
 ---
 
 ## Log
+
+### 2026-06-03 — [orquestracao] Reset kanban — todas tasks canceladas e arquivadas
+- **Agente(s):** Vitor · ronaldo_maestro
+- **Detalhe:** 22 tasks movidas para arquivado.md; captura Donizete parada; filas ativas zeradas para novas tasks.
+- **Ref:** tasks/arquivado.md#reset-kanban-2026-06-03
+
+
+### 2026-06-03 — [resolvido] Pacote alertas WA + lembretes obsoletos
+- **Agente(s):** vitor · dev · ronaldo_maestro
+- **Detalhe:** Template Meta `abertura_pintor_contato` aprovado (LP-PINTOR-006 concluída) · AF49/132001 histórico · APROVAR 368D corrigido (`vitor_auth`) · lembretes VITOR-001 (cancelada) e LP-PINTOR-006 (concluída) não reescalam
+- **Ref:** `logs/alertas_resolvidos.json` · deploy 2026-06-03
+
+### 2026-06-03 — [deploy] Donizete busca WhatsApp + standby + template Meta
+- **Agente(s):** dev · donizete_social · caio_manteiga · Vitor
+- **Detalhe:** Deploy VPS rodada 4 — PlayDonizete/StopDonizete · task standby↔executando · posts autônomos · LP-PINTOR-006 concluída (template aprovado) · LP-PINTOR-001 reiniciada
+- **Ref:** LP-PINTOR-001 · social_executor/README.md · LP-PINTOR-006
 
 ### 2026-06-03 — [orquestracao] Sprint velocidade LP — patrulha 30 min · WIP 4
 
@@ -86,9 +104,10 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 - **Detalhe:** `playbook_comercial_lp_pintor.md` · funil 5 etapas · objeções · `lp_leads.py` + LLM com contexto CRM
 - **Ref:** LP-PINTOR-004 · LEAD-001 Stephanie
 
-### 2026-06-02 — [erro] AF49 template Meta 132001 + fallback texto
-- **Agente(s):** dev
-- **Detalhe:** `abertura_pintor_contato` não existe em pt_BR na conta Caio · abertura enviada como texto (janela 24h aberta)
+### 2026-06-02 — [resolvido] AF49 template Meta 132001 + fallback texto
+- **Status:** resolvido
+- **Agente(s):** dev · vitor
+- **Detalhe:** (histórico) 132001 antes da aprovação · template `abertura_pintor_contato` aprovado Meta 2026-06-03 · LP-PINTOR-006 concluída
 - **Ref:** LP-PINTOR-006 · LEAD-001
 
 ### 2026-06-02 — [orquestracao] Reabordagem template LEAD-001 (AF49)
@@ -101,9 +120,10 @@ Não substitui `tasks/` (tarefas) nem `memoria/decisoes.md` (decisões formais).
 - **Detalhe:** Gargalo WA proativo · fluxo 2 etapas · `send_client_template` · LP-PINTOR-006
 - **Ref:** `memoria/caio_manteiga/templates_meta_wa.md`
 
-### 2026-06-02 — [erro] APROVAR 368D caiu no Caio (WA ID alternativo)
-- **Agente(s):** dev
-- **Detalhe:** Webhook veio de `553399353242` (não reconhecido como Vitor) → Caio respondeu “aprovada” sem enviar · corrigido `vitor_auth` + envio manual executado
+### 2026-06-02 — [resolvido] APROVAR 368D caiu no Caio (WA ID alternativo)
+- **Status:** resolvido
+- **Agente(s):** dev · vitor
+- **Detalhe:** (histórico) WA ID alternativo · `vitor_auth` corrigido · envio manual executado na época
 - **Ref:** LP-PINTOR-004 · approval 368D
 
 ### 2026-06-02 — [marco] Abordagem enviada LEAD-001 Stephanie Turnley
@@ -356,3 +376,23 @@ Criar uma oferta low ticket de página simples para pintores autônomos.
 ---
 
 <!-- Novos eventos acima desta linha -->
+
+### 2026-06-03 — [captacao] Reinício Donizete LP — LP-PINTOR-001
+- **Agente(s):** donizete_social
+- **Detalhe:** Rodada 2 · grupos via perfil (fb_meus_grupos/busca) · sem URL chutada
+- **Ref:** LP-PINTOR-001 · social_executor/README.md
+
+### 2026-06-03 — [captacao] Reinício Donizete LP — LP-PINTOR-001
+- **Agente(s):** donizete_social
+- **Detalhe:** Rodada 2 · grupos via perfil (fb_meus_grupos/busca) · sem URL chutada
+- **Ref:** LP-PINTOR-001 · social_executor/README.md
+
+### 2026-06-03 — [captacao] Reinício Donizete LP — LP-PINTOR-001
+- **Agente(s):** donizete_social
+- **Detalhe:** Rodada 2 · grupos via perfil (fb_meus_grupos/busca) · sem URL chutada
+- **Ref:** LP-PINTOR-001 · social_executor/README.md
+
+### 2026-06-03 — [captacao] Reinício Donizete LP — LP-PINTOR-001
+- **Agente(s):** donizete_social
+- **Detalhe:** Rodada 2 · grupos via perfil (fb_meus_grupos/busca) · sem URL chutada
+- **Ref:** LP-PINTOR-001 · social_executor/README.md

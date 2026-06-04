@@ -27,3 +27,8 @@ backend/data/autopilot_state.json
 backend/data/usage.jsonl
 backend/data/approvals.json
 backend/data/wa_processed_ids.json
+
+# Runtime — capturas de visão Donizete e logs/binários (não versionar)
+logs/donizete_fb_vision/
+logs/*.png
+logs/*.log

@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-012 |
-| **Status** | aguardando |
+| **Status** | arquivado (cancelada) |
 | **Dependências** | TASK-011 ✅ · PROJ-002 pausado |
 | **Iniciada em** | 2026-05-31 |
 | **Kanban** | tasks/aguardando.md |

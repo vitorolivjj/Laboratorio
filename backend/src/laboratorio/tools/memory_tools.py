@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from laboratorio.ops import memory_store
+from laboratorio.ops import memory_store, tool_bridge
 from laboratorio.tools.base import BaseTool, safe
 
 
@@ -22,7 +22,7 @@ class LerMemoriaTool(BaseTool):
 
     @safe
     def _run(self, name: str) -> str:
-        return memory_store.read_memory(name)
+        return tool_bridge.ler_memoria(name)
 
 
 class _DecisaoArgs(BaseModel):
@@ -40,7 +40,7 @@ class RegistrarDecisaoTool(BaseTool):
 
     @safe
     def _run(self, **kwargs) -> str:
-        return memory_store.registrar_decisao(**kwargs)
+        return tool_bridge.registrar_decisao(**kwargs)
 
 
 class _AprendizadoArgs(BaseModel):

@@ -32,6 +32,9 @@ def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
         agentes = _field(body, "Agente(s)")
         detalhe = _field(body, "Detalhe")
         ref = _field(body, "Ref")
+        status = _field(body, "Status").lower()
+        if tipo == "erro" and status == "resolvido":
+            tipo = "resolvido"
         blocks.append(
             {
                 "datetime": header_date,
@@ -40,6 +43,7 @@ def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
                 "agents": agentes,
                 "detail": detalhe,
                 "ref": ref,
+                "status": status,
             }
         )
         if len(blocks) >= limit:
@@ -50,6 +54,11 @@ def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
 def _field(body: str, key: str) -> str:
     m = re.search(rf"- \*\*{re.escape(key)}:\*\*\s*(.+)", body)
     return m.group(1).strip() if m else ""
+
+
+def event_is_open_error(ev: dict) -> bool:
+    """Erro ainda ativo no painel/patrulha (não resolvido)."""
+    return ev.get("type") == "erro" and ev.get("status", "").lower() != "resolvido"
 
 
 def parse_whatsapp_log(content: str, limit: int = 50) -> list[dict]:
@@ -298,6 +307,7 @@ def _normalize_agent_id(label: str) -> str:
 def count_kanban(tasks_dir: Path) -> dict[str, list[str]]:
     return {
         "executando": parsers_count(tasks_dir / "executando.md", "## Em andamento"),
+        "standby": parsers_count(tasks_dir / "standby.md", "## Em standby"),
         "planejando": parsers_count(tasks_dir / "planejando.md", "## Em planejamento"),
         "aguardando": parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas"),
         "backlog": parsers_count(tasks_dir / "backlog.md", "## Fila"),

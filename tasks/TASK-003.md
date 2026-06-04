@@ -2,7 +2,7 @@
 
 **ID:** TASK-003  
 **Projeto:** PROJ-001 (Laboratório multiagente)  
-**Status:** `concluido`  
+**Status:** `arquivado` (cancelada)  
 **Prioridade:** media  
 **Criada em:** 2026-05-28  
 **Atualizada em:** 2026-05-31 (E5 — auditoria Ronaldo · Actions OK)
@@ -146,7 +146,7 @@ Registro: [memoria/memoria_operacional_juarez.md](../memoria/memoria_operacional
 
 | Campo | Valor |
 |-------|-------|
-| **Status** | `concluido` |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | [concluidas.md](concluidas.md) |
 | **Bloqueios** | Nenhum |
 | **Rodada** | 1 — encerrada |

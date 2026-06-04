@@ -75,6 +75,14 @@ h1, h2, h3 { font-family: "Sora", sans-serif; letter-spacing: -0.02em; }
 .nav-item.active { color: var(--neon); background: rgba(79,156,255,0.1); border-color: var(--line-neon); }
 .nav-plantao { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 12px; color: var(--green) !important; }
 .nav-plantao:hover { background: rgba(52,211,153,0.08) !important; border-color: rgba(52,211,153,0.3) !important; }
+.nav-kanban { color: var(--neon-soft) !important; border: 1px solid rgba(79,156,255,0.22); margin-top: 4px; }
+.nav-kanban:hover { background: rgba(79,156,255,0.1) !important; border-color: var(--line-neon) !important; }
+.section-head--row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.btn-kanban-cta {
+  text-decoration: none; white-space: nowrap;
+  border-color: rgba(79,156,255,0.45); color: var(--neon-soft);
+}
+.btn-kanban-cta:hover { background: rgba(79,156,255,0.12); }
 .side-status { display: flex; align-items: center; gap: 9px; font-size: 0.75rem; color: var(--txt-faint); padding-top: 10px; border-top: 1px solid var(--line); margin-top: auto; flex-shrink: 0; }
 .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 7px var(--green); animation: pulse 2s infinite; }
 .pulse.warn  { background: var(--yellow); box-shadow: 0 0 7px var(--yellow); }

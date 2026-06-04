@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-022 |
-| **Status** | concluido |
+| **Status** | arquivado (cancelada) |
 | **Projeto** | PROJ-001 (transversal PROJ-002) |
 | **Prioridade** | **alta** |
 | **Agente responsável** | dev |

@@ -11,7 +11,9 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request, Response
 from fastapi.staticfiles import StaticFiles
 
+from laboratorio.api.routes.donizete import router as donizete_router
 from laboratorio.api.routes.maestro import router as maestro_router
+from laboratorio.api.routes.tasks import router as tasks_router
 from laboratorio.config import REPO_ROOT, load_env
 from laboratorio.whatsapp.handler import process_inbound_message
 from laboratorio.whatsapp.parser import InboundMessage, extract_text_messages
@@ -27,6 +29,8 @@ app = FastAPI(
 )
 
 app.include_router(maestro_router)
+app.include_router(donizete_router)
+app.include_router(tasks_router)
 
 PAINEL_DIR = REPO_ROOT / "frontend" / "painel-maestro"
 if PAINEL_DIR.is_dir():

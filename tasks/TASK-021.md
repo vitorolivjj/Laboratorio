@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **ID** | TASK-021 |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Projeto** | PROJ-002 |
 | **Prioridade** | alta |
 | **Agente responsável** | dev |

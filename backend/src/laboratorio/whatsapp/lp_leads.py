@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 
 from laboratorio.config import MEMORIA_DIR, REPO_ROOT
+from laboratorio.whatsapp.caio_session import mark_script_sent, was_script_sent
 from laboratorio.whatsapp.vitor_auth import normalize_wa_id
 
 CRM_LP = REPO_ROOT / "crm" / "crm_landing_pintor.md"
@@ -279,6 +280,7 @@ MENSAGEM DO LEAD:
 
 REGRAS:
 - APENAS texto WhatsApp, sem markdown, máx 4 linhas, tom humano brasileiro
+- UMA mensagem por vez — não repita abertura se o lead já recebeu template ou já respondeu antes
 - Zero jargão (não diga landing page, CMS, hospedagem)
 - NUNCA diga que a página já está ativa ou que recebeu pagamento — só se status CRM = ativo
 - Em aguardando_pix: NUNCA prometa ativar só porque o cliente pagou — confirme com equipe/Vitor primeiro
@@ -331,10 +333,19 @@ def try_lp_scripted_reply(from_wa_id: str, user_message: str) -> str | None:
 
     if stage == "abordado":
         if is_affirmative(msg):
+            if was_script_sent(from_wa_id, "entrega"):
+                return None
+            mark_script_sent(from_wa_id, "entrega")
             return script_entrega(lead)
         return None
 
     if stage in ("previa_no_ar", "outro"):
-        return script_abertura(lead)
+        # Abertura só uma vez — evita duplicar template Meta + script Caio
+        if was_script_sent(from_wa_id, "abertura"):
+            return None
+        if _GREETING.search(msg) or is_affirmative(msg) or len(msg) < 40:
+            mark_script_sent(from_wa_id, "abertura")
+            return script_abertura(lead)
+        return None
 
     return None

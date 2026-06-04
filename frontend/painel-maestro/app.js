@@ -134,15 +134,31 @@ function renderBriefing(data) {
     ? b.last_error
     : `Trabalhando agora: ${b.who_working.join(", ") || "ninguém"}`;
 
+  const db = o.donizete_busca || {};
+  const buscaMetric = db.active
+    ? {
+        lbl: "Donizete busca",
+        val: `${db.cycles ?? 0} ciclos`,
+        ok: true,
+        title: `${db.modo || ""} · ${db.last_group || ""}${db.stale_warning ? " · estado pode estar desatualizado" : ""}`,
+      }
+    : db.armed_vps
+      ? { lbl: "Donizete", val: "armado (Mac)", ok: false, warn: true }
+      : null;
+
   $("hero-metrics").innerHTML = [
     { lbl: "Em execução", val: o.wip_tasks, ok: true },
+    ...(o.standby_task_ids?.length
+      ? [{ lbl: "Standby", val: o.standby_task_ids.join(", "), ok: true, title: "Captura pausada no kanban" }]
+      : []),
+    ...(buscaMetric ? [buscaMetric] : []),
     { lbl: `Cadência ${o.cadence_min ?? "—"}min`, val: cadenceVal, ok: canStart, warn: !canStart },
     { lbl: "Sistema", val: o.system_online ? "OK" : "OFF", ok: o.system_online },
     { lbl: "VPS", val: o.vps_online ? "OK" : "OFF", ok: o.vps_online },
     { lbl: "WhatsApp", val: o.whatsapp_online ? "OK" : "OFF", ok: o.whatsapp_online },
     { lbl: "Msgs hoje", val: o.messages_today, ok: true },
   ].map((m) => `
-    <div class="metric-pill ${m.warn ? "warn" : m.ok ? "online" : ""}">
+    <div class="metric-pill ${m.warn ? "warn" : m.ok ? "online" : ""}" ${m.title ? `title="${esc(m.title)}"` : ""}>
       <span class="val">${esc(String(m.val))}</span>
       <span class="lbl">${esc(m.lbl)}</span>
     </div>`).join("");
@@ -151,7 +167,12 @@ function renderBriefing(data) {
     { q: "Sistema online?", a: o.vps_online && o.whatsapp_online ? "Sim — VPS e WhatsApp operacionais" : "Verificar infraestrutura", cls: o.vps_online && o.whatsapp_online ? "ok" : "error" },
     { q: "Quem está trabalhando?", a: b.who_working.length ? b.who_working.join(" · ") : "Ninguém ativo no momento", cls: b.who_working.length ? "ok" : "warn" },
     { q: "O que cada agente faz?", a: Object.entries(b.agent_tasks).map(([n, t]) => `${n}: ${t}`).join(" | ") || "Todos aguardando", cls: "ok" },
-    { q: "Tarefas pendentes?", a: b.pending_tasks.map((t) => `${t.id}${t.phase === "planejando" ? " (planejando)" : ""} → ${t.next}`).join(" · ") || "Nenhuma", cls: b.pending_count ? "warn" : "ok" },
+    { q: "Tarefas pendentes?", a: b.pending_tasks.map((t) => `${t.id}${t.phase === "planejando" ? " (planejando)" : t.phase === "standby" ? " (standby/captura)" : ""} → ${t.next}`).join(" · ") || "Nenhuma", cls: b.pending_count ? "warn" : "ok" },
+    ...(b.donizete_busca?.active ? [{
+      q: "Captura Facebook?",
+      a: `${b.donizete_busca.summary || "ativa"} · último ciclo ${b.donizete_busca.last_cycle_at || "—"}`,
+      cls: b.donizete_busca.stale_warning ? "warn" : "ok",
+    }] : []),
     { q: "Leads no CRM?", a: `${b.leads_total} lead(s) registrado(s)`, cls: "ok" },
     { q: "Caio respondeu?", a: b.caio_last_reply, cls: b.caio_last_reply.includes("Nenhuma") ? "warn" : "ok" },
     { q: "Teve erro?", a: b.had_error ? b.last_error : "Nenhum erro recente", cls: b.had_error ? "error" : "ok" },
@@ -170,9 +191,10 @@ function renderBriefing(data) {
     const taskHtml = taskStr
       ? ` · <span class="kanban-tasks" title="${esc(taskStr)}">${esc(taskStr)}</span>`
       : "";
+    const standbyActive = k === "standby" && (o.donizete_busca?.active || o.donizete_busca?.armed_vps);
     return `
-    <div class="kanban-chip ${k === "executando" ? "executando" : ""} ${k === "executando" && softMax && v.count > softMax ? "wip-full" : ""}" ${taskStr ? `title="${esc(taskStr)}"` : ""}>
-      <strong>${v.count}</strong> ${esc(k)}${taskHtml}
+    <div class="kanban-chip ${k === "executando" ? "executando" : ""} ${standbyActive ? "executando" : ""} ${k === "executando" && softMax && v.count > softMax ? "wip-full" : ""}" ${taskStr ? `title="${esc(taskStr)}"` : ""}>
+      <strong>${v.count}</strong> ${esc(k)}${taskHtml}${standbyActive ? " · captura" : ""}
     </div>`;
   }).join("");
 
@@ -635,6 +657,12 @@ function initMaestroConfig() {
   if (metricsLink && cfg.metricsDashboardPath) {
     metricsLink.href = cfg.metricsDashboardPath;
   }
+  const kanbanPath = cfg.tasksKanbanPath || "tasks.html";
+  const navKanban = $("nav-kanban-tasks");
+  const btnKanban = $("btn-open-kanban");
+  if (navKanban) navKanban.href = kanbanPath;
+  if (btnKanban) btnKanban.href = kanbanPath;
+
   const navMapa = $("nav-mapa-agentes");
   if (navMapa && cfg.miroBoardUrl) {
     navMapa.href = cfg.miroBoardUrl;

@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 import re
 import subprocess
-import threading
 import time
 from datetime import datetime, timezone
 from typing import Any
@@ -132,27 +131,25 @@ CRM_DIR = REPO_ROOT / "crm"
 PROJETOS_REGISTRY = REPO_ROOT / "projetos" / "projetos.md"
 CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.md"]
 
-# Cache em memória: evita reler arquivos + rodar systemctl a cada chamada de voz.
-_SNAPSHOT_CACHE: dict[str, Any] = {"data": None, "ts": 0.0}
+from laboratorio.ops.snapshot_cache import (
+    get_snapshot_cache,
+    invalidate_maestro_snapshot,
+    set_snapshot_cache,
+)
+
 _SNAPSHOT_TTL = float(os.getenv("MAESTRO_SNAPSHOT_TTL", "8"))
-_SNAPSHOT_LOCK = threading.Lock()
 
 
 def get_cached_snapshot(max_age: float | None = None) -> dict[str, Any]:
     """Snapshot com cache curto — ideal para respostas de voz de baixa latência."""
     ttl = _SNAPSHOT_TTL if max_age is None else max_age
     now = time.monotonic()
-    cached = _SNAPSHOT_CACHE["data"]
-    if cached is not None and (now - _SNAPSHOT_CACHE["ts"]) < ttl:
+    cached, ts = get_snapshot_cache()
+    if cached is not None and (now - ts) < ttl:
         return cached
-    with _SNAPSHOT_LOCK:
-        cached = _SNAPSHOT_CACHE["data"]
-        if cached is not None and (time.monotonic() - _SNAPSHOT_CACHE["ts"]) < ttl:
-            return cached
-        data = build_maestro_snapshot()
-        _SNAPSHOT_CACHE["data"] = data
-        _SNAPSHOT_CACHE["ts"] = time.monotonic()
-        return data
+    data = build_maestro_snapshot()
+    set_snapshot_cache(data)
+    return data
 
 AGENT_AVATARS: dict[str, str] = {
     "ronaldo_maestro": "ronaldo-maestro.png",
@@ -236,8 +233,21 @@ def build_maestro_snapshot() -> dict[str, Any]:
         t["phase"] = "executando"
     for t in planejando:
         t["phase"] = "planejando"
+    standby_tasks = parsers.parse_executando_tasks(
+        parsers.read_text(TASKS_DIR / "standby.md")
+    )
+    for t in standby_tasks:
+        t["phase"] = "standby"
     active_work = executando + planejando
     active_ids = [t["id"] for t in active_work]
+
+    donizete_busca: dict[str, Any] = {}
+    try:
+        from laboratorio.ops.donizete_runner import busca_snapshot_for_panel
+
+        donizete_busca = busca_snapshot_for_panel()
+    except Exception:
+        donizete_busca = {}
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
     kanban = parsers.count_kanban(TASKS_DIR)
@@ -252,9 +262,21 @@ def build_maestro_snapshot() -> dict[str, Any]:
     wa_online = _whatsapp_online(wa_log)
     vps_online = check_vps_service()
 
-    agents = _build_agents(active_work, events, wa_log, active_ids)
+    agents = _build_agents(
+        active_work, events, wa_log, active_ids, donizete_busca=donizete_busca
+    )
     estimated_cost, cost_is_real = _resolve_cost(messages_today, len(active_work))
-    briefing = _build_briefing(agents, active_work, wa_log, leads, last_error, vps_online, wa_online)
+    briefing = _build_briefing(
+        agents,
+        active_work,
+        wa_log,
+        leads,
+        last_error,
+        vps_online,
+        wa_online,
+        standby_tasks=standby_tasks,
+        donizete_busca=donizete_busca,
+    )
 
     exec_ids = [t["id"] for t in executando]
     cadence = _task_cadence(exec_ids)
@@ -275,7 +297,7 @@ def build_maestro_snapshot() -> dict[str, Any]:
     except Exception:
         lp_capture = {}
 
-    errors = [e for e in events if e["type"] == "erro"]
+    errors = [e for e in events if parsers.event_is_open_error(e)]
     # Alertas = só erros reais (marcos ficam em Eventos)
     alerts = errors[:8]
     # Teto opcional (WIP_SOFT_MAX); 0 = sem teto. Regra principal é a cadência.
@@ -351,6 +373,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
         "active_tasks": exec_ids,
         "planning_task_ids": [t["id"] for t in planejando],
         "lp_capture": lp_capture,
+        "donizete_busca": donizete_busca,
+        "standby_task_ids": [t["id"] for t in standby_tasks],
     }
     append_metric_from_overview(overview)
 
@@ -379,6 +403,11 @@ def build_maestro_snapshot() -> dict[str, Any]:
             _pending_task_entry(t, project_registry)
             for t in active_work
         ],
+        "standby_tasks": [
+            _pending_task_entry(t, project_registry)
+            for t in standby_tasks
+        ],
+        "donizete_busca": donizete_busca,
     }
 
 
@@ -492,6 +521,8 @@ def _build_agents(
     events: list[dict],
     wa_log: list[dict],
     active_ids: list[str],
+    *,
+    donizete_busca: dict[str, Any] | None = None,
 ) -> list[dict]:
     agent_tasks: dict[str, list[str]] = {}
     for task in active_work:
@@ -511,6 +542,16 @@ def _build_agents(
         if aid in agent_tasks:
             status = "executando"
             current_task = agent_tasks[aid][0]
+        elif aid == "donizete_social" and (donizete_busca or {}).get("active"):
+            status = "executando"
+            db = donizete_busca or {}
+            tid = db.get("active_task_id") or ""
+            standby = db.get("standby_tasks") or []
+            task_ref = tid or (standby[0] if standby else "busca intermitente")
+            grupo = db.get("last_group") or db.get("lock_group_url") or "—"
+            current_task = f"{task_ref}: captura · {db.get('cycles', 0)} ciclos · {grupo[:50]}"
+            last_action = db.get("summary", "Busca Donizete ativa")[:100]
+            last_update = (db.get("last_cycle_at") or "—")[:16]
         elif aid == "ronaldo_maestro" and active_work:
             status = "executando"
             current_task = f"Coordena {len(active_work)} TASK(s)"
@@ -568,6 +609,9 @@ def _build_briefing(
     last_error: str,
     vps_online: bool,
     wa_online: bool,
+    *,
+    standby_tasks: list[dict] | None = None,
+    donizete_busca: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     working = [a["name"] for a in agents if a["status"] in ("executando", "ativo")]
     idle = [a["name"] for a in agents if a["status"] == "aguardando"]
@@ -594,7 +638,17 @@ def _build_briefing(
                 "phase": t.get("phase", "executando"),
             }
             for t in active_work
+        ]
+        + [
+            {
+                "id": t["id"],
+                "title": t["title"],
+                "next": t.get("proxima_acao", "—"),
+                "phase": "standby",
+            }
+            for t in (standby_tasks or [])
         ],
+        "donizete_busca": donizete_busca or {},
         "leads_total": len(leads),
         "caio_last_reply": wa_log[0]["outbound"][:160] if wa_log else "Nenhuma conversa ainda",
         "caio_last_phone": wa_log[0]["phone"] if wa_log else "—",
@@ -621,7 +675,7 @@ def _last_error(events: list[dict], wa_log: list[dict]) -> str:
         if "erro" in entry.get("status", "").lower():
             return entry["status"][:200]
     for ev in events:
-        if ev["type"] == "erro":
+        if parsers.event_is_open_error(ev):
             return ev["title"]
     return "Nenhum erro recente"
 

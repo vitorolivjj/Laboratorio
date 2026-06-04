@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from laboratorio.ops import tasks_store
+from laboratorio.ops import tool_bridge
 from laboratorio.tools.base import BaseTool, safe
 
 
@@ -14,7 +14,7 @@ class ListarTasksTool(BaseTool):
 
     @safe
     def _run(self) -> str:
-        return tasks_store.list_tasks()
+        return tool_bridge.list_tasks()
 
 
 class _CriarTaskArgs(BaseModel):
@@ -33,16 +33,17 @@ class CriarTaskTool(BaseTool):
 
     @safe
     def _run(self, **kwargs) -> str:
-        return tasks_store.create_task(**kwargs)
+        return tasks_store.create_task(**kwargs)  # create stays in tasks_store
 
 
 class _MoverTaskArgs(BaseModel):
     task_id: str = Field(..., description="ID da TASK, ex.: TASK-012")
     to_state: str = Field(
         ...,
-        description="Destino: backlog | planejando | executando | aguardando | concluidas | arquivado",
+        description="Destino: backlog | planejando | executando | standby | aguardando | concluidas | arquivado",
     )
     nota: str = Field("", description="Nota opcional sobre a movimentação")
+    force: bool = Field(False, description="Ignora gate de briefing (só com autorização)")
 
 
 class MoverTaskTool(BaseTool):
@@ -51,5 +52,5 @@ class MoverTaskTool(BaseTool):
     args_schema: type[BaseModel] = _MoverTaskArgs
 
     @safe
-    def _run(self, task_id: str, to_state: str, nota: str = "") -> str:
-        return tasks_store.move_task(task_id, to_state, nota)
+    def _run(self, task_id: str, to_state: str, nota: str = "", force: bool = False) -> str:
+        return tool_bridge.move_task(task_id, to_state, nota, force=force)

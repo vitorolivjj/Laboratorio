@@ -6,7 +6,7 @@
 |-------|-------|
 | **ID** | LP-PINTOR-005 |
 | **Projeto** | PROJ-LP |
-| **Status** | backlog |
+| **Status** | arquivado (cancelada) |
 | **Kanban** | tasks/backlog.md |
 | **Agente responsável** | ronaldo_maestro |
 | **Criada em** | 2026-05-31 |
