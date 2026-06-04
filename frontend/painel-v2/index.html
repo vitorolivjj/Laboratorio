@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Operação ao vivo — protótipo v2</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+        keyframes: {
+          slidein: { "0%": { opacity: 0, transform: "translateY(-8px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
+          pingsoft: { "0%": { transform: "scale(1)", opacity: 0.6 }, "100%": { transform: "scale(2.2)", opacity: 0 } },
+        },
+        animation: { slidein: "slidein .35s cubic-bezier(.22,1,.36,1)", pingsoft: "pingsoft 1.8s ease-out infinite" },
+      },
+    },
+  };
+</script>
+<style>
+  body { background: #0a0c10; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 99px; }
+</style>
+</head>
+<body class="font-sans text-slate-200 antialiased">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ---- agentes (cores calmas, 1 por papel) ----
+const AGENTS = {
+  ronaldo:  { name: "Ronaldo",  role: "Maestro",     color: "#60a5fa", model: "gpt-5" },
+  caio:     { name: "Caio",     role: "Comercial",   color: "#34d399", model: "claude-sonnet" },
+  donizete: { name: "Donizete", role: "Captura",     color: "#f59e0b", model: "claude-haiku" },
+  dev:      { name: "Dev",      role: "Software",    color: "#a78bfa", model: "claude-sonnet" },
+  juarez:   { name: "Juarez",   role: "Backoffice",  color: "#22d3ee", model: "claude-haiku" },
+  loide:    { name: "Loide",    role: "UX",          color: "#f472b6", model: "claude-sonnet" },
+};
+
+// ---- pool de atividades realistas (o que o trace real registra) ----
+const STREAM = [
+  { a: "donizete", tool: "fb_analisar_posts", txt: "analisou 14 posts no grupo “Pintores SP — Zona Leste”" },
+  { a: "donizete", tool: "fb_qualificar_perfil", txt: "qualificou perfil de João P. — score 7/10 (lead quente)" },
+  { a: "donizete", tool: "adicionar_lead_lp", txt: "adicionou LEAD-064 ao CRM LP · cidade: Suzano" },
+  { a: "caio", tool: "enviar_whatsapp", txt: "respondeu +55 11 9••••-3271 — “Bom dia! Sobre o orçamento da fachada…”" },
+  { a: "caio", tool: "atualizar_status_lead", txt: "moveu LEAD-058 → em negociação (PIX combinado)" },
+  { a: "ronaldo", tool: "mover_task", txt: "moveu TASK-046 → executando (delegou ao Dev)" },
+  { a: "ronaldo", tool: "registrar_decisao", txt: "registrou decisão: priorizar captação na Zona Leste essa semana" },
+  { a: "dev", tool: "registrar_aprendizado", txt: "registrou aprendizado: rate-limit da Graph API → backoff 5s" },
+  { a: "juarez", tool: "listar_tasks", txt: "revisou o kanban — 1 em execução, 3 no backlog" },
+  { a: "donizete", tool: "fb_ciclo_navegacao", txt: "iniciou ciclo de navegação — rolando feed do grupo" },
+  { a: "loide", tool: "—", txt: "propôs ajuste de microcopy no CTA da LP do pintor" },
+  { a: "caio", tool: "enviar_whatsapp", txt: "enviou follow-up para 2 leads sem resposta há 24h" },
+  { a: "ronaldo", tool: "criar_task", txt: "criou TASK-047 — “Publicar prévia LP do João”" },
+  { a: "donizete", tool: "fb_stalk", txt: "capturou contato público de Maria S. (pintora, Mogi)" },
+];
+
+function rel(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 5) return "agora";
+  if (s < 60) return s + "s";
+  if (s < 3600) return Math.floor(s / 60) + "min";
+  return Math.floor(s / 3600) + "h";
+}
+
+function Avatar({ id, size = 34 }) {
+  const ag = AGENTS[id];
+  return (
+    <div style={{ width: size, height: size, background: ag.color + "22", color: ag.color, borderColor: ag.color + "55" }}
+      className="rounded-full border flex items-center justify-center font-bold shrink-0"
+    >
+      <span style={{ fontSize: size * 0.4 }}>{ag.name[0]}</span>
+    </div>
+  );
+}
+
+function LiveDot({ color = "#34d399" }) {
+  return (
+    <span className="relative inline-flex h-2 w-2">
+      <span style={{ background: color }} className="absolute inline-flex h-full w-full rounded-full animate-pingsoft" />
+      <span style={{ background: color }} className="relative inline-flex h-2 w-2 rounded-full" />
+    </span>
+  );
+}
+
+// ---- card de sinal (o que você deveria ver) ----
+function Signal({ label, value, sub, tone = "slate", bar }) {
+  const tones = {
+    slate: "text-slate-100", green: "text-emerald-400", amber: "text-amber-400", red: "text-rose-400", blue: "text-sky-400",
+  };
+  return (
+    <div className="rounded-2xl bg-slate-900/60 border border-white/5 p-4">
+      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div>
+      <div className={"mt-1 text-2xl font-bold tabular-nums " + tones[tone]}>{value}</div>
+      {bar != null && (
+        <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
+          <div className="h-full rounded-full" style={{ width: Math.min(100, bar) + "%", background: bar > 80 ? "#fb7185" : "#34d399" }} />
+        </div>
+      )}
+      {sub && <div className="mt-1.5 text-xs text-slate-500">{sub}</div>}
+    </div>
+  );
+}
+
+function App() {
+  const [now, setNow] = useState(Date.now());
+  const [feed, setFeed] = useState(() =>
+    STREAM.slice(0, 6).map((s, i) => ({ ...s, id: i, ts: Date.now() - i * 9000 }))
+  );
+  const idRef = useRef(100);
+
+  // relógio + tempo relativo
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // stream ao vivo: novo item a cada 2.5–4.5s
+  useEffect(() => {
+    let alive = true;
+    function push() {
+      if (!alive) return;
+      const s = STREAM[Math.floor(Math.random() * STREAM.length)];
+      setFeed((f) => [{ ...s, id: idRef.current++, ts: Date.now() }, ...f].slice(0, 40));
+      setTimeout(push, 2500 + Math.random() * 2000);
+    }
+    const k = setTimeout(push, 2200);
+    return () => { alive = false; clearTimeout(k); };
+  }, []);
+
+  // quem está "ativo agora" = apareceu nos últimos 12s
+  const activeIds = new Set(feed.filter((x) => now - x.ts < 12000).map((x) => x.a));
+  const lastByAgent = {};
+  feed.forEach((x) => { if (!lastByAgent[x.a]) lastByAgent[x.a] = x; });
+
+  return (
+    <div className="min-h-screen max-w-[1400px] mx-auto px-5 sm:px-8 py-6">
+      {/* header */}
+      <header className="flex items-center justify-between gap-4 flex-wrap mb-6">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <LiveDot />
+            <h1 className="text-xl font-extrabold text-white tracking-tight">Operação ao vivo</h1>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">Laboratório · 6 agentes</span>
+          </div>
+          <p className="text-sm text-slate-500 mt-0.5">O que os agentes estão fazendo, em tempo real.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <div className="font-mono text-sm text-slate-300 tabular-nums">{new Date(now).toLocaleTimeString("pt-BR")}</div>
+            <div className="text-[11px] text-emerald-400 flex items-center gap-1 justify-end"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> sistema online</div>
+          </div>
+        </div>
+      </header>
+
+      {/* sinais (o que você deveria ver) */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+        <Signal label="Custo hoje" value="US$ 2,40" sub="de US$ 5,00 (teto)" tone="green" bar={48} />
+        <Signal label="Mensagens hoje" value="18" sub="WhatsApp · Caio" tone="blue" />
+        <Signal label="Leads hoje" value="6" sub="captados pelo Donizete" tone="slate" />
+        <Signal label="Tasks travadas" value="0" sub="nada parado > 12h" tone="green" />
+        <Signal label="Último erro" value="—" sub="sem erros recentes" tone="slate" />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* FEED ao vivo — o centro */}
+        <section className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><LiveDot /> Atividade ao vivo</h2>
+            <span className="text-xs text-slate-500">últimas ações · atualiza sozinho</span>
+          </div>
+          <div className="space-y-2 max-h-[62vh] overflow-y-auto pr-1">
+            {feed.map((x, i) => {
+              const ag = AGENTS[x.a];
+              const fresh = now - x.ts < 4000;
+              return (
+                <div key={x.id}
+                  className={"flex items-start gap-3 rounded-2xl border p-3 transition " +
+                    (fresh ? "border-emerald-500/30 bg-emerald-500/[0.04] animate-slidein" : "border-white/5 bg-slate-900/40")}
+                  style={{ opacity: i > 14 ? 0.55 : 1 }}
+                >
+                  <Avatar id={x.a} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-sm" style={{ color: ag.color }}>{ag.name}</span>
+                      <span className="text-[10px] text-slate-500">{ag.role}</span>
+                      {x.tool !== "—" && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">{x.tool}</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-300 mt-0.5 leading-snug">{x.txt}</p>
+                  </div>
+                  <span className="font-mono text-[11px] text-slate-500 shrink-0 tabular-nums">{rel(x.ts)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* lado direito: agentes + captação */}
+        <aside className="space-y-6">
+          <div>
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">Agentes agora</h2>
+            <div className="space-y-2">
+              {Object.keys(AGENTS).map((id) => {
+                const ag = AGENTS[id];
+                const active = activeIds.has(id);
+                const last = lastByAgent[id];
+                return (
+                  <div key={id} className={"flex items-center gap-3 rounded-2xl border p-3 " + (active ? "border-white/10 bg-slate-900/70" : "border-white/5 bg-slate-900/30")}>
+                    <div className="relative">
+                      <Avatar id={id} size={36} />
+                      {active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={ag.color} /></span>}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm text-slate-100">{ag.name}</span>
+                        <span className={"text-[10px] px-1.5 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : "bg-white/5 text-slate-500")}>
+                          {active ? "trabalhando" : "ocioso"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 truncate">{active && last ? last.txt : "aguardando"}</p>
+                    </div>
+                    <span className="font-mono text-[10px] text-slate-600 shrink-0">{ag.model}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Captação Donizete ao vivo */}
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <LiveDot color="#f59e0b" />
+              <h3 className="text-sm font-bold text-amber-300">Captação Donizete</h3>
+              <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">ATIVA</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div><div className="text-xl font-bold text-amber-300 tabular-nums">23</div><div className="text-[10px] text-slate-500">ciclos</div></div>
+              <div><div className="text-xl font-bold text-amber-300 tabular-nums">6</div><div className="text-[10px] text-slate-500">leads hoje</div></div>
+              <div><div className="text-xl font-bold text-amber-300 tabular-nums">7,4</div><div className="text-[10px] text-slate-500">score médio</div></div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2.5 truncate">grupo: <span className="text-slate-300">Pintores SP — Zona Leste</span></p>
+          </div>
+        </aside>
+      </div>
+
+      <footer className="mt-8 text-center text-xs text-slate-600">
+        Protótipo v2 · dados simulados · a versão real lê do trace <span className="font-mono text-slate-500">/api/maestro/interactions</span> + snapshot
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
