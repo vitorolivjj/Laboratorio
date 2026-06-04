@@ -57,6 +57,20 @@ def _maybe_start_autopilot() -> None:
         logger.warning("Não foi possível iniciar o autopilot: %s", exc)
 
 
+@app.on_event("startup")
+def _security_advisory() -> None:
+    """Alerta (não bloqueia) quando defesas estão desligadas — visível no log."""
+    if not os.getenv("MAESTRO_API_TOKEN", "").strip():
+        logger.warning(
+            "MAESTRO_API_TOKEN ausente — /api/maestro e /api/tasks estão ABERTAS. "
+            "Defina MAESTRO_API_TOKEN em produção (painel envia ?token=... uma vez)."
+        )
+    if not os.getenv("META_APP_SECRET", "").strip():
+        logger.warning(
+            "META_APP_SECRET ausente — assinatura do webhook WhatsApp NÃO é verificada."
+        )
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "whatsapp-caio"}

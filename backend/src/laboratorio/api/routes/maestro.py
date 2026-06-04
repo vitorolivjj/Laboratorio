@@ -2,9 +2,10 @@
 
 from pydantic import BaseModel, Field
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 
+from laboratorio.api.auth import require_panel_token
 from laboratorio.ops import usage
 from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
@@ -13,7 +14,11 @@ from laboratorio.ops.ronaldo_tts import synthesize_speech
 from laboratorio.ops.ronaldo_voice import generate_ronaldo_voice_reply
 from laboratorio.ops.ronaldo_voice_history import list_voice_history
 
-router = APIRouter(prefix="/api/maestro", tags=["maestro"])
+router = APIRouter(
+    prefix="/api/maestro",
+    tags=["maestro"],
+    dependencies=[Depends(require_panel_token)],
+)
 
 
 class RonaldoCommandBody(BaseModel):

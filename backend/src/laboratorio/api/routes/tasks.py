@@ -4,14 +4,19 @@ from __future__ import annotations
 
 import os
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from laboratorio.api.auth import require_panel_token
 from laboratorio.ops import task_kanban_api
 from laboratorio.ops.maestro import build_maestro_snapshot
 from laboratorio.ops.snapshot_cache import invalidate_maestro_snapshot
 
-router = APIRouter(prefix="/api/tasks", tags=["tasks"])
+router = APIRouter(
+    prefix="/api/tasks",
+    tags=["tasks"],
+    dependencies=[Depends(require_panel_token)],
+)
 
 
 class CreateTaskBody(BaseModel):
