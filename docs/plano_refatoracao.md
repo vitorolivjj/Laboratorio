@@ -20,15 +20,18 @@
 | 6 — Migração banco (1-2, 4-5) | ✅ **aplicado no Supabase** + verify + flip de leitura | `fase 6` |
 | 6 — degrau 3 (escrita dupla) | ✅ **tempo real** (dual_write) + timer de segurança | `banco fonte de verdade` |
 | Funil de lead no banco | ✅ `lab_crm_segments` + CrmRepository | `funil de lead no banco` |
-| 7.3 — consolidação config | ✅ `use_postgres()` (parcial) | `fase 7` |
-| 7.4 — Observabilidade (maestro) | ✅ feito + smoke da god function | `fase 7.4 (parcial)` |
-| 7.1 — orquestração | ✅ **ADR** (decisão: fronteira clara, não unificar) | `fase 7 (adr)` |
+| 7.1 — orquestração | ✅ **ADR** (fronteira clara) + **cost gate no autopilot** | `fase 7 (adr)` + `fase 7.1` |
 | 7.2 — CLI registry | ✅ `main()` if/elif → dispatch + 22 handlers | `fase 7.2` |
-| 7.3/7.4 — restos | 🟡 parcial (`use_postgres`, observabilidade maestro feitos; `Settings` completo e demais `except: pass` deixados — marginais) | — |
-| 7.1 — execução (autopilot→LangGraph) | ⏳ deferido (muda custo da automação — decisão sua) | — |
+| 7.3 — Settings | ✅ **completo** (pydantic-settings, adotado no core data/db/segurança) | `fase 7.3` |
+| 7.4 — Observabilidade | ✅ maestro + smoke; 🟡 demais `except: pass` deixados (marginais) | `fase 7.4` |
 
-Cobertura: **37 testes**. `laboratorio check` saindo 0. Tudo em commits separados
+Cobertura: **40 testes**. `laboratorio check` saindo 0. Tudo em commits separados
 sobre o `checkpoint` (revertível); comportamento do app preservado (default `markdown`).
+
+> **Nota 7.1:** o swap literal autopilot→`run_pilot` foi **evitado** — o piloto
+> LangGraph só gera relatório (sem ferramentas/multi-agente) e regrediria o
+> autopilot. Em vez disso, trouxe o benefício real do LangGraph (cost gate) pro
+> autopilot, opt-in via `AUTOPILOT_DAILY_BUDGET_USD`.
 
 **Migração markdown→Postgres APLICADA e provada**, banco como cópia autoritativa
 sempre-atual (escrita dupla). Operação/sync/rollback em
