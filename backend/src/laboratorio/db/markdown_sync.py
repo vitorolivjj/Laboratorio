@@ -57,8 +57,13 @@ def collect_markdown() -> dict:
     }
 
 
-def apply_to_db(data: dict) -> None:
-    """Upsert idempotente no Postgres (requer migration aplicada)."""
+def apply_to_db(data: dict, *, mirror: bool = False) -> None:
+    """Upsert idempotente no Postgres (requer migration aplicada).
+
+    `mirror=True`: além do upsert, remove do banco os registros id-keyed
+    (projetos/tasks/leads) que não existem mais no markdown — mantém o banco
+    como espelho exato. Eventos/decisões são append-only (não removidos).
+    """
     from laboratorio.db.core import connection, missing_core_tables
 
     missing = missing_core_tables()
@@ -137,6 +142,19 @@ def apply_to_db(data: dict) -> None:
                 (d.get("title"), d.get("date"), d.get("body"),
                  _hash(d.get("title"), d.get("date"), d.get("body"))),
             )
+
+        if mirror:
+            # Remove do banco o que não está mais no markdown (id-keyed).
+            for table, rows in (
+                ("lab_projects", data["projects"]),
+                ("lab_tasks", data["tasks"]),
+                ("lab_leads", data["leads"]),
+            ):
+                ids = list({r["id"] for r in rows})
+                if ids:
+                    cur.execute(f"delete from {table} where id <> all(%s)", (ids,))
+                else:
+                    cur.execute(f"delete from {table}")
 
 
 def db_counts() -> dict[str, int]:

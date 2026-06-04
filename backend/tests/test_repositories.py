@@ -53,3 +53,39 @@ def test_factory_selects_by_env(monkeypatch):
     # Postgres só é instanciado (não conecta — conexão é lazy).
     monkeypatch.setenv("DATA_BACKEND", "postgres")
     assert isinstance(get_task_repository(), PostgresTaskRepository)
+
+
+def test_project_repository(monkeypatch):
+    from laboratorio.repositories.projects import (
+        MarkdownProjectRepository,
+        PostgresProjectRepository,
+        get_project_repository,
+    )
+
+    monkeypatch.delenv("DATA_BACKEND", raising=False)
+    repo = get_project_repository()
+    assert isinstance(repo, MarkdownProjectRepository)
+    projs = repo.all()
+    assert projs and all("id" in p and "name" in p for p in projs)
+    monkeypatch.setenv("DATA_BACKEND", "postgres")
+    assert isinstance(get_project_repository(), PostgresProjectRepository)
+
+
+def test_lead_repository(monkeypatch):
+    from laboratorio.repositories.leads import MarkdownLeadRepository, get_lead_repository
+
+    monkeypatch.delenv("DATA_BACKEND", raising=False)
+    repo = get_lead_repository()
+    assert isinstance(repo, MarkdownLeadRepository)
+    leads = repo.all()
+    assert all("id" in lead and "segment" in lead for lead in leads)
+
+
+def test_event_repository(monkeypatch):
+    from laboratorio.repositories.events import MarkdownEventRepository, get_event_repository
+
+    monkeypatch.delenv("DATA_BACKEND", raising=False)
+    repo = get_event_repository()
+    assert isinstance(repo, MarkdownEventRepository)
+    evs = repo.recent(limit=5)
+    assert isinstance(evs, list) and len(evs) <= 5

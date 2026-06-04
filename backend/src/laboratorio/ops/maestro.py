@@ -27,6 +27,8 @@ from laboratorio.config import (
 from laboratorio.ops import parsers, usage
 from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro_metrics import append_metric_from_overview
+from laboratorio.repositories.events import get_event_repository
+from laboratorio.repositories.projects import get_project_repository
 from laboratorio.repositories.tasks import get_task_repository
 
 CADENCE_STATE = LOGS_DIR / "task_cadence_state.json"
@@ -213,11 +215,11 @@ AGENT_CATALOG: list[dict[str, str]] = [
 def build_maestro_snapshot() -> dict[str, Any]:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    events = parsers.parse_event_blocks(parsers.read_text(LOGS_DIR / "eventos.md"))
+    events = get_event_repository().recent()
     wa_log = parsers.parse_whatsapp_log(
         parsers.read_text(LOGS_DIR / "whatsapp_mensagens.md")
     )
-    project_registry = parsers.parse_projects_registry(parsers.read_text(PROJETOS_REGISTRY))
+    project_registry = get_project_repository().all()
     # Índice de projetos construído UMA vez e reaproveitado (antes refeito por task).
     proj_index = parsers._build_project_index(project_registry)
     proj_by_id = {p["id"]: p for p in project_registry}

@@ -29,6 +29,11 @@ from laboratorio.db.markdown_sync import apply_to_db, collect_markdown  # noqa: 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Backfill markdown -> Postgres (lab_*)")
     ap.add_argument("--apply", action="store_true", help="Grava no banco (default: dry-run)")
+    ap.add_argument(
+        "--mirror",
+        action="store_true",
+        help="Espelho exato: remove do banco projetos/tasks/leads ausentes no markdown",
+    )
     args = ap.parse_args()
 
     load_env()
@@ -41,8 +46,9 @@ def main() -> None:
         print("\n(dry-run — nada gravado. Use --apply para gravar no banco.)")
         return
 
-    apply_to_db(data)
-    print("\n✓ Gravado no banco (idempotente — pode rodar de novo).")
+    apply_to_db(data, mirror=args.mirror)
+    extra = " (espelho — removeu o que sumiu do markdown)" if args.mirror else ""
+    print(f"\n✓ Gravado no banco{extra}.")
 
 
 if __name__ == "__main__":

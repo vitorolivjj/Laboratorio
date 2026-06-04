@@ -28,19 +28,40 @@ def db_enabled() -> bool:
 
 @contextmanager
 def connection() -> Iterator["object"]:
-    """Conexão psycopg autocommit. Levanta se SUPABASE_DB_URL ausente."""
+    """Conexão psycopg autocommit, com timeout curto e retry.
+
+    Supabase resolve para IPv6 e IPv4; em redes onde o IPv6 é instável a 1ª
+    tentativa pode estourar. `connect_timeout` falha rápido e o retry tenta de
+    novo (em geral cai no IPv4). Levanta se SUPABASE_DB_URL ausente.
+    """
     import os
+    import time
 
     import psycopg
 
     url = supabase_db_url()
     if not url:
         raise RuntimeError("SUPABASE_DB_URL não configurado no backend/.env")
-    # connect_timeout curto: se o host resolver para IPv6 inacessível, falha
-    # rápido e tenta o próximo endereço (IPv4) em vez de pendurar no SO.
-    timeout = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
-    with psycopg.connect(url, autocommit=True, connect_timeout=timeout) as conn:
+    timeout = int(os.getenv("DB_CONNECT_TIMEOUT", "8"))
+    attempts = max(1, int(os.getenv("DB_CONNECT_RETRIES", "3")))
+
+    conn = None
+    last_exc: Exception | None = None
+    for i in range(attempts):
+        try:
+            conn = psycopg.connect(url, autocommit=True, connect_timeout=timeout)
+            break
+        except psycopg.OperationalError as exc:
+            last_exc = exc
+            if i < attempts - 1:
+                time.sleep(1)
+    if conn is None:
+        raise last_exc if last_exc else RuntimeError("falha ao conectar no banco")
+
+    try:
         yield conn
+    finally:
+        conn.close()
 
 
 def missing_core_tables() -> list[str]:

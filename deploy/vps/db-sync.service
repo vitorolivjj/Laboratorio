@@ -1,0 +1,15 @@
+[Unit]
+Description=Sincroniza markdown -> Postgres (tabelas lab_*) em modo espelho
+After=network-online.target laboratorio-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=laboratorio
+Group=laboratorio
+WorkingDirectory=/opt/laboratorio/Laboratorio
+ExecStart=/opt/laboratorio/Laboratorio/backend/.venv/bin/python scripts/backfill_markdown_to_db.py --apply --mirror
+Nice=15
+
+[Install]
+WantedBy=multi-user.target
