@@ -35,3 +35,33 @@ def test_re_split_agents():
     assert re_split_agents("dev; dev") == ["dev", "dev"]  # duplicatas preservadas
     assert re_split_agents("juarez · fulano") == ["juarez"]  # desconhecido ignorado
     assert re_split_agents("") == []
+
+
+def test_build_maestro_snapshot_smoke(monkeypatch):
+    """Fumaça da god function: monta o snapshot real sem explodir nem escrever.
+
+    Neutraliza efeitos colaterais (métricas, subprocess systemctl, cadência) e
+    confere a estrutura de topo. Roda contra os arquivos reais do repo (leitura).
+    """
+    from laboratorio.ops import maestro
+
+    monkeypatch.setattr(maestro, "append_metric_from_overview", lambda *a, **k: None)
+    monkeypatch.setattr(maestro, "check_vps_service", lambda: True)
+    monkeypatch.setattr(
+        maestro,
+        "_task_cadence",
+        lambda ids: {
+            "interval_min": 2, "minutes_since_last": None, "can_start_next": True,
+            "next_start_in_min": 0, "last_task": None, "violation": False,
+        },
+    )
+
+    snap = maestro.build_maestro_snapshot()
+
+    for key in (
+        "generated_at", "overview", "agents", "projects", "crms",
+        "kanban", "leads", "logs", "delegations", "pending_tasks",
+    ):
+        assert key in snap, f"chave ausente: {key}"
+    assert isinstance(snap["agents"], list) and len(snap["agents"]) == 6
+    assert "system_online" in snap["overview"]

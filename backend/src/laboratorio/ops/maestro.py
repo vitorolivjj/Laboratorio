@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import subprocess
@@ -28,6 +29,8 @@ from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro_metrics import append_metric_from_overview
 
 CADENCE_STATE = LOGS_DIR / "task_cadence_state.json"
+
+logger = logging.getLogger("laboratorio.ops.maestro")
 
 
 def _task_cadence(executando_ids: list[str]) -> dict[str, Any]:
@@ -249,7 +252,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
         from laboratorio.ops.donizete_runner import busca_snapshot_for_panel
 
         donizete_busca = busca_snapshot_for_panel()
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 — snapshot nunca quebra por um sub-bloco
+        logger.warning("Snapshot Donizete indisponível: %s", exc)
         donizete_busca = {}
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
@@ -299,7 +303,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
             "folders": len(cr.folders),
             "summary": cr.summary_line(),
         }
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 — bloco LP é opcional no painel
+        logger.warning("Captura LP indisponível no snapshot: %s", exc)
         lp_capture = {}
 
     errors = [e for e in events if parsers.event_is_open_error(e)]
@@ -717,8 +722,8 @@ def _resolve_cost(messages_today: int, active_work: int) -> tuple[float, bool]:
         summary = usage.summarize()
         if summary.get("total_cost_usd"):
             return round(float(summary["total_cost_usd"]), 3), True
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as exc:  # noqa: BLE001 — cai para estimativa heurística
+        logger.warning("Custo real indisponível, usando estimativa: %s", exc)
     return round(messages_today * 0.012 + active_work * 0.05, 3), False
 
 
