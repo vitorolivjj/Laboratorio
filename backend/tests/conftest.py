@@ -2,6 +2,7 @@
 
 import os
 
-# Desliga a escrita dupla nos testes — não deve tocar no banco real ao
-# exercitar create_task/move_task/add_lead etc. com diretórios temporários.
+# Testes isolados do banco real: leitura sempre markdown e sem escrita dupla,
+# independentemente do que estiver no .env (ex.: DATA_BACKEND=postgres em prod).
 os.environ["DB_DUAL_WRITE"] = "0"
+os.environ["DATA_BACKEND"] = "markdown"
