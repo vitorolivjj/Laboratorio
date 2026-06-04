@@ -16,20 +16,19 @@
 | 1 — Tirar duplicação | ✅ feito | `fase 1` |
 | 3 — Segurança | ✅ feito (maestro+tasks; donizete já tinha) | `fase 3` |
 | 4 — Concorrência + cache | ✅ feito | `fase 4` |
-| 6 — Migração banco (degraus 1-2) | ✅ schema + backfill (dry-run ok) | `fase 6 (fundacao)` |
+| 5 — Camada de repositório | ✅ TaskRepository (fatia tasks) | `fase 5` |
+| 6 — Migração banco (1-2, 4-5) | ✅ **aplicado no Supabase** + verify + flip de leitura | `fase 6` |
 | 7.4 — Observabilidade (maestro) | ✅ feito + smoke da god function | `fase 7.4 (parcial)` |
-| 5 — Camada de repositório | ⏳ pendente | — |
-| 6 — Migração banco (degraus 3-5) | ⏳ pendente (precisa banco ligado) | — |
+| 6 — degrau 3 (escrita dupla) | ⏳ pendente (manter banco fresco) | — |
+| 5 — repositório p/ leads/eventos | ⏳ pendente (hoje só tasks lê do banco) | — |
 | 7.2/7.3 + resto do 7.4 | ⏳ pendente (CLI registry, Settings, demais except: pass) | — |
 
-Cobertura de testes: **31 testes** (era 1 quebrado + 16). `laboratorio check` saindo 0.
+Cobertura: **33 testes**. `laboratorio check` saindo 0. Tudo em commits separados
+sobre o `checkpoint` (revertível por fase); nenhuma mudança de comportamento.
 
-Tudo em commits separados sobre o `checkpoint` (revertível por fase). Nenhuma
-mudança de comportamento; testes verdes a cada passo.
-
-**Para ativar o banco (quando quiser):** aplicar a migration
-`supabase/migrations/20260604120000_lab_core_tables.sql` e rodar
-`python scripts/backfill_markdown_to_db.py --apply`.
+**Migração markdown→Postgres APLICADA e provada** — operação, sincronização e
+rollback em [migracao_banco.md](migracao_banco.md). Default segue `markdown`;
+ligue a leitura do banco com `DATA_BACKEND=postgres`.
 
 ---
 
