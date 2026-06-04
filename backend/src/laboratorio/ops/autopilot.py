@@ -161,6 +161,46 @@ def _advance_task(task: dict) -> str:
     return output
 
 
+def _budget_gate(state: dict) -> bool:
+    """Cost gate diário (convergência com o cost_gate do LangGraph).
+
+    True = pode trabalhar. Se o custo de HOJE passou de AUTOPILOT_DAILY_BUDGET_USD
+    (>0), pausa o ciclo e notifica o Vitor 1x/dia (mesma notify_vitor do piloto).
+    Default 0 = sem teto (não muda o comportamento atual; é opt-in).
+    """
+    from laboratorio.settings import get_settings
+
+    budget = get_settings().autopilot_daily_budget_usd
+    if budget <= 0:
+        return True
+
+    from laboratorio.ops import usage
+
+    try:
+        today_cost = float(usage.summarize().get("today_cost_usd") or 0)
+    except Exception:  # noqa: BLE001 — observabilidade não bloqueia o piloto
+        return True
+    if today_cost < budget:
+        return True
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if state.get("__budget_notified__") != today:
+        try:
+            from laboratorio.whatsapp.notify import notify_vitor
+
+            notify_vitor(
+                "Autopilot pausado — orçamento do dia",
+                f"Custo de hoje US$ {today_cost:.2f} ≥ orçamento US$ {budget:.2f}. "
+                "Pausa até o custo cair (ou aumente AUTOPILOT_DAILY_BUDGET_USD).",
+                ref="autopilot",
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Falha ao notificar orçamento do autopilot: %s", exc)
+        state["__budget_notified__"] = today
+    logger.info("Autopilot pausado por orçamento: hoje US$ %.2f ≥ US$ %.2f", today_cost, budget)
+    return False
+
+
 def run_cycle() -> dict:
     """Executa um ciclo: trabalha até AUTOPILOT_MAX_TASKS TASKs em execução."""
     load_env()
@@ -174,6 +214,15 @@ def run_cycle() -> dict:
         parsers.read_text(TASKS_DIR / "executando.md")
     )
     state = _load_state()
+    if not _budget_gate(state):
+        _save_state(state)
+        return {
+            "at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "in_progress": len(tasks),
+            "worked": [],
+            "skipped_cooldown": [],
+            "paused_budget": True,
+        }
     worked: list[str] = []
     skipped: list[str] = []
 

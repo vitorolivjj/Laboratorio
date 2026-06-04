@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     autopilot_interval_s: int = 600
     autopilot_max_tasks: int = 1
     autopilot_cooldown_s: int = 1800
+    autopilot_daily_budget_usd: float = 0.0   # 0 = sem teto; >0 pausa ao estourar
 
     # --- Trace de interações ---
     interactions_max_bytes: int = 5_000_000
