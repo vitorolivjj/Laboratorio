@@ -29,12 +29,17 @@ def db_enabled() -> bool:
 @contextmanager
 def connection() -> Iterator["object"]:
     """Conexão psycopg autocommit. Levanta se SUPABASE_DB_URL ausente."""
+    import os
+
     import psycopg
 
     url = supabase_db_url()
     if not url:
         raise RuntimeError("SUPABASE_DB_URL não configurado no backend/.env")
-    with psycopg.connect(url, autocommit=True) as conn:
+    # connect_timeout curto: se o host resolver para IPv6 inacessível, falha
+    # rápido e tenta o próximo endereço (IPv4) em vez de pendurar no SO.
+    timeout = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
+    with psycopg.connect(url, autocommit=True, connect_timeout=timeout) as conn:
         yield conn
 
 

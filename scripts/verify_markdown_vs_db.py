@@ -23,11 +23,27 @@ from laboratorio.db.markdown_sync import collect_markdown  # noqa: E402
 KEYS = ("projects", "tasks", "leads", "events", "decisions")
 
 
+def _md_count(key: str, rows: list[dict]) -> int:
+    # Entidades com PK (id) contam DISTINTOS — espelha o banco, que rejeita
+    # duplicatas. eventos/decisões usam dedup por hash (contagem bruta serve).
+    if key in ("projects", "tasks", "leads"):
+        return len({r["id"] for r in rows})
+    return len(rows)
+
+
 def main() -> int:
     load_env()
-    md = {k: len(v) for k, v in collect_markdown().items()}
+    collected = collect_markdown()
+    md = {k: _md_count(k, v) for k, v in collected.items()}
+    # Avisa duplicatas de id no markdown (o banco as colapsa silenciosamente).
+    for key in ("projects", "tasks", "leads"):
+        rows = collected[key]
+        dup = len(rows) - len({r["id"] for r in rows})
+        if dup:
+            print(f"  ⚠️ {key}: {dup} entrada(s) com id repetido no markdown "
+                  f"({len(rows)} linhas → {md[key]} únicos)")
 
-    print("Conferência markdown x banco (Fase 6)\n")
+    print("\nConferência markdown x banco (Fase 6)\n")
 
     try:
         from laboratorio.db.core import db_enabled, missing_core_tables
@@ -61,6 +77,11 @@ def main() -> int:
 
     except ImportError as exc:
         print(f"  (driver de banco indisponível: {exc} — mostrando só o markdown)\n")
+        for k in KEYS:
+            print(f"  {k:9}: markdown={md[k]}")
+        return 0
+    except Exception as exc:  # noqa: BLE001 — timeout/conexão não deve dar traceback
+        print(f"  (banco inacessível agora: {type(exc).__name__} — mostrando só o markdown)\n")
         for k in KEYS:
             print(f"  {k:9}: markdown={md[k]}")
         return 0
