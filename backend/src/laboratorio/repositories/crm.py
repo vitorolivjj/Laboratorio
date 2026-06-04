@@ -9,10 +9,10 @@ MarkdownCrmRepository delega ao parser; PostgresCrmRepository lê lab_crm_segmen
 
 from __future__ import annotations
 
-import os
 from typing import Protocol, runtime_checkable
 
 from laboratorio.ops import parsers
+from laboratorio.repositories import use_postgres
 from laboratorio.repositories.leads import CRM_DIR, CRM_SEGMENT_FILES, PostgresLeadRepository
 
 
@@ -70,6 +70,6 @@ class PostgresCrmRepository:
 
 
 def get_crm_repository() -> CrmRepository:
-    if os.getenv("DATA_BACKEND", "markdown").strip().lower() in ("postgres", "pg", "db"):
+    if use_postgres():
         return PostgresCrmRepository()
     return MarkdownCrmRepository()

@@ -9,11 +9,11 @@ markdown; este repositório é a API limpa para NOVAS features lerem leads do ba
 
 from __future__ import annotations
 
-import os
 from typing import Protocol, runtime_checkable
 
 from laboratorio.config import REPO_ROOT
 from laboratorio.ops import parsers
+from laboratorio.repositories import use_postgres
 
 CRM_DIR = REPO_ROOT / "crm"
 CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.md"]
@@ -44,18 +44,18 @@ class MarkdownLeadRepository:
         return leads
 
     def by_segment(self, segment: str) -> list[dict]:
-        return [l for l in self.all() if l.get("segment") == segment]
+        return [lead for lead in self.all() if lead.get("segment") == segment]
 
     def get(self, lead_id: str) -> dict | None:
         lid = lead_id.strip().upper()
-        return next((l for l in self.all() if l["id"].upper() == lid), None)
+        return next((lead for lead in self.all() if lead["id"].upper() == lid), None)
 
 
 class PostgresLeadRepository:
     _KEYS = _COLS.split(",")
 
     def _row(self, r: tuple) -> dict:
-        return {k: (v if v is not None else "") for k, v in zip(self._KEYS, r)}
+        return {k: (v if v is not None else "") for k, v in zip(self._KEYS, r, strict=False)}
 
     def all(self) -> list[dict]:
         from laboratorio.db.core import connection
@@ -81,6 +81,6 @@ class PostgresLeadRepository:
 
 
 def get_lead_repository() -> LeadRepository:
-    if os.getenv("DATA_BACKEND", "markdown").strip().lower() in ("postgres", "pg", "db"):
+    if use_postgres():
         return PostgresLeadRepository()
     return MarkdownLeadRepository()

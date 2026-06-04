@@ -7,3 +7,18 @@ código não muda.
 
 Seleção por env `DATA_BACKEND`: "markdown" (default) | "postgres".
 """
+
+from __future__ import annotations
+
+import os
+
+_POSTGRES_ALIASES = ("postgres", "pg", "db")
+
+
+def use_postgres() -> bool:
+    """True se o backend de leitura é Postgres (env DATA_BACKEND). Lido por chamada.
+
+    Fonte única usada por todas as fábricas get_*_repository() — antes o mesmo
+    check estava duplicado em cada módulo.
+    """
+    return os.getenv("DATA_BACKEND", "markdown").strip().lower() in _POSTGRES_ALIASES

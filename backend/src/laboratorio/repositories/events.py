@@ -6,11 +6,11 @@ Seleção por DATA_BACKEND (default markdown).
 
 from __future__ import annotations
 
-import os
 from typing import Protocol, runtime_checkable
 
 from laboratorio.config import LOGS_DIR
 from laboratorio.ops import parsers
+from laboratorio.repositories import use_postgres
 
 EVENTOS_FILE = LOGS_DIR / "eventos.md"
 
@@ -46,6 +46,6 @@ class PostgresEventRepository:
 
 
 def get_event_repository() -> EventRepository:
-    if os.getenv("DATA_BACKEND", "markdown").strip().lower() in ("postgres", "pg", "db"):
+    if use_postgres():
         return PostgresEventRepository()
     return MarkdownEventRepository()

@@ -10,13 +10,13 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops import parsers, tasks_store
 from laboratorio.ops.tasks_store import STATE_FILES
+from laboratorio.repositories import use_postgres
 
 
 @runtime_checkable
@@ -136,7 +136,6 @@ class PostgresTaskRepository:
 
 def get_task_repository() -> TaskRepository:
     """Fábrica: escolhe a implementação por DATA_BACKEND (default markdown)."""
-    backend = os.getenv("DATA_BACKEND", "markdown").strip().lower()
-    if backend in ("postgres", "pg", "db"):
+    if use_postgres():
         return PostgresTaskRepository()
     return MarkdownTaskRepository()

@@ -6,11 +6,11 @@ lab_projects. Seleção por DATA_BACKEND (default markdown).
 
 from __future__ import annotations
 
-import os
 from typing import Protocol, runtime_checkable
 
 from laboratorio.config import REPO_ROOT
 from laboratorio.ops import parsers
+from laboratorio.repositories import use_postgres
 
 PROJETOS_REGISTRY = REPO_ROOT / "projetos" / "projetos.md"
 
@@ -57,6 +57,6 @@ class PostgresProjectRepository:
 
 
 def get_project_repository() -> ProjectRepository:
-    if os.getenv("DATA_BACKEND", "markdown").strip().lower() in ("postgres", "pg", "db"):
+    if use_postgres():
         return PostgresProjectRepository()
     return MarkdownProjectRepository()
