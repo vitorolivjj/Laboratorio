@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from contextlib import contextmanager
@@ -11,6 +12,8 @@ from urllib.request import urlopen
 
 CDP_URL = os.getenv("FACEBOOK_CDP_URL", "http://127.0.0.1:9222").rstrip("/")
 FB_ENABLED = os.getenv("DONIZETE_FB_ENABLED", "1").strip().lower() in ("1", "true", "yes", "on")
+
+logger = logging.getLogger("laboratorio.social.facebook_cdp")
 
 
 @dataclass
@@ -65,8 +68,8 @@ def facebook_session() -> Generator[Any, None, None]:
     finally:
         try:
             browser.close()
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 — browser pode já ter morrido (CDP)
+            logger.debug("browser.close() falhou (CDP provavelmente já encerrado): %s", exc)
         pw.stop()
 
 

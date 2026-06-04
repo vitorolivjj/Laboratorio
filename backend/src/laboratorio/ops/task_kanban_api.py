@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +17,8 @@ from laboratorio.ops.donizete_capture_task import (
 )
 from laboratorio.ops.markdown_io import read_text, write_text_atomic
 from laboratorio.ops.tasks_store import STATE_FILES, create_task, move_task
+
+logger = logging.getLogger("laboratorio.ops.task_kanban_api")
 
 # Estados “ativos” que o painel pode cancelar/arquivar de uma vez
 BULK_CANCEL_STATES = ("executando", "planejando", "standby", "aguardando")
@@ -294,8 +297,8 @@ def bulk_archive_active(
             if capture_active():
                 stop_busca()
                 capture_stopped = True
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 — cleanup opcional, não derruba a ação
+            logger.warning("Não foi possível parar a captura Donizete: %s", exc)
 
     agenda_cleared = 0
     if clear_agenda:
@@ -303,8 +306,8 @@ def bulk_archive_active(
             from laboratorio.whatsapp.vitor_schedule import cancel_all_pending
 
             agenda_cleared = cancel_all_pending()
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001 — cleanup opcional, não derruba a ação
+            logger.warning("Não foi possível limpar a agenda: %s", exc)
 
     _invalidate_snapshot()
     return {
