@@ -35,23 +35,38 @@ DATA_BACKEND=postgres     # default é "markdown"
 Com isso, `maestro.build_maestro_snapshot` lê as TASKs do banco (via
 `PostgresTaskRepository`). Para voltar: `DATA_BACKEND=markdown` (ou remover a var).
 
-## Manter o banco em sincronia (importante)
+## Manter o banco em sincronia
 
-A **escrita** ainda vai só para o markdown (kanban em `tasks/*.md`, com lock).
-O banco **não se atualiza sozinho** — ele reflete o último backfill. Opções:
+A **escrita** vai para o markdown (kanban com lock). Para o banco refletir isso,
+há o **sync em modo espelho** — idempotente e remove o que sumiu do markdown:
 
-1. **Re-backfill periódico (recomendado p/ piloto):** o backfill é idempotente
-   (upsert), então rode-o numa rotina (ex.: timer systemd a cada 5 min, como os
-   outros em `deploy/vps/`):
-   ```bash
-   python scripts/backfill_markdown_to_db.py --apply
-   ```
-2. **Escrita dupla (degrau 3, futuro):** fazer o `MarkdownTaskRepository.move/create`
-   gravar também no banco (best-effort, sem quebrar a escrita markdown). Mais
-   trabalho e adiciona latência/risco de rede na escrita — só quando o banco for
-   virar a fonte da verdade de fato.
+```bash
+python scripts/backfill_markdown_to_db.py --apply --mirror
+```
 
-Enquanto a leitura estiver em `markdown` (default), nada disso é necessário.
+**Automático:** o timer `deploy/vps/db-sync.timer` roda isso a cada 5 min. Para
+ligar na VPS:
+```bash
+sudo cp deploy/vps/db-sync.{service,timer} /etc/systemd/system/
+sudo systemctl enable --now db-sync.timer
+```
+
+Assim o banco fica no máximo ~5 min atrás do markdown — base sólida para construir
+features novas direto em SQL. (Para tempo real, o passo futuro é escrita dupla nos
+`*_store`; só vale quando o banco virar a fonte da verdade de fato.)
+
+## Repositórios disponíveis (API para expansão)
+
+Porta única por entidade — leem markdown ou banco conforme `DATA_BACKEND`:
+
+| Entidade | Módulo | Leitura via repo no painel |
+|---|---|---|
+| Tasks | `repositories/tasks.py` | ✅ sim |
+| Projetos | `repositories/projects.py` | ✅ sim |
+| Eventos | `repositories/events.py` | ✅ sim |
+| Leads | `repositories/leads.py` | API pronta (snapshot ainda usa markdown p/ o funil) |
+
+Código novo deve usar `get_*_repository()` em vez de abrir arquivo/SQL direto.
 
 ## Conferir a qualquer momento
 
