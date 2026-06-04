@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from laboratorio.ops import tool_bridge
+from laboratorio.ops import crm_lp_store, tool_bridge
 from laboratorio.tools.base import BaseTool, safe
 
 

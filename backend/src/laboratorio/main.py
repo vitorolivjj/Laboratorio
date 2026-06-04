@@ -450,7 +450,6 @@ def main() -> None:
         sys.exit(0)
     if args.command == "donizete-busca-local":
         load_env()
-        import sys
         import time
 
         from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
