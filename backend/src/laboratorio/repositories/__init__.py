@@ -10,15 +10,12 @@ Seleção por env `DATA_BACKEND`: "markdown" (default) | "postgres".
 
 from __future__ import annotations
 
-import os
-
-_POSTGRES_ALIASES = ("postgres", "pg", "db")
+from laboratorio.settings import get_settings
 
 
 def use_postgres() -> bool:
-    """True se o backend de leitura é Postgres (env DATA_BACKEND). Lido por chamada.
+    """True se o backend de leitura é Postgres (Settings.data_backend). Lido por chamada.
 
-    Fonte única usada por todas as fábricas get_*_repository() — antes o mesmo
-    check estava duplicado em cada módulo.
+    Fonte única usada por todas as fábricas get_*_repository().
     """
-    return os.getenv("DATA_BACKEND", "markdown").strip().lower() in _POSTGRES_ALIASES
+    return get_settings().use_postgres()

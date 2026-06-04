@@ -12,7 +12,6 @@ Liga sozinho quando o banco está configurado; controle por env:
 from __future__ import annotations
 
 import logging
-import os
 import threading
 
 logger = logging.getLogger("laboratorio.db.dual_write")
@@ -23,11 +22,11 @@ _dirty = False
 
 
 def enabled() -> bool:
-    val = os.getenv("DB_DUAL_WRITE", "").strip().lower()
-    if val in ("1", "true", "on", "yes"):
-        return True
-    if val in ("0", "false", "off", "no"):
-        return False
+    from laboratorio.settings import get_settings
+
+    flag = get_settings().dual_write_flag()
+    if flag is not None:
+        return flag
     # auto: liga se há banco configurado
     try:
         from laboratorio.db.core import db_enabled

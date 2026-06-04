@@ -34,16 +34,18 @@ def connection() -> Iterator["object"]:
     tentativa pode estourar. `connect_timeout` falha rápido e o retry tenta de
     novo (em geral cai no IPv4). Levanta se SUPABASE_DB_URL ausente.
     """
-    import os
     import time
 
     import psycopg
 
+    from laboratorio.settings import get_settings
+
     url = supabase_db_url()
     if not url:
         raise RuntimeError("SUPABASE_DB_URL não configurado no backend/.env")
-    timeout = int(os.getenv("DB_CONNECT_TIMEOUT", "8"))
-    attempts = max(1, int(os.getenv("DB_CONNECT_RETRIES", "3")))
+    s = get_settings()
+    timeout = s.db_connect_timeout
+    attempts = max(1, s.db_connect_retries)
 
     conn = None
     last_exc: Exception | None = None

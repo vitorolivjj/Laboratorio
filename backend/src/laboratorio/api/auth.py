@@ -12,13 +12,14 @@ e o painel envia `Authorization: Bearer <segredo>`.
 from __future__ import annotations
 
 import hmac
-import os
 
 from fastapi import Header, HTTPException
 
+from laboratorio.settings import get_settings
+
 
 def api_token() -> str:
-    return os.getenv("MAESTRO_API_TOKEN", "").strip()
+    return get_settings().maestro_api_token.strip()
 
 
 def require_panel_token(authorization: str = Header(default="")) -> None:
