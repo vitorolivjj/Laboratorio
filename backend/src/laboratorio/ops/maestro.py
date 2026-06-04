@@ -27,6 +27,7 @@ from laboratorio.config import (
 from laboratorio.ops import parsers, usage
 from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro_metrics import append_metric_from_overview
+from laboratorio.repositories.crm import get_crm_repository
 from laboratorio.repositories.events import get_event_repository
 from laboratorio.repositories.projects import get_project_repository
 from laboratorio.repositories.tasks import get_task_repository
@@ -442,13 +443,7 @@ def _pending_task_entry(
 
 def _build_crms() -> list[dict]:
     """CRM segmentado por finalidade (Laboratório, Landing Page Pintor, AppVS…)."""
-    segments: list[dict] = []
-    for fname in CRM_SEGMENT_FILES:
-        content = parsers.read_text(CRM_DIR / fname)
-        if not content:
-            continue
-        segments.append(parsers.parse_crm_segment(content))
-    return segments
+    return get_crm_repository().segments()
 
 
 def _build_projects(

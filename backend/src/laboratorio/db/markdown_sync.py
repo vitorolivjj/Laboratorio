@@ -38,11 +38,16 @@ def collect_markdown() -> dict:
             tasks.append({**t, "state": state, "project_id": proj["id"] if proj else None})
 
     leads: list[dict] = []
+    segments: list[dict] = []
     for fname in CRM_SEGMENT_FILES:
         content = parsers.read_text(CRM_DIR / fname)
         if not content:
             continue
         seg = parsers.parse_crm_segment(content)
+        segments.append({
+            "segment": seg["segment"], "name": seg["name"],
+            "description": seg["description"], "funnel": seg["funnel"],
+        })
         for lead in seg["leads"]:
             leads.append({**lead, "segment": seg["segment"]})
 
@@ -52,6 +57,7 @@ def collect_markdown() -> dict:
         "projects": registry,
         "tasks": tasks,
         "leads": leads,
+        "segments": segments,
         "events": events,
         "decisions": decisions,
     }
@@ -87,6 +93,17 @@ def apply_to_db(data: dict, *, mirror: bool = False) -> None:
                 """,
                 (p["id"], p["name"], p.get("prefix"), p.get("nature"), p.get("status"),
                  p.get("crm"), p.get("repo"), p.get("description"), p.get("legacy")),
+            )
+        for s in data.get("segments", []):
+            cur.execute(
+                """
+                insert into lab_crm_segments (segment,name,description,funnel,updated_at)
+                values (%s,%s,%s,%s, now())
+                on conflict (segment) do update set
+                  name=excluded.name, description=excluded.description,
+                  funnel=excluded.funnel, updated_at=now()
+                """,
+                (s["segment"], s.get("name"), s.get("description"), s.get("funnel") or []),
             )
         for t in data["tasks"]:
             cur.execute(
