@@ -16,19 +16,22 @@
 | 1 — Tirar duplicação | ✅ feito | `fase 1` |
 | 3 — Segurança | ✅ feito (maestro+tasks; donizete já tinha) | `fase 3` |
 | 4 — Concorrência + cache | ✅ feito | `fase 4` |
-| 5 — Camada de repositório | ✅ TaskRepository (fatia tasks) | `fase 5` |
+| 5 — Camada de repositório | ✅ tasks, projetos, leads, eventos, **CRM/funil** | `fase 5` + `expansao` |
 | 6 — Migração banco (1-2, 4-5) | ✅ **aplicado no Supabase** + verify + flip de leitura | `fase 6` |
+| 6 — degrau 3 (escrita dupla) | ✅ **tempo real** (dual_write) + timer de segurança | `banco fonte de verdade` |
+| Funil de lead no banco | ✅ `lab_crm_segments` + CrmRepository | `funil de lead no banco` |
+| 7.3 — consolidação config | ✅ `use_postgres()` (parcial) | `fase 7` |
 | 7.4 — Observabilidade (maestro) | ✅ feito + smoke da god function | `fase 7.4 (parcial)` |
-| 6 — degrau 3 (escrita dupla) | ⏳ pendente (manter banco fresco) | — |
-| 5 — repositório p/ leads/eventos | ⏳ pendente (hoje só tasks lê do banco) | — |
-| 7.2/7.3 + resto do 7.4 | ⏳ pendente (CLI registry, Settings, demais except: pass) | — |
+| 7.2 + resto do 7.4 | ⏳ pendente (CLI registry, `Settings` completo, demais `except: pass`) | — |
+| 7.1 — 1 framework de orquestração | ⏳ pendente (CrewAI + LangGraph coexistem) | — |
 
-Cobertura: **33 testes**. `laboratorio check` saindo 0. Tudo em commits separados
-sobre o `checkpoint` (revertível por fase); nenhuma mudança de comportamento.
+Cobertura: **36 testes**. `laboratorio check` saindo 0. Tudo em commits separados
+sobre o `checkpoint` (revertível); comportamento do app preservado (default `markdown`).
 
-**Migração markdown→Postgres APLICADA e provada** — operação, sincronização e
-rollback em [migracao_banco.md](migracao_banco.md). Default segue `markdown`;
-ligue a leitura do banco com `DATA_BACKEND=postgres`.
+**Migração markdown→Postgres APLICADA e provada**, banco como cópia autoritativa
+sempre-atual (escrita dupla). Operação/sync/rollback em
+[migracao_banco.md](migracao_banco.md). Ligue a leitura do banco com
+`DATA_BACKEND=postgres`.
 
 ---
 

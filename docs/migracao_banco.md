@@ -37,23 +37,29 @@ Com isso, `maestro.build_maestro_snapshot` lê as TASKs do banco (via
 
 ## Manter o banco em sincronia
 
-A **escrita** vai para o markdown (kanban com lock). Para o banco refletir isso,
-há o **sync em modo espelho** — idempotente e remove o que sumiu do markdown:
+A **escrita** vai para o markdown (kanban/CRM com lock). O banco é mantido atual
+por **dois mecanismos**:
 
+1. **Escrita dupla (tempo real, padrão):** `db/dual_write.py` — após cada escrita
+   no markdown (tasks, leads lab/LP) dispara um sync espelho em background.
+   Best-effort (nunca bloqueia/quebra a escrita), coalescido, liga sozinho quando
+   o banco está configurado. Desligar: `DB_DUAL_WRITE=0`.
+2. **Timer de segurança (a cada 5 min):** rede de segurança caso a escrita dupla
+   falhe (ex.: rede instável). Ligar na VPS:
+   ```bash
+   sudo cp deploy/vps/db-sync.{service,timer} /etc/systemd/system/
+   sudo systemctl enable --now db-sync.timer
+   ```
+
+Sync manual a qualquer momento (idempotente, remove o que sumiu do markdown):
 ```bash
 python scripts/backfill_markdown_to_db.py --apply --mirror
 ```
 
-**Automático:** o timer `deploy/vps/db-sync.timer` roda isso a cada 5 min. Para
-ligar na VPS:
-```bash
-sudo cp deploy/vps/db-sync.{service,timer} /etc/systemd/system/
-sudo systemctl enable --now db-sync.timer
-```
-
-Assim o banco fica no máximo ~5 min atrás do markdown — base sólida para construir
-features novas direto em SQL. (Para tempo real, o passo futuro é escrita dupla nos
-`*_store`; só vale quando o banco virar a fonte da verdade de fato.)
+Resultado: **o banco é a cópia autoritativa sempre-atual** — base sólida para
+construir features novas direto em SQL. A leitura do painel segue no markdown
+(rápido, sem N conexões por snapshot); vire com `DATA_BACKEND=postgres` quando
+quiser.
 
 ## Repositórios disponíveis (API para expansão)
 
@@ -64,7 +70,10 @@ Porta única por entidade — leem markdown ou banco conforme `DATA_BACKEND`:
 | Tasks | `repositories/tasks.py` | ✅ sim |
 | Projetos | `repositories/projects.py` | ✅ sim |
 | Eventos | `repositories/events.py` | ✅ sim |
-| Leads | `repositories/leads.py` | API pronta (snapshot ainda usa markdown p/ o funil) |
+| Leads | `repositories/leads.py` | ✅ sim |
+| CRM (funil) | `repositories/crm.py` | ✅ sim — funil em `lab_crm_segments` |
+
+Fábricas usam `repositories.use_postgres()` (fonte única do `DATA_BACKEND`).
 
 Código novo deve usar `get_*_repository()` em vez de abrir arquivo/SQL direto.
 
