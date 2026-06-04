@@ -100,6 +100,19 @@ backend/
     └── tasks/             # tarefas reutilizáveis (evolução futura)
 ```
 
+## Orquestração: CrewAI vs LangGraph
+
+Convivem dois frameworks, **com fronteira clara** (ver
+[ADR 0001](../docs/adr/0001-orquestracao-crewai-vs-langgraph.md)):
+
+- **CrewAI** (`crews/`, `agents/`, `tools/`, autopilot, Caio) → raciocínio
+  **multi-agente** e respostas conversacionais.
+- **LangGraph** (`graph/`) → execução **determinística** de task, com **trava de
+  custo** (`cost_gate`) e **checkpoint** resumível.
+
+Regra: execução de task com controle de custo → LangGraph; coordenação de vários
+agentes → CrewAI. Não criar novos fluxos que dupliquem o outro.
+
 ## WhatsApp (TASK-007)
 
 Fluxo: **WhatsApp inbound → webhook → Caio (CrewAI) → Graph API → WhatsApp**.

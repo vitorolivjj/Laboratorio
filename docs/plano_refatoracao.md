@@ -22,8 +22,8 @@
 | Funil de lead no banco | ✅ `lab_crm_segments` + CrmRepository | `funil de lead no banco` |
 | 7.3 — consolidação config | ✅ `use_postgres()` (parcial) | `fase 7` |
 | 7.4 — Observabilidade (maestro) | ✅ feito + smoke da god function | `fase 7.4 (parcial)` |
+| 7.1 — orquestração | ✅ **ADR** (decisão: fronteira clara, não unificar) | `fase 7 (adr)` |
 | 7.2 + resto do 7.4 | ⏳ pendente (CLI registry, `Settings` completo, demais `except: pass`) | — |
-| 7.1 — 1 framework de orquestração | ⏳ pendente (CrewAI + LangGraph coexistem) | — |
 
 Cobertura: **36 testes**. `laboratorio check` saindo 0. Tudo em commits separados
 sobre o `checkpoint` (revertível); comportamento do app preservado (default `markdown`).
