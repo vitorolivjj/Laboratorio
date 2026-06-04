@@ -6,6 +6,30 @@
 
 ---
 
+## Status de execução
+
+| Fase | Estado | Commit(s) |
+|---|---|---|
+| 0 — Saneamento | ✅ feito | `fase 0` |
+| (bugs latentes achados via lint) | ✅ feito | `fix: 3 bugs latentes` |
+| 2 — Rede de testes | ✅ feito (25→30 testes, CI) | `fase 2` |
+| 1 — Tirar duplicação | ✅ feito | `fase 1` |
+| 3 — Segurança | ✅ feito (maestro+tasks; donizete já tinha) | `fase 3` |
+| 4 — Concorrência + cache | ✅ feito | `fase 4` |
+| 6 — Migração banco (degraus 1-2) | ✅ schema + backfill (dry-run ok) | `fase 6 (fundacao)` |
+| 5 — Camada de repositório | ⏳ pendente | — |
+| 6 — Migração banco (degraus 3-5) | ⏳ pendente (precisa banco ligado) | — |
+| 7 — Consolidações | ⏳ pendente | — |
+
+Tudo em commits separados sobre o `checkpoint` (revertível por fase). Nenhuma
+mudança de comportamento; testes verdes a cada passo.
+
+**Para ativar o banco (quando quiser):** aplicar a migration
+`supabase/migrations/20260604120000_lab_core_tables.sql` e rodar
+`python scripts/backfill_markdown_to_db.py --apply`.
+
+---
+
 ## Princípios (as regras do jogo)
 
 1. **Nada quebra de uma vez.** Muda-se *como* funciona por dentro, não *o que* faz.
