@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 from collections import deque
 from datetime import datetime, timezone
@@ -26,6 +27,28 @@ logger = logging.getLogger("laboratorio.interactions")
 INTERACTIONS_FILE = LOGS_DIR / "agent_interactions.jsonl"
 _LOCK = threading.Lock()
 _MAX_TEXT = 600
+
+# Rotação: trace é append-only; quando passa do teto, mantém só as últimas linhas.
+_MAX_BYTES = int(os.getenv("INTERACTIONS_MAX_BYTES", str(5_000_000)))  # ~5 MB
+_KEEP_LINES = int(os.getenv("INTERACTIONS_KEEP_LINES", "2000"))
+
+
+def _maybe_rotate() -> None:
+    """Se o arquivo passou do teto, reescreve mantendo só as últimas _KEEP_LINES."""
+    try:
+        if INTERACTIONS_FILE.stat().st_size <= _MAX_BYTES:
+            return
+    except OSError:
+        return
+    try:
+        with INTERACTIONS_FILE.open("r", encoding="utf-8") as fh:
+            tail = deque(fh, maxlen=_KEEP_LINES)
+        tmp = INTERACTIONS_FILE.with_suffix(".jsonl.tmp")
+        with tmp.open("w", encoding="utf-8") as fh:
+            fh.writelines(tail)
+        os.replace(tmp, INTERACTIONS_FILE)
+    except OSError as exc:
+        logger.warning("Falha ao rotacionar trace de interações: %s", exc)
 
 
 def _now() -> str:
@@ -100,6 +123,7 @@ def record_interaction(
             INTERACTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
             with INTERACTIONS_FILE.open("a", encoding="utf-8") as fh:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            _maybe_rotate()
     except OSError as exc:
         logger.warning("Falha ao gravar interação: %s", exc)
 

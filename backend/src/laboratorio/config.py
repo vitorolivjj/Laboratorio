@@ -57,9 +57,21 @@ AGENT_FILES: dict[str, Path] = {
 }
 
 
-def load_env() -> None:
-    """Carrega .env do backend se existir."""
+_env_loaded = False
+
+
+def load_env(force: bool = False) -> None:
+    """Carrega o .env do backend uma única vez (idempotente).
+
+    Variáveis de ambiente não mudam em runtime, então relê-las a cada chamada
+    (ex.: resolve_agent_llm_config por agente, no loop do snapshot) só gera I/O
+    de disco. `force=True` recarrega (útil em testes que trocam o .env).
+    """
+    global _env_loaded
+    if _env_loaded and not force:
+        return
     load_dotenv(BACKEND_ROOT / ".env")
+    _env_loaded = True
 
 
 def ensure_paths() -> list[str]:

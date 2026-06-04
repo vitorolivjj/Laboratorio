@@ -392,10 +392,22 @@ def _build_project_index(projects: list[dict]) -> dict[str, str]:
     return index
 
 
-def project_for_task(task: dict, projects: list[dict]) -> dict | None:
-    """Resolve o projeto de uma task (campo Projeto, prefixo do ID, ou legado)."""
-    index = _build_project_index(projects)
-    by_id = {p["id"]: p for p in projects}
+def project_for_task(
+    task: dict,
+    projects: list[dict],
+    *,
+    index: dict[str, str] | None = None,
+    by_id: dict[str, dict] | None = None,
+) -> dict | None:
+    """Resolve o projeto de uma task (campo Projeto, prefixo do ID, ou legado).
+
+    `index`/`by_id` podem ser pré-construídos (parsers._build_project_index) e
+    reaproveitados em loops — evita refazer o índice por task (era O(n²)).
+    """
+    if index is None:
+        index = _build_project_index(projects)
+    if by_id is None:
+        by_id = {p["id"]: p for p in projects}
 
     # 1) Campo Projeto explícito
     explicit = (task.get("projeto") or "").strip().upper()

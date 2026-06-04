@@ -32,3 +32,7 @@ backend/data/wa_processed_ids.json
 logs/donizete_fb_vision/
 logs/*.png
 logs/*.log
+
+# Locks de concorrência (filelock) e tmp de rotação
+*.lock
+logs/*.jsonl.tmp

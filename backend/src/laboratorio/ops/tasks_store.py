@@ -5,9 +5,12 @@ Lógica pura, testável isoladamente. Escrita atômica.
 
 from __future__ import annotations
 
+import functools
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+
+from filelock import FileLock
 
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops.markdown_io import (
@@ -33,6 +36,26 @@ STATE_FILES: dict[str, tuple[str, str]] = {
 _BLOCK_END_RE = re.compile(r"\n(?=### TASK-)|\n---|\n<!--", re.MULTILINE)
 
 
+def _kanban_lock(tasks_dir: Path) -> FileLock:
+    """Lock entre processos/threads para as mutações do kanban (1 escritor por vez).
+
+    Evita lost update quando autopilot (thread), webhook e crons escrevem juntos.
+    """
+    return FileLock(str(tasks_dir / ".kanban.lock"), timeout=15)
+
+
+def _with_kanban_lock(fn):
+    """Serializa a função inteira sob o lock do kanban (usa o tasks_dir do call)."""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        tasks_dir = kwargs.get("tasks_dir", TASKS_DIR)
+        with _kanban_lock(tasks_dir):
+            return fn(*args, **kwargs)
+
+    return wrapper
+
+
 def _today() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
@@ -49,6 +72,7 @@ def next_task_id(tasks_dir: Path = TASKS_DIR) -> str:
     return f"TASK-{(max(nums) + 1) if nums else 1:03d}"
 
 
+@_with_kanban_lock
 def create_task(
     *,
     titulo: str,
@@ -125,6 +149,7 @@ def _task_has_briefing(task_id: str, *, tasks_dir: Path) -> bool:
     return bool(re.search(r"###\s+Briefing|##\s+Briefing", doc, re.I))
 
 
+@_with_kanban_lock
 def move_task(
     task_id: str,
     to_state: str,

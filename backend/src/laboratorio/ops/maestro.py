@@ -214,6 +214,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
         parsers.read_text(LOGS_DIR / "whatsapp_mensagens.md")
     )
     project_registry = parsers.parse_projects_registry(parsers.read_text(PROJETOS_REGISTRY))
+    # Índice de projetos construído UMA vez e reaproveitado (antes refeito por task).
+    proj_index = parsers._build_project_index(project_registry)
+    proj_by_id = {p["id"]: p for p in project_registry}
     crms = _build_crms()
     leads = [
         {**lead, "crm": seg["segment"], "crm_name": seg["name"]}
@@ -251,7 +254,9 @@ def build_maestro_snapshot() -> dict[str, Any]:
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
     kanban = parsers.count_kanban(TASKS_DIR)
-    projects = _build_projects(project_registry, kanban, active_work, crms)
+    projects = _build_projects(
+        project_registry, kanban, active_work, crms, index=proj_index, by_id=proj_by_id
+    )
     wa_threads = parsers.group_whatsapp_threads(wa_log)
 
     messages_today = parsers.count_today(wa_log)
@@ -400,19 +405,25 @@ def build_maestro_snapshot() -> dict[str, Any]:
         "interactions": recent_interactions(40),
         "usage": usage.summarize(),
         "pending_tasks": [
-            _pending_task_entry(t, project_registry)
+            _pending_task_entry(t, project_registry, index=proj_index, by_id=proj_by_id)
             for t in active_work
         ],
         "standby_tasks": [
-            _pending_task_entry(t, project_registry)
+            _pending_task_entry(t, project_registry, index=proj_index, by_id=proj_by_id)
             for t in standby_tasks
         ],
         "donizete_busca": donizete_busca,
     }
 
 
-def _pending_task_entry(task: dict, registry: list[dict]) -> dict:
-    proj = parsers.project_for_task(task, registry)
+def _pending_task_entry(
+    task: dict,
+    registry: list[dict],
+    *,
+    index: dict | None = None,
+    by_id: dict | None = None,
+) -> dict:
+    proj = parsers.project_for_task(task, registry, index=index, by_id=by_id)
     return {
         "id": task["id"],
         "title": task["title"],
@@ -442,11 +453,15 @@ def _build_projects(
     kanban: dict[str, list[str]],
     active_work: list[dict],
     crms: list[dict],
+    *,
+    index: dict | None = None,
+    by_id: dict | None = None,
 ) -> list[dict]:
     """Projetos com contagem de tasks por status e tasks ativas (regra: toda task tem projeto)."""
     import re as _re
 
-    index = parsers._build_project_index(registry)
+    if index is None:
+        index = parsers._build_project_index(registry)
     crm_names = {seg["segment"]: seg["name"] for seg in crms}
 
     def resolve(tid: str) -> str | None:
@@ -472,7 +487,7 @@ def _build_projects(
 
     active_by_proj: dict[str, list[dict]] = {}
     for t in active_work:
-        proj = parsers.project_for_task(t, registry)
+        proj = parsers.project_for_task(t, registry, index=index, by_id=by_id)
         if proj:
             active_by_proj.setdefault(proj["id"], []).append(
                 {"id": t["id"], "title": t["title"], "phase": t.get("phase", "")}

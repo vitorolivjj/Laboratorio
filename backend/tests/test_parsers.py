@@ -148,6 +148,24 @@ def test_parse_projects_and_resolve_task():
     assert parsers.project_for_task({"id": "ZZZ-999"}, projs) is None
 
 
+def test_project_for_task_precomputed_index_matches():
+    """Fase 4.2: passar index/by_id pré-construídos dá o MESMO resultado."""
+    md = (
+        "## Projetos\n\n"
+        "### Landing Pintor\n"
+        "- **ID:** PROJ-002\n"
+        "- **Prefixo:** LP-PINTOR\n"
+        "- **Legado:** TASK-010 a TASK-012\n"
+    )
+    projs = parsers.parse_projects_registry(md)
+    index = parsers._build_project_index(projs)
+    by_id = {p["id"]: p for p in projs}
+    for tid in ("LP-PINTOR-005", "TASK-011", "ZZZ-9"):
+        a = parsers.project_for_task({"id": tid}, projs)
+        b = parsers.project_for_task({"id": tid}, projs, index=index, by_id=by_id)
+        assert a == b
+
+
 def test_group_whatsapp_threads_and_count_today():
     rows = [
         {"phone": "111", "inbound": "a", "outbound": "b", "datetime": "2026-06-01 10:00 UTC", "status": "ok"},
