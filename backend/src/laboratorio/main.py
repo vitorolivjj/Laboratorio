@@ -134,6 +134,353 @@ def cmd_whatsapp_check() -> int:
     return 0 if ok else 1
 
 
+def cmd_ronaldo_patrol(args) -> int:
+    load_env()
+    from laboratorio.ops.ronaldo_patrol import run_patrol
+
+    report = run_patrol(dry_run=args.dry_run, notify=not args.no_notify)
+    print(f"\nPatrulha {report.generated_at}")
+    print(report.summary)
+    for issue in report.issues:
+        flag = "🔴" if issue.notify else "🟡"
+        print(f"  {flag} [{issue.severity}] {issue.title}")
+    if report.notified:
+        print(f"\nWhatsApp Vitor: {', '.join(report.notified)}")
+    return 0
+
+
+def cmd_donizete_captura(args) -> int:
+    from laboratorio.ops.donizete_capture import (
+        append_capture_log,
+        build_capture_report,
+        format_capture_cli,
+    )
+
+    report = build_capture_report()
+    print(format_capture_cli(report))
+    if args.log:
+        append_capture_log(report)
+        print("\nLog: logs/donizete_captura.md")
+    return 0
+
+
+def cmd_donizete_fb(args) -> int:
+    from laboratorio.ops import donizete_fb
+
+    if args.fb_command == "status":
+        return donizete_fb.cmd_status()
+    if args.fb_command == "iniciar":
+        return donizete_fb.cmd_iniciar(args.task)
+    if args.fb_command == "grupos":
+        return donizete_fb.cmd_grupos()
+    if args.fb_command == "buscar":
+        return donizete_fb.cmd_buscar(args.termo)
+    if args.fb_command == "abrir":
+        return donizete_fb.cmd_abrir(args.indice, nome=args.nome)
+    if args.fb_command == "navegar":
+        return donizete_fb.cmd_navegar(args.max_leads)
+    if args.fb_command == "post":
+        return donizete_fb.cmd_post(args.variacao)
+    if args.fb_command == "garimpo":
+        return donizete_fb.cmd_garimpo()
+    if args.fb_command == "stalk":
+        return donizete_fb.cmd_stalk(
+            args.url,
+            args.nome,
+            cidade=args.cidade,
+            grupo=args.grupo,
+            tags=args.tags,
+        )
+    if args.fb_command == "run":
+        return donizete_fb.cmd_run(args.task)
+    return 2
+
+
+def cmd_ronaldo_audit(args) -> int:
+    load_env()
+    from laboratorio.ops.ronaldo_audit import run_audit
+
+    results = run_audit(
+        dry_run=args.dry_run,
+        create=not args.no_create,
+        notify=not args.no_notify,
+    )
+    if not results:
+        print("Nenhuma task nova para auditar.")
+    for r in results:
+        print(f"\n[{r.veredito}] {r.task_id} — {r.title} (via {r.via})")
+        if r.resumo:
+            print(f"  resumo: {r.resumo}")
+        for c in r.created_tasks:
+            print(f"  follow-up: {c}")
+        if r.escalar_vitor:
+            print(f"  escalado Vitor: {r.motivo_escalacao or 'sim'}")
+    return 0
+
+
+def cmd_governanca_audit(args) -> int:
+    from laboratorio.ops.governance_audit import append_governance_log, run_governance_audit
+
+    report = run_governance_audit()
+    print(f"\nGovernança {report.generated_at}")
+    print(report.summary)
+    for f in report.findings:
+        if f.severity == "ok":
+            print(f"  ✅ {f.title}")
+        else:
+            icon = "🔴" if f.severity == "critical" else "🟡"
+            print(f"  {icon} [{f.code}] {f.title}")
+            if f.detail:
+                print(f"      {f.detail[:200]}")
+    if args.log:
+        append_governance_log(report)
+        print("\nLog: logs/governanca_auditoria.md")
+    return 0 if report.ok else 1
+
+
+def cmd_orphan_memoria_audit(args) -> int:
+    import subprocess
+
+    script = REPO_ROOT / "scripts" / "audit_orphan_memoria.py"
+    cmd = [sys.executable, str(script)]
+    if args.list:
+        cmd.append("--list")
+    if args.suggest_archive:
+        cmd.append("--suggest-archive")
+    if args.write_log:
+        cmd.append("--write-log")
+    if not (args.list or args.suggest_archive or args.write_log):
+        cmd.extend(["--list", "--write-log"])
+    return subprocess.call(cmd)
+
+
+def cmd_donizete_mac_prepare(args) -> int:
+    load_env()
+    from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
+
+    task_arg = getattr(args, "task_id", None) or ""
+    tid, url, prep = prepare_mac_busca_start()
+    if task_arg.strip():
+        from laboratorio.ops.donizete_mac_sync import pull_capture_task_from_api
+
+        print(pull_capture_task_from_api(task_arg.strip()), flush=True)
+    elif prep:
+        print(prep, flush=True)
+    else:
+        print("Nada a sincronizar — use com task_id ou Play na VPS.", flush=True)
+    if tid:
+        print(f"Pronto para: donizete-busca-local · {tid} · {url or 'grupo da task'}", flush=True)
+    return 0
+
+
+def cmd_donizete_busca_local(args) -> int:
+    load_env()
+    import time
+
+    from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
+    from laboratorio.ops.donizete_runner import is_running, start_busca, status_line, stop_busca
+
+    tid, url, prep = prepare_mac_busca_start()
+    if prep:
+        print(prep, flush=True)
+    msg = start_busca(
+        task_id=tid,
+        group_url=url,
+        allow_arm_without_cdp=False,
+    )
+    print(msg, flush=True)
+    time.sleep(0.5)
+    if not is_running():
+        print(
+            "ERRO: thread da busca não está ativa — CDP offline ou processo encerrou cedo.",
+            file=sys.stderr,
+            flush=True,
+        )
+        print(status_line(), flush=True)
+        return 1
+    print("\n---\n", status_line(), "\n", flush=True)
+    print("Ctrl+C para parar — ou StopDonizete no WhatsApp.", flush=True)
+    try:
+        while is_running():
+            time.sleep(30)
+            print(status_line(), flush=True)
+    except KeyboardInterrupt:
+        print(stop_busca(), flush=True)
+    return 0
+
+
+def cmd_vitor_schedule(args) -> int:
+    load_env()
+    from laboratorio.whatsapp.client import send_text_message
+    from laboratorio.whatsapp.logger import log_exchange
+    from laboratorio.whatsapp.vitor_auth import get_vitor_wa_id
+    from laboratorio.whatsapp.vitor_whatsapp import process_due_reminders
+
+    wa = get_vitor_wa_id()
+    sent = 0
+    for sid, body in process_due_reminders():
+        send_text_message(wa, body)
+        log_exchange(
+            from_wa_id=wa,
+            inbound="(lembrete agendado)",
+            outbound=body,
+            message_id=f"schedule-{sid}",
+            status="ok:schedule",
+        )
+        sent += 1
+        print(f"Enviado lembrete {sid}")
+    print(f"Total: {sent}")
+    return 0
+
+
+def cmd_memory_check(args) -> int:
+    load_env()
+    import os
+
+    from laboratorio.memory.semantic import ensure_schema, is_memory_enabled, supabase_db_url
+
+    print("Memória semântica — Fase 1\n")
+    print(f"  MEMORY_ENABLED: {os.getenv('MEMORY_ENABLED', '1')}")
+    print(f"  SUPABASE_DB_URL: {'ok' if supabase_db_url() else 'AUSENTE'}")
+    print(f"  OPENAI_API_KEY: {'ok' if os.getenv('OPENAI_API_KEY', '').strip() else 'AUSENTE'}")
+    if not is_memory_enabled():
+        print("\nConfigure SUPABASE_DB_URL (senha Postgres) no .env")
+        return 1
+    try:
+        ensure_schema()
+        print("\n  Tabela lab_semantic_memories: OK")
+    except Exception as exc:
+        print(f"\n  ERRO: {exc}")
+        return 1
+    return 0
+
+
+def cmd_memory_sync(args) -> int:
+    load_env()
+    from laboratorio.memory.sync import sync_all
+
+    stats = sync_all(dry_run=args.dry_run)
+    mode = "dry-run" if args.dry_run else "gravado"
+    print(f"Sync {mode}: {stats['chunks']} chunks em {stats['files']} arquivos")
+    return 0
+
+
+def cmd_memory_recall(args) -> int:
+    load_env()
+    from laboratorio.memory.semantic import recall
+
+    q = " ".join(args.query)
+    hits = recall(q, top_k=args.top)
+    if not hits:
+        print("Nenhum trecho relevante (ou memória vazia — rode memory-sync)")
+    for h in hits:
+        ref = h.source_ref or "—"
+        print(f"\n[{h.similarity:.2f}] {h.namespace} · {ref}\n{h.content[:400]}")
+    return 0
+
+
+def cmd_graph_pilot(args) -> int:
+    load_env()
+    from laboratorio.graph.runner import run_pilot
+
+    try:
+        result = run_pilot(args.task_id, resume=args.resume)
+    except Exception as exc:
+        print(f"Erro no piloto: {exc}")
+        return 1
+    print(f"\n✓ Piloto {result.task_id} — fase: {result.phase}")
+    print(f"  Custo estimado: US$ {result.estimated_cost_usd:.4f}")
+    if result.approval_id:
+        print(f"  Aprovação custo pendente: {result.approval_id}")
+    if result.deliverable:
+        print(f"\n--- Entrega (trecho) ---\n{result.deliverable[:600]}…")
+    return 0
+
+
+def cmd_graph_run(args) -> int:
+    load_env()
+    from laboratorio.graph.runner import run_commercial
+
+    try:
+        result = run_commercial(args.task_id, resume=args.resume)
+    except Exception as exc:
+        print(f"Erro: {exc}")
+        return 1
+    print(f"\n✓ Comercial {result.task_id} — fase: {result.phase}")
+    print(f"  Custo ~US$ {result.estimated_cost_usd:.4f}")
+    if result.deliverable:
+        print(f"\n--- Trecho ---\n{result.deliverable[:700]}…")
+    return 0
+
+
+def cmd_agent_action(args) -> int:
+    import json
+
+    load_env()
+    from laboratorio.autonomy.gateway import run_action
+
+    try:
+        params = json.loads(args.params_json)
+    except json.JSONDecodeError as exc:
+        print(f"JSON inválido: {exc}")
+        return 1
+    try:
+        result = run_action(args.action_id, params, requested_by="cli")
+    except Exception as exc:
+        print(f"Erro: {exc}")
+        return 1
+    print(result.output)
+    if result.pending and result.approval_id:
+        print(f"\nPendente: APROVAR {result.approval_id} ou RECUSAR {result.approval_id}")
+    return 0
+
+
+def cmd_evolution_digest(args) -> int:
+    load_env()
+    from laboratorio.evolution.digest import run_daily_digest
+
+    try:
+        result = run_daily_digest(dry_run=args.dry_run, force=args.force)
+    except Exception as exc:
+        print(f"Erro: {exc}")
+        return 1
+    if result.skipped:
+        print(f"Já executado hoje ({result.date}). Use --force")
+        return 0
+    print(
+        f"Resumo {result.date}: {result.proposal_count} proposta(s) · "
+        f"notificado={result.notified} · approval={result.approval_id or '—'}"
+    )
+    return 0
+
+
+# Registro de comandos: nome do subcomando -> handler(args) -> exit code.
+COMMANDS = {
+    "check": lambda a: cmd_check(),
+    "llm-config": lambda a: cmd_llm_config(),
+    "run-sample": lambda a: cmd_run_sample(),
+    "orchestrate": lambda a: cmd_orchestrate(" ".join(a.objective)),
+    "whatsapp-check": lambda a: cmd_whatsapp_check(),
+    "autopilot": lambda a: cmd_autopilot(a.once, a.interval),
+    "ronaldo-patrol": cmd_ronaldo_patrol,
+    "donizete-captura": cmd_donizete_captura,
+    "donizete-fb": cmd_donizete_fb,
+    "ronaldo-audit": cmd_ronaldo_audit,
+    "governanca-audit": cmd_governanca_audit,
+    "orphan-memoria-audit": cmd_orphan_memoria_audit,
+    "donizete-mac-prepare": cmd_donizete_mac_prepare,
+    "donizete-busca-local": cmd_donizete_busca_local,
+    "vitor-schedule": cmd_vitor_schedule,
+    "memory-check": cmd_memory_check,
+    "memory-sync": cmd_memory_sync,
+    "memory-recall": cmd_memory_recall,
+    "graph-pilot": cmd_graph_pilot,
+    "graph-run": cmd_graph_run,
+    "agent-action": cmd_agent_action,
+    "evolution-digest": cmd_evolution_digest,
+}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Laboratório — backend CrewAI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -308,309 +655,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.command == "check":
-        sys.exit(cmd_check())
-    if args.command == "llm-config":
-        sys.exit(cmd_llm_config())
-    if args.command == "run-sample":
-        sys.exit(cmd_run_sample())
-    if args.command == "orchestrate":
-        objective = " ".join(args.objective)
-        sys.exit(cmd_orchestrate(objective))
-    if args.command == "whatsapp-check":
-        sys.exit(cmd_whatsapp_check())
-    if args.command == "autopilot":
-        sys.exit(cmd_autopilot(args.once, args.interval))
-    if args.command == "ronaldo-patrol":
-        load_env()
-        from laboratorio.ops.ronaldo_patrol import run_patrol
-
-        report = run_patrol(dry_run=args.dry_run, notify=not args.no_notify)
-        print(f"\nPatrulha {report.generated_at}")
-        print(report.summary)
-        for issue in report.issues:
-            flag = "🔴" if issue.notify else "🟡"
-            print(f"  {flag} [{issue.severity}] {issue.title}")
-        if report.notified:
-            print(f"\nWhatsApp Vitor: {', '.join(report.notified)}")
-        sys.exit(0)
-    if args.command == "donizete-captura":
-        from laboratorio.ops.donizete_capture import (
-            append_capture_log,
-            build_capture_report,
-            format_capture_cli,
-        )
-
-        report = build_capture_report()
-        print(format_capture_cli(report))
-        if args.log:
-            append_capture_log(report)
-            print(f"\nLog: logs/donizete_captura.md")
-        sys.exit(0)
-    if args.command == "donizete-fb":
-        from laboratorio.ops import donizete_fb
-
-        if args.fb_command == "status":
-            sys.exit(donizete_fb.cmd_status())
-        if args.fb_command == "iniciar":
-            sys.exit(donizete_fb.cmd_iniciar(args.task))
-        if args.fb_command == "grupos":
-            sys.exit(donizete_fb.cmd_grupos())
-        if args.fb_command == "buscar":
-            sys.exit(donizete_fb.cmd_buscar(args.termo))
-        if args.fb_command == "abrir":
-            sys.exit(donizete_fb.cmd_abrir(args.indice, nome=args.nome))
-        if args.fb_command == "navegar":
-            sys.exit(donizete_fb.cmd_navegar(args.max_leads))
-        if args.fb_command == "post":
-            sys.exit(donizete_fb.cmd_post(args.variacao))
-        if args.fb_command == "garimpo":
-            sys.exit(donizete_fb.cmd_garimpo())
-        if args.fb_command == "stalk":
-            sys.exit(
-                donizete_fb.cmd_stalk(
-                    args.url,
-                    args.nome,
-                    cidade=args.cidade,
-                    grupo=args.grupo,
-                    tags=args.tags,
-                )
-            )
-        if args.fb_command == "run":
-            sys.exit(donizete_fb.cmd_run(args.task))
-        sys.exit(2)
-    if args.command == "ronaldo-audit":
-        load_env()
-        from laboratorio.ops.ronaldo_audit import run_audit
-
-        results = run_audit(
-            dry_run=args.dry_run,
-            create=not args.no_create,
-            notify=not args.no_notify,
-        )
-        if not results:
-            print("Nenhuma task nova para auditar.")
-        for r in results:
-            print(f"\n[{r.veredito}] {r.task_id} — {r.title} (via {r.via})")
-            if r.resumo:
-                print(f"  resumo: {r.resumo}")
-            for c in r.created_tasks:
-                print(f"  follow-up: {c}")
-            if r.escalar_vitor:
-                print(f"  escalado Vitor: {r.motivo_escalacao or 'sim'}")
-        sys.exit(0)
-    if args.command == "governanca-audit":
-        from laboratorio.ops.governance_audit import append_governance_log, run_governance_audit
-
-        report = run_governance_audit()
-        print(f"\nGovernança {report.generated_at}")
-        print(report.summary)
-        for f in report.findings:
-            if f.severity == "ok":
-                print(f"  ✅ {f.title}")
-            else:
-                icon = "🔴" if f.severity == "critical" else "🟡"
-                print(f"  {icon} [{f.code}] {f.title}")
-                if f.detail:
-                    print(f"      {f.detail[:200]}")
-        if args.log:
-            append_governance_log(report)
-            print("\nLog: logs/governanca_auditoria.md")
-        sys.exit(0 if report.ok else 1)
-    if args.command == "orphan-memoria-audit":
-        import subprocess
-
-        script = REPO_ROOT / "scripts" / "audit_orphan_memoria.py"
-        cmd = [sys.executable, str(script)]
-        if args.list:
-            cmd.append("--list")
-        if args.suggest_archive:
-            cmd.append("--suggest-archive")
-        if args.write_log:
-            cmd.append("--write-log")
-        if not (args.list or args.suggest_archive or args.write_log):
-            cmd.extend(["--list", "--write-log"])
-        sys.exit(subprocess.call(cmd))
-    if args.command == "donizete-mac-prepare":
-        load_env()
-        from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
-
-        task_arg = getattr(args, "task_id", None) or ""
-        tid, url, prep = prepare_mac_busca_start()
-        if task_arg.strip():
-            from laboratorio.ops.donizete_mac_sync import pull_capture_task_from_api
-
-            print(pull_capture_task_from_api(task_arg.strip()), flush=True)
-        elif prep:
-            print(prep, flush=True)
-        else:
-            print("Nada a sincronizar — use com task_id ou Play na VPS.", flush=True)
-        if tid:
-            print(f"Pronto para: donizete-busca-local · {tid} · {url or 'grupo da task'}", flush=True)
-        sys.exit(0)
-    if args.command == "donizete-busca-local":
-        load_env()
-        import time
-
-        from laboratorio.ops.donizete_mac_sync import prepare_mac_busca_start
-        from laboratorio.ops.donizete_runner import is_running, start_busca, status_line, stop_busca
-
-        tid, url, prep = prepare_mac_busca_start()
-        if prep:
-            print(prep, flush=True)
-        msg = start_busca(
-            task_id=tid,
-            group_url=url,
-            allow_arm_without_cdp=False,
-        )
-        print(msg, flush=True)
-        time.sleep(0.5)
-        if not is_running():
-            print(
-                "ERRO: thread da busca não está ativa — CDP offline ou processo encerrou cedo.",
-                file=sys.stderr,
-                flush=True,
-            )
-            print(status_line(), flush=True)
-            sys.exit(1)
-        print("\n---\n", status_line(), "\n", flush=True)
-        print("Ctrl+C para parar — ou StopDonizete no WhatsApp.", flush=True)
-        try:
-            while is_running():
-                time.sleep(30)
-                print(status_line(), flush=True)
-        except KeyboardInterrupt:
-            print(stop_busca(), flush=True)
-        sys.exit(0)
-    if args.command == "vitor-schedule":
-        load_env()
-        from laboratorio.whatsapp.client import send_text_message
-        from laboratorio.whatsapp.logger import log_exchange
-        from laboratorio.whatsapp.vitor_auth import get_vitor_wa_id
-        from laboratorio.whatsapp.vitor_whatsapp import process_due_reminders
-
-        wa = get_vitor_wa_id()
-        sent = 0
-        for sid, body in process_due_reminders():
-            send_text_message(wa, body)
-            log_exchange(
-                from_wa_id=wa,
-                inbound="(lembrete agendado)",
-                outbound=body,
-                message_id=f"schedule-{sid}",
-                status="ok:schedule",
-            )
-            sent += 1
-            print(f"Enviado lembrete {sid}")
-        print(f"Total: {sent}")
-        sys.exit(0)
-    if args.command == "memory-check":
-        load_env()
-        import os
-
-        from laboratorio.memory.semantic import ensure_schema, is_memory_enabled, supabase_db_url
-
-        print("Memória semântica — Fase 1\n")
-        print(f"  MEMORY_ENABLED: {os.getenv('MEMORY_ENABLED', '1')}")
-        print(f"  SUPABASE_DB_URL: {'ok' if supabase_db_url() else 'AUSENTE'}")
-        print(f"  OPENAI_API_KEY: {'ok' if os.getenv('OPENAI_API_KEY', '').strip() else 'AUSENTE'}")
-        if not is_memory_enabled():
-            print("\nConfigure SUPABASE_DB_URL (senha Postgres) no .env")
-            sys.exit(1)
-        try:
-            ensure_schema()
-            print("\n  Tabela lab_semantic_memories: OK")
-        except Exception as exc:
-            print(f"\n  ERRO: {exc}")
-            sys.exit(1)
-        sys.exit(0)
-    if args.command == "memory-sync":
-        load_env()
-        from laboratorio.memory.sync import sync_all
-
-        stats = sync_all(dry_run=args.dry_run)
-        mode = "dry-run" if args.dry_run else "gravado"
-        print(f"Sync {mode}: {stats['chunks']} chunks em {stats['files']} arquivos")
-        sys.exit(0)
-    if args.command == "memory-recall":
-        load_env()
-        from laboratorio.memory.semantic import recall
-
-        q = " ".join(args.query)
-        hits = recall(q, top_k=args.top)
-        if not hits:
-            print("Nenhum trecho relevante (ou memória vazia — rode memory-sync)")
-        for h in hits:
-            ref = h.source_ref or "—"
-            print(f"\n[{h.similarity:.2f}] {h.namespace} · {ref}\n{h.content[:400]}")
-        sys.exit(0)
-    if args.command == "graph-pilot":
-        load_env()
-        from laboratorio.graph.runner import run_pilot
-
-        try:
-            result = run_pilot(args.task_id, resume=args.resume)
-        except Exception as exc:
-            print(f"Erro no piloto: {exc}")
-            sys.exit(1)
-        print(f"\n✓ Piloto {result.task_id} — fase: {result.phase}")
-        print(f"  Custo estimado: US$ {result.estimated_cost_usd:.4f}")
-        if result.approval_id:
-            print(f"  Aprovação custo pendente: {result.approval_id}")
-        if result.deliverable:
-            print(f"\n--- Entrega (trecho) ---\n{result.deliverable[:600]}…")
-        sys.exit(0)
-    if args.command == "graph-run":
-        load_env()
-        from laboratorio.graph.runner import run_commercial
-
-        try:
-            result = run_commercial(args.task_id, resume=args.resume)
-        except Exception as exc:
-            print(f"Erro: {exc}")
-            sys.exit(1)
-        print(f"\n✓ Comercial {result.task_id} — fase: {result.phase}")
-        print(f"  Custo ~US$ {result.estimated_cost_usd:.4f}")
-        if result.deliverable:
-            print(f"\n--- Trecho ---\n{result.deliverable[:700]}…")
-        sys.exit(0)
-    if args.command == "agent-action":
-        import json
-
-        load_env()
-        from laboratorio.autonomy.gateway import run_action
-
-        try:
-            params = json.loads(args.params_json)
-        except json.JSONDecodeError as exc:
-            print(f"JSON inválido: {exc}")
-            sys.exit(1)
-        try:
-            result = run_action(args.action_id, params, requested_by="cli")
-        except Exception as exc:
-            print(f"Erro: {exc}")
-            sys.exit(1)
-        print(result.output)
-        if result.pending and result.approval_id:
-            print(f"\nPendente: APROVAR {result.approval_id} ou RECUSAR {result.approval_id}")
-        sys.exit(0)
-    if args.command == "evolution-digest":
-        load_env()
-        from laboratorio.evolution.digest import run_daily_digest
-
-        try:
-            result = run_daily_digest(dry_run=args.dry_run, force=args.force)
-        except Exception as exc:
-            print(f"Erro: {exc}")
-            sys.exit(1)
-        if result.skipped:
-            print(f"Já executado hoje ({result.date}). Use --force")
-            sys.exit(0)
-        print(
-            f"Resumo {result.date}: {result.proposal_count} proposta(s) · "
-            f"notificado={result.notified} · approval={result.approval_id or '—'}"
-        )
-        sys.exit(0)
-
-    parser.print_help()
-    sys.exit(1)
+    handler = COMMANDS.get(args.command)
+    if handler is None:
+        parser.print_help()
+        sys.exit(1)
+    sys.exit(handler(args))
