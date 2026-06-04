@@ -1,5 +1,10 @@
 # Social executor — Facebook (Donizete)
 
+> ⚠️ **MÓDULO ARQUIVADO.** A implementação migrou para
+> `backend/src/laboratorio/social/` e `backend/src/laboratorio/ops/donizete_*`.
+> Esta pasta guarda só `session/`, `data/` e `logs/` de runtime no Mac — não há
+> mais código-fonte aqui. Mantido apenas como referência histórica e dados locais.
+
 Donizete opera o **Facebook no Mac do Vitor** via Chrome (CDP). **Sempre no Mac** — ligado, Facebook logado. A VPS só recebe WhatsApp (Play/Stop) e grava CRM quando o Mac capta.
 
 **Executor único (deixar rodando):**

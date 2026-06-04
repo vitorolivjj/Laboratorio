@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=65.0.0,<81.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laboratorio"
+version = "0.1.0"
+description = "Laboratório — runtime multiagente com CrewAI + LangGraph"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai==0.86.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+    # crewai 0.86 usa pkg_resources; setuptools 81+ remove esse módulo
+    "setuptools>=65.0.0,<81.0.0",
+    "fastapi>=0.115.0,<1.0.0",
+    "uvicorn[standard]>=0.32.0,<1.0.0",
+    "httpx>=0.27.0,<1.0.0",
+    "psycopg[binary]>=3.2.0,<4.0.0",
+    "pgvector>=0.3.6,<1.0.0",
+    "langgraph>=0.2.60,<0.4.0",
+    "langgraph-checkpoint-sqlite>=2.0.0,<3.0.0",
+    "langchain-core>=0.3.0,<0.4.0",
+    "playwright>=1.49.0,<2.0.0",
+    "filelock>=3.12,<4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9.0",
+    "ruff>=0.6,<1.0",
+]
+
+[project.scripts]
+laboratorio = "laboratorio.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+# Permite rodar os testes sem `pip install -e .` (importa laboratorio de src/)
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+# Conjunto enxuto para começar — sobe o rigor depois.
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # comprimento de linha tratado pelo formatter

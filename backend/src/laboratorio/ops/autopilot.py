@@ -4,9 +4,10 @@ A cada ciclo lê `tasks/executando.md`, escolhe o agente responsável de cada
 TASK e o aciona para produzir/executar a próxima ação concreta. Tudo é gravado
 no trace de interações (visível no painel).
 
-Seguro por padrão:
-- `AUTOPILOT_ENABLED=0` (desligado) — precisa ser ligado explicitamente.
-- `AUTOPILOT_INTERVAL_S=300` — período entre ciclos.
+Ligado por padrão (`AUTOPILOT_ENABLED=1`), mas limitado por controles de custo —
+para pausar, defina `AUTOPILOT_ENABLED=0`:
+- `AUTOPILOT_ENABLED=1` — ligado; sobe junto com a API (ver `api/app.py::startup`).
+- `AUTOPILOT_INTERVAL_S=600` — período entre ciclos (default do código).
 - `AUTOPILOT_MAX_TASKS=1` — teto de TASKs trabalhadas por ciclo (controle de custo).
 - `AUTOPILOT_COOLDOWN_S=1800` — não reprocessa a mesma TASK antes disso.
 """
