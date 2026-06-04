@@ -96,7 +96,11 @@ def test_tasks_create_and_move(tmp: Path):
     assert (tasks_dir / f"{new_id}.md").is_file(), "doc da TASK criado"
     assert new_id in parsers.parsers_count(tasks_dir / "backlog.md", "## Fila")
 
-    move_msg = tasks_store.move_task(new_id, "executando", nota="começando", tasks_dir=tasks_dir)
+    # force=True pula o gate de briefing — aqui validamos o mecanismo de mover,
+    # não o gate (o gate tem teste próprio em test_tasks_briefing_gate).
+    move_msg = tasks_store.move_task(
+        new_id, "executando", nota="começando", tasks_dir=tasks_dir, force=True
+    )
     assert "executando" in move_msg
     assert new_id not in parsers.parsers_count(tasks_dir / "backlog.md", "## Fila")
     exec_ids = parsers.parsers_count(tasks_dir / "executando.md", "## Em andamento")
@@ -104,6 +108,29 @@ def test_tasks_create_and_move(tmp: Path):
 
     tasks_store.move_task("TASK-012", "aguardando", tasks_dir=tasks_dir)
     assert "TASK-012" in parsers.parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas")
+
+
+def test_tasks_briefing_gate(tmp: Path):
+    """Mover para executando exige seção Briefing (ou force=True)."""
+    tasks_dir = tmp / "tasks"
+    shutil.copytree(_REPO / "tasks", tasks_dir)
+    new_id = tasks_store.create_task(
+        titulo="Gate test", agente="dev", tasks_dir=tasks_dir
+    ).split()[0]
+
+    blocked = False
+    try:
+        tasks_store.move_task(new_id, "executando", tasks_dir=tasks_dir)
+    except ValueError as exc:
+        blocked = "briefing" in str(exc).lower()
+    assert blocked, "mover para executando sem briefing deve falhar"
+
+    doc = tasks_dir / f"{new_id}.md"
+    doc.write_text(
+        markdown_io.read_text(doc) + "\n## Briefing\n\nObjetivo: x\n", encoding="utf-8"
+    )
+    msg = tasks_store.move_task(new_id, "executando", tasks_dir=tasks_dir)
+    assert "executando" in msg
 
 
 def test_memory_registrar(tmp: Path):
