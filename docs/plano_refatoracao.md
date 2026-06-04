@@ -17,9 +17,12 @@
 | 3 — Segurança | ✅ feito (maestro+tasks; donizete já tinha) | `fase 3` |
 | 4 — Concorrência + cache | ✅ feito | `fase 4` |
 | 6 — Migração banco (degraus 1-2) | ✅ schema + backfill (dry-run ok) | `fase 6 (fundacao)` |
+| 7.4 — Observabilidade (maestro) | ✅ feito + smoke da god function | `fase 7.4 (parcial)` |
 | 5 — Camada de repositório | ⏳ pendente | — |
 | 6 — Migração banco (degraus 3-5) | ⏳ pendente (precisa banco ligado) | — |
-| 7 — Consolidações | ⏳ pendente | — |
+| 7.2/7.3 + resto do 7.4 | ⏳ pendente (CLI registry, Settings, demais except: pass) | — |
+
+Cobertura de testes: **31 testes** (era 1 quebrado + 16). `laboratorio check` saindo 0.
 
 Tudo em commits separados sobre o `checkpoint` (revertível por fase). Nenhuma
 mudança de comportamento; testes verdes a cada passo.
