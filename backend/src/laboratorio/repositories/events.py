@@ -10,7 +10,7 @@ from typing import Protocol, runtime_checkable
 
 from laboratorio.config import LOGS_DIR
 from laboratorio.ops import parsers
-from laboratorio.repositories import use_postgres
+from laboratorio.repositories import pick
 
 EVENTOS_FILE = LOGS_DIR / "eventos.md"
 
@@ -46,6 +46,4 @@ class PostgresEventRepository:
 
 
 def get_event_repository() -> EventRepository:
-    if use_postgres():
-        return PostgresEventRepository()
-    return MarkdownEventRepository()
+    return pick(MarkdownEventRepository, PostgresEventRepository)

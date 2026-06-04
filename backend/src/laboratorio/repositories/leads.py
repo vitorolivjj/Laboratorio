@@ -13,7 +13,7 @@ from typing import Protocol, runtime_checkable
 
 from laboratorio.config import REPO_ROOT
 from laboratorio.ops import parsers
-from laboratorio.repositories import use_postgres
+from laboratorio.repositories import pick
 
 CRM_DIR = REPO_ROOT / "crm"
 CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.md"]
@@ -81,6 +81,4 @@ class PostgresLeadRepository:
 
 
 def get_lead_repository() -> LeadRepository:
-    if use_postgres():
-        return PostgresLeadRepository()
-    return MarkdownLeadRepository()
+    return pick(MarkdownLeadRepository, PostgresLeadRepository)

@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import Protocol, runtime_checkable
 
 from laboratorio.ops import parsers
-from laboratorio.repositories import use_postgres
+from laboratorio.repositories import pick
 from laboratorio.repositories.leads import CRM_DIR, CRM_SEGMENT_FILES, PostgresLeadRepository
 
 
@@ -70,6 +70,4 @@ class PostgresCrmRepository:
 
 
 def get_crm_repository() -> CrmRepository:
-    if use_postgres():
-        return PostgresCrmRepository()
-    return MarkdownCrmRepository()
+    return pick(MarkdownCrmRepository, PostgresCrmRepository)

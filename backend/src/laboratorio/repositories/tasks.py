@@ -16,7 +16,7 @@ from typing import Protocol, runtime_checkable
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops import parsers, tasks_store
 from laboratorio.ops.tasks_store import STATE_FILES
-from laboratorio.repositories import use_postgres
+from laboratorio.repositories import pick
 
 
 @runtime_checkable
@@ -135,7 +135,5 @@ class PostgresTaskRepository:
 
 
 def get_task_repository() -> TaskRepository:
-    """Fábrica: escolhe a implementação por DATA_BACKEND (default markdown)."""
-    if use_postgres():
-        return PostgresTaskRepository()
-    return MarkdownTaskRepository()
+    """Fábrica: markdown (default) ou postgres+fallback markdown (DATA_BACKEND)."""
+    return pick(MarkdownTaskRepository, PostgresTaskRepository)

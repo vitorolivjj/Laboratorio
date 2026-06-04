@@ -10,7 +10,7 @@ from typing import Protocol, runtime_checkable
 
 from laboratorio.config import REPO_ROOT
 from laboratorio.ops import parsers
-from laboratorio.repositories import use_postgres
+from laboratorio.repositories import pick
 
 PROJETOS_REGISTRY = REPO_ROOT / "projetos" / "projetos.md"
 
@@ -57,6 +57,4 @@ class PostgresProjectRepository:
 
 
 def get_project_repository() -> ProjectRepository:
-    if use_postgres():
-        return PostgresProjectRepository()
-    return MarkdownProjectRepository()
+    return pick(MarkdownProjectRepository, PostgresProjectRepository)

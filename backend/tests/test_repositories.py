@@ -50,9 +50,11 @@ def test_factory_selects_by_env(monkeypatch):
     assert isinstance(get_task_repository(), MarkdownTaskRepository)
     monkeypatch.setenv("DATA_BACKEND", "markdown")
     assert isinstance(get_task_repository(), MarkdownTaskRepository)
-    # Postgres só é instanciado (não conecta — conexão é lazy).
+    # Postgres: embrulhado com fallback markdown (não conecta — conexão é lazy).
     monkeypatch.setenv("DATA_BACKEND", "postgres")
-    assert isinstance(get_task_repository(), PostgresTaskRepository)
+    repo = get_task_repository()
+    assert isinstance(repo.primary, PostgresTaskRepository)
+    assert isinstance(repo.fallback, MarkdownTaskRepository)
 
 
 def test_project_repository(monkeypatch):
@@ -68,7 +70,23 @@ def test_project_repository(monkeypatch):
     projs = repo.all()
     assert projs and all("id" in p and "name" in p for p in projs)
     monkeypatch.setenv("DATA_BACKEND", "postgres")
-    assert isinstance(get_project_repository(), PostgresProjectRepository)
+    assert isinstance(get_project_repository().primary, PostgresProjectRepository)
+
+
+def test_fallback_repository_degrades_to_markdown():
+    """Se o repo do banco falhar, FallbackRepository cai no markdown."""
+    from laboratorio.repositories import FallbackRepository
+
+    class _Boom:
+        def list_by_state(self, state):
+            raise RuntimeError("banco fora do ar")
+
+    class _Ok:
+        def list_by_state(self, state):
+            return [{"id": "X", "state": state}]
+
+    repo = FallbackRepository(_Boom(), _Ok())
+    assert repo.list_by_state("executando") == [{"id": "X", "state": "executando"}]
 
 
 def test_lead_repository(monkeypatch):
