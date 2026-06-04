@@ -6,11 +6,14 @@ import re
 from datetime import date
 from pathlib import Path
 
+# Fonte única de leitura e extração de campos (antes duplicado aqui).
+from laboratorio.ops.markdown_io import extract_cell, extract_field, read_text
 
-def read_text(path: Path) -> str:
-    if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8")
+__all__ = ["read_text"]  # mantém parsers.read_text como API pública
+
+# Padrão canônico de ID de task: PREFIXO-NÚMERO (TASK-007, LP-PINTOR-002, LAB-3).
+# Fonte única — componha com rf"...({TASK_ID_RE})..." para capturar um ID inteiro.
+TASK_ID_RE = r"[A-Z][A-Z0-9\-]*-\d+"
 
 
 def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
@@ -52,8 +55,7 @@ def parse_event_blocks(content: str, limit: int = 30) -> list[dict]:
 
 
 def _field(body: str, key: str) -> str:
-    m = re.search(rf"- \*\*{re.escape(key)}:\*\*\s*(.+)", body)
-    return m.group(1).strip() if m else ""
+    return extract_field(body, key)
 
 
 def event_is_open_error(ev: dict) -> bool:
@@ -90,8 +92,7 @@ def parse_whatsapp_log(content: str, limit: int = 50) -> list[dict]:
 
 
 def _bullet(body: str, key: str) -> str:
-    m = re.search(rf"- \*\*{key}:\*\*\s*(.+)", body)
-    return m.group(1).strip() if m else ""
+    return extract_field(body, key)
 
 
 def parse_leads_index(content: str) -> list[dict]:
@@ -137,8 +138,7 @@ def parse_lead_sections(content: str) -> list[dict]:
         block = content[start : start + next_h.start()] if next_h else content[start:]
 
         def fld(key: str) -> str:
-            fm = re.search(rf"\| \*\*{re.escape(key)}\*\* \| (.+?) \|", block)
-            return fm.group(1).strip() if fm else "—"
+            return extract_cell(block, key) or "—"
 
         leads.append(
             {
@@ -162,7 +162,7 @@ def parse_lead_sections(content: str) -> list[dict]:
 def parse_executando_tasks(content: str) -> list[dict]:
     tasks: list[dict] = []
     for m in re.finditer(
-        r"^### ([A-Z][A-Z0-9\-]*-\d+) — (.+?)\n(.*?)(?=^### |\n---|\Z)",
+        rf"^### ({TASK_ID_RE}) — (.+?)\n(.*?)(?=^### |\n---|\Z)",
         content,
         re.MULTILINE | re.DOTALL,
     ):
@@ -189,10 +189,10 @@ def parse_executando_tasks(content: str) -> list[dict]:
 def parse_briefings_from_task(content: str, task_id: str) -> list[dict]:
     """Extrai briefings Ronaldo → agente de TASK-XXX.md."""
     delegations: list[dict] = []
-    title_m = re.search(r"^# [A-Z][A-Z0-9\-]*-\d+ — (.+?)$", content, re.MULTILINE)
+    title_m = re.search(rf"^# {TASK_ID_RE} — (.+?)$", content, re.MULTILINE)
     task_title = title_m.group(1).strip() if title_m else task_id
     for m in re.finditer(
-        r"^### Briefing — (.+?) — ([A-Z][A-Z0-9\-]*-\d+)(?: — (\d{4}-\d{2}-\d{2}))?\n(.*?)(?=^### |\Z)",
+        r"^### Briefing — (.+?) — (" + TASK_ID_RE + r")(?: — (\d{4}-\d{2}-\d{2}))?\n(.*?)(?=^### |\Z)",
         content,
         re.MULTILINE | re.DOTALL,
     ):
@@ -227,7 +227,7 @@ def parse_delegations_from_tasks(tasks_dir: Path, active_ids: list[str]) -> list
         if briefings:
             delegations.extend(briefings)
             continue
-        title_m = re.search(r"^# [A-Z][A-Z0-9\-]*-\d+ — (.+?)$", content, re.MULTILINE)
+        title_m = re.search(rf"^# {TASK_ID_RE} — (.+?)$", content, re.MULTILINE)
         task_title = title_m.group(1).strip() if title_m else task_id
 
         in_table = False
@@ -453,8 +453,7 @@ def parse_crm_leads(content: str) -> list[dict]:
         block = content[start : start + next_h.start()] if next_h else content[start:]
 
         def fld(key: str) -> str:
-            fm = re.search(rf"\|\s*\*\*{re.escape(key)}\*\*\s*\|\s*(.+?)\s*\|", block)
-            return fm.group(1).strip() if fm else ""
+            return extract_cell(block, key)
 
         leads.append(
             {

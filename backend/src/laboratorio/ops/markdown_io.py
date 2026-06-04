@@ -7,6 +7,7 @@ metade caso o processo morra no meio da gravação.
 from __future__ import annotations
 
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -15,6 +16,24 @@ def read_text(path: Path) -> str:
     if not path.is_file():
         return ""
     return path.read_text(encoding="utf-8")
+
+
+def extract_field(body: str, key: str) -> str:
+    """Valor de um bullet markdown no formato ``- **chave:** valor``.
+
+    Fonte única dos antigos `_field`/`_bullet` espalhados pelo código.
+    """
+    m = re.search(rf"- \*\*{re.escape(key)}:\*\*\s*(.+)", body)
+    return m.group(1).strip() if m else ""
+
+
+def extract_cell(row: str, key: str) -> str:
+    """Valor de uma célula de tabela ``| **chave** | valor |``.
+
+    Fonte única dos antigos `fld`/`_field` de tabela (CRM, leads LP).
+    """
+    m = re.search(rf"\|\s*\*\*{re.escape(key)}\*\*\s*\|\s*(.+?)\s*\|", row)
+    return m.group(1).strip() if m else ""
 
 
 def write_text_atomic(path: Path, content: str) -> None:

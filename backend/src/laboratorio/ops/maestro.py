@@ -657,16 +657,26 @@ def _build_briefing(
     }
 
 
+# IDs canônicos dos agentes com backend (mesma lista do AGENT_CATALOG).
+_KNOWN_AGENT_IDS = {
+    "ronaldo_maestro", "caio_manteiga", "donizete_social", "dev", "juarez", "loide",
+}
+
+
 def re_split_agents(text: str) -> list[str]:
+    """Divide um campo multi-agente (separadores · , ;) em IDs conhecidos.
+
+    Usa o normalizador único `parsers._normalize_agent_id` (fonte única do
+    mapeamento nome→id); ignora tokens sem agente conhecido e preserva
+    duplicatas (comportamento legado).
+    """
     ids: list[str] = []
     for token in re.split(r"[·,;]", text):
-        t = token.strip().lower()
-        if not t:
+        if not token.strip():
             continue
-        for key in ("ronaldo_maestro", "caio_manteiga", "donizete_social", "dev", "juarez", "loide"):
-            if key.split("_")[0] in t or key in t:
-                ids.append(key)
-                break
+        aid = parsers._normalize_agent_id(token)
+        if aid in _KNOWN_AGENT_IDS:
+            ids.append(aid)
     return ids
 
 

@@ -24,6 +24,7 @@ sys.path.insert(0, str(_BACKEND / "src"))
 
 from laboratorio.config import LOGS_DIR, MEMORIA_RONALDO_DIR, REPO_ROOT, load_env
 from laboratorio.crews.orchestrator import build_orchestrator_crew
+from laboratorio.ops.markdown_io import insert_after_heading, read_text, write_text_atomic
 
 OBJETIVO_EXEMPLO = (
     "Criar uma oferta low ticket de página simples para pintores autônomos."
@@ -44,26 +45,6 @@ def _require_llm_key() -> None:
         "  3. Rode novamente: ./run.sh orquestrar"
     )
     sys.exit(1)
-
-
-def _insert_after_section(path: Path, section_title: str, entry: str) -> None:
-    text = path.read_text(encoding="utf-8")
-    anchor = f"## {section_title}\n\n"
-    if anchor not in text:
-        raise FileNotFoundError(f"Seção '{section_title}' não encontrada em {path}")
-
-    pos = text.index(anchor) + len(anchor)
-    rest = text[pos:]
-    stripped = rest.lstrip()
-    if stripped.startswith("<!--"):
-        end_comment = stripped.index("-->") + 3
-        pos += len(rest) - len(stripped) + end_comment
-        if text[pos : pos + 1] == "\n":
-            pos += 1
-        if text[pos : pos + 1] == "\n":
-            pos += 1
-
-    path.write_text(text[:pos] + entry.rstrip() + "\n\n" + text[pos:], encoding="utf-8")
 
 
 def registrar_ciclo(objective: str, resultado: str) -> None:
@@ -89,8 +70,11 @@ def registrar_ciclo(objective: str, resultado: str) -> None:
 - **Próximo passo:** Executar DECISÃO DE HOJE e registrar TASK em `tasks/`.
 """
 
-    _insert_after_section(EVENTOS_FILE, "Log", evento)
-    _insert_after_section(HISTORICO_FILE, "Registros", historico)
+    for path, heading, block in (
+        (EVENTOS_FILE, "## Log", evento),
+        (HISTORICO_FILE, "## Registros", historico),
+    ):
+        write_text_atomic(path, insert_after_heading(read_text(path), heading, block))
     print(f"\nRegistrado em:\n  - {EVENTOS_FILE.relative_to(REPO_ROOT)}\n  - {HISTORICO_FILE.relative_to(REPO_ROOT)}")
 
 
@@ -133,7 +117,7 @@ def main() -> None:
 
     try:
         output = run(objective)
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValueError) as e:
         print(f"Erro ao registrar ciclo: {e}")
         sys.exit(1)
 

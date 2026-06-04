@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 
 from laboratorio.config import MEMORIA_DIR, REPO_ROOT
+from laboratorio.ops.markdown_io import extract_cell
 from laboratorio.whatsapp.caio_session import mark_script_sent, was_script_sent
 from laboratorio.whatsapp.vitor_auth import normalize_wa_id
 
@@ -72,8 +73,7 @@ class LpLead:
 
 
 def _field(block: str, key: str) -> str:
-    m = re.search(rf"\|\s*\*\*{re.escape(key)}\*\*\s*\|\s*(.+?)\s*\|", block)
-    return m.group(1).strip() if m else ""
+    return extract_cell(block, key)
 
 
 def _load_leads() -> list[LpLead]:
