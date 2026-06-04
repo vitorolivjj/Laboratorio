@@ -27,6 +27,7 @@ from laboratorio.config import (
 from laboratorio.ops import parsers, usage
 from laboratorio.ops.interactions import recent_interactions
 from laboratorio.ops.maestro_metrics import append_metric_from_overview
+from laboratorio.repositories.tasks import get_task_repository
 
 CADENCE_STATE = LOGS_DIR / "task_cadence_state.json"
 
@@ -229,19 +230,14 @@ def build_maestro_snapshot() -> dict[str, Any]:
     if not leads:
         crm_raw = parsers.read_text(CRM_LEADS)
         leads = parsers.parse_leads_index(crm_raw) or parsers.parse_lead_sections(crm_raw)
-    executando = parsers.parse_executando_tasks(
-        parsers.read_text(TASKS_DIR / "executando.md")
-    )
-    planejando = parsers.parse_executando_tasks(
-        parsers.read_text(TASKS_DIR / "planejando.md")
-    )
+    task_repo = get_task_repository()
+    executando = task_repo.list_by_state("executando")
+    planejando = task_repo.list_by_state("planejando")
     for t in executando:
         t["phase"] = "executando"
     for t in planejando:
         t["phase"] = "planejando"
-    standby_tasks = parsers.parse_executando_tasks(
-        parsers.read_text(TASKS_DIR / "standby.md")
-    )
+    standby_tasks = task_repo.list_by_state("standby")
     for t in standby_tasks:
         t["phase"] = "standby"
     active_work = executando + planejando
@@ -257,7 +253,7 @@ def build_maestro_snapshot() -> dict[str, Any]:
         donizete_busca = {}
     delegations = parsers.parse_delegations_from_tasks(TASKS_DIR, active_ids)
     decisions = parsers.parse_decisions(parsers.read_text(MEMORIA_DIR / "decisoes.md"))
-    kanban = parsers.count_kanban(TASKS_DIR)
+    kanban = task_repo.counts()
     projects = _build_projects(
         project_registry, kanban, active_work, crms, index=proj_index, by_id=proj_by_id
     )
