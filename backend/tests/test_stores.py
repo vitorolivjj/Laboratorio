@@ -106,8 +106,10 @@ def test_tasks_create_and_move(tmp: Path):
     exec_ids = parsers.parsers_count(tasks_dir / "executando.md", "## Em andamento")
     assert new_id in exec_ids, f"{new_id} deve estar em executando: {exec_ids}"
 
-    tasks_store.move_task("TASK-012", "aguardando", tasks_dir=tasks_dir)
-    assert "TASK-012" in parsers.parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas")
+    # 2ª task criada pelo próprio teste (não depende de dados reais do repo).
+    other_id = tasks_store.create_task(titulo="Outra teste", tasks_dir=tasks_dir).split()[0]
+    tasks_store.move_task(other_id, "aguardando", tasks_dir=tasks_dir)
+    assert other_id in parsers.parsers_count(tasks_dir / "aguardando.md", "## Bloqueadas")
 
 
 def test_tasks_briefing_gate(tmp: Path):
