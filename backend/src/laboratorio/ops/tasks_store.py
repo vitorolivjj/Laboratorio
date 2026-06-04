@@ -12,6 +12,7 @@ from pathlib import Path
 
 from filelock import FileLock
 
+from laboratorio.db import dual_write
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops.markdown_io import (
     insert_after_heading,
@@ -125,6 +126,7 @@ def create_task(
         f"- [ ] {resultado.strip() or 'Definir critério de pronto'}\n"
     )
     write_text_atomic(tasks_dir / f"{task_id}.md", doc)
+    dual_write.sync_async()
     return f"{task_id} criada no backlog ({titulo.strip()})."
 
 
@@ -214,6 +216,7 @@ def move_task(
         if doc2 != doc:
             write_text_atomic(doc_path, doc2)
 
+    dual_write.sync_async()
     return f"{task_id} movida de {from_state} → {to_state}."
 
 

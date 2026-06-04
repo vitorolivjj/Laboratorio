@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from laboratorio.config import CRM_DIR, REPO_ROOT
+from laboratorio.db import dual_write
 from laboratorio.ops.markdown_io import insert_after_marker, read_text, write_text_atomic
 
 CRM_LP = CRM_DIR / "crm_landing_pintor.md"
@@ -163,6 +164,7 @@ def add_lead_lp(
     text = insert_after_marker(text, _LP_MARKER, _lead_section(lead))
     text = _update_index(text, _index_row(lead))
     write_text_atomic(path, text)
+    dual_write.sync_async()
     return {
         **lead,
         "message": f"Lead {lead_id} criado ({lead['nome']}, status={status}, slug={lead_slug}).",
@@ -209,6 +211,7 @@ def update_lead_lp(
         )
 
     write_text_atomic(path, new_text)
+    dual_write.sync_async()
     return f"Lead {lead_id} → status={status}."
 
 

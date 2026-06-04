@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from laboratorio.config import CRM_LEADS
+from laboratorio.db import dual_write
 from laboratorio.ops.markdown_io import (
     insert_after_marker,
     read_text,
@@ -138,6 +139,7 @@ def add_lead(
     text = insert_after_marker(text, _LEADS_MARKER, _lead_section(lead))
     text = _update_index(text, _index_row(lead))
     write_text_atomic(path, text)
+    dual_write.sync_async()
     return f"Lead {lead['id']} criado ({lead['nome']}, status={lead['status']})."
 
 
@@ -184,6 +186,7 @@ def update_lead_status(
     if new_text == text:
         return f"Nenhuma mudança aplicada a {lead_id} (status já era {status}?)."
     write_text_atomic(path, new_text)
+    dual_write.sync_async()
     return f"Lead {lead_id} atualizado para status={status}."
 
 
