@@ -16,17 +16,6 @@ Tarefas **em andamento agora**. Sprint LP: WIP até **4** (`WIP_SOFT_MAX`).
 
 ## Em andamento
 
-### LP-PINTOR-011 — Monitor 20min — painel kanban
-- **Objetivo:** Captura intermitente Facebook (grupo fixo)
-- **Prioridade:** alta
-- **Agente responsável:** donizete_social
-- **Grupo FB:** https://www.facebook.com/groups/124168141645517/
-- **Modo captura:** grupo_fixo
-- **Status:** executando
-
-
-_Kanban zerado em 2026-06-03 — tasks anteriores canceladas e arquivadas. Novas tasks entram pelo backlog._
-
 ---
 
 <!-- Tarefas ativas abaixo -->
