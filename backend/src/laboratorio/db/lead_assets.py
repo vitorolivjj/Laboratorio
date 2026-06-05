@@ -34,6 +34,38 @@ def _file_row(r: tuple) -> dict:
     return d
 
 
+# ---------- Garantia de existência (FK dos arquivos) ----------
+
+def ensure_lead(
+    lead_id: str,
+    *,
+    segment: str = "",
+    nome: str = "",
+    projeto: str = "",
+    cidade: str = "",
+    contato: str = "",
+    origem: str = "",
+    status: str = "prospectado",
+) -> None:
+    """Garante que o lead existe em lab_leads (necessário p/ o FK dos arquivos).
+
+    `on conflict (id) do nothing`: não sobrescreve uma linha já sincronizada
+    (o dual-write completa os demais campos depois). Só assegura a existência.
+    """
+    with connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            insert into lab_leads (id, segment, nome, projeto, cidade, contato, origem, status, updated_at)
+            values (%s,%s,%s,%s,%s,%s,%s,%s, now())
+            on conflict (id) do nothing
+            """,
+            (
+                lead_id.strip(), segment or None, nome or None, projeto or None,
+                cidade or None, contato or None, origem or None, status or None,
+            ),
+        )
+
+
 # ---------- Análise (lab_leads) ----------
 
 def set_analysis(

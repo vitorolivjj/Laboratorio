@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 from laboratorio.ops import crm_lp_store
-from laboratorio.social.lead_geo import normalize_lead_cidade
 from laboratorio.social import facebook_cdp
-from laboratorio.social.garimpo import candidates_from_snapshot, format_garimpo_report
 from laboratorio.social.facebook_cdp import (
     collect_image_urls,
     download_urls,
@@ -17,6 +16,82 @@ from laboratorio.social.facebook_cdp import (
     pick_facebook_page,
     save_screenshot,
 )
+from laboratorio.social.garimpo import candidates_from_snapshot, format_garimpo_report
+from laboratorio.social.lead_geo import normalize_lead_cidade
+
+logger = logging.getLogger("laboratorio.social.capture")
+
+# Segmento/projeto desta captura (leads de pintor da landing).
+_LP_SEGMENT = "crm_landing_pintor"
+_LP_PROJETO = "PROJ-LP"
+
+
+def _mirror_media_to_storage(
+    lead: dict,
+    *,
+    raw_dir: Path,
+    saved: list[str],
+    perfil_url: str,
+    cidade: str,
+    contato: str,
+    observacoes: str,
+    bio: str,
+) -> int:
+    """Espelha mídia capturada no Supabase Storage + grava lab_lead_files + análise.
+
+    Best-effort: qualquer falha de Storage/DB não derruba a captura (o lead já
+    está no markdown/CRM com a pasta local). Retorna quantos arquivos subiram.
+    Os bytes vão pro bucket; lab_lead_files guarda a chave + URL pública.
+    """
+    try:
+        from laboratorio.db import lead_assets, storage
+    except Exception:  # noqa: BLE001
+        return 0
+    if not storage.enabled():
+        return 0
+
+    try:
+        lead_assets.ensure_lead(
+            lead["id"], segment=_LP_SEGMENT, nome=lead.get("nome", ""), projeto=_LP_PROJETO,
+            cidade=cidade, contato=contato, origem=f"facebook_stalk — {perfil_url[:120]}",
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Storage: ensure_lead %s falhou: %s", lead.get("id"), exc)
+        return 0
+
+    # ordem: screenshot do perfil primeiro, depois as fotos de trabalho
+    items: list[tuple[Path, str]] = []
+    perfil_png = raw_dir / "perfil-full.png"
+    if perfil_png.is_file():
+        items.append((perfil_png, "screenshot_perfil"))
+    items += [(raw_dir / fn, "foto_trabalho") for fn in saved]
+
+    sent = 0
+    for ordem, (path, tipo) in enumerate(items):
+        if not path.is_file():
+            continue
+        try:
+            keypath = storage.lead_object_path(_LP_PROJETO, lead["id"], path.name)
+            storage.upload_file(keypath, path)
+            lead_assets.add_file(
+                lead["id"], keypath, projeto=_LP_PROJETO, tipo=tipo,
+                url=storage.public_url(keypath), bytes_=path.stat().st_size,
+                origem="donizete", ordem=ordem, metadata={"perfil_url": perfil_url},
+            )
+            sent += 1
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Storage: upload %s falhou: %s", path.name, exc)
+
+    # análise inicial p/ o comercial (agentes enriquecem depois)
+    try:
+        lead_assets.set_analysis(
+            lead["id"],
+            resumo_abordagem=(observacoes or bio[:300]).strip()[:500] or None,
+            analise={"bio": bio[:1000], "origem": perfil_url, "fonte": "donizete_stalk"},
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Storage: set_analysis %s falhou: %s", lead.get("id"), exc)
+    return sent
 
 
 def run_garimpo(*, scroll_first: bool = True) -> str:
@@ -96,8 +171,15 @@ def stalk_profile(
 
         _patch_config_stub(root / "config.json", lead, perfil_url)
 
+        sent = _mirror_media_to_storage(
+            lead, raw_dir=raw_dir, saved=saved, perfil_url=perfil_url,
+            cidade=lead.get("cidade", ""), contato=contato,
+            observacoes=observacoes, bio=bio,
+        )
+        storage_msg = f" · storage={sent}" if sent else ""
+
         return (
-            f"Stalk {lead['id']} ({nome}) slug={slug} · imagens={len(saved)} · "
+            f"Stalk {lead['id']} ({nome}) slug={slug} · imagens={len(saved)}{storage_msg} · "
             f"status={status}{msg_extra}\nPasta: {root}"
         )
 
