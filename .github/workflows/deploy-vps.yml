@@ -6,6 +6,7 @@ on:
     paths:
       - "backend/**"
       - "frontend/painel-maestro/**"
+      - "frontend/painel-v2/**"
       - "agentes/**"
       - "memoria/**"
       - "deploy/vps/**"
