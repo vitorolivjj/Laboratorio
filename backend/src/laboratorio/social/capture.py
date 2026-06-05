@@ -26,12 +26,6 @@ _LP_SEGMENT = "crm_landing_pintor"
 _LP_PROJETO = "PROJ-LP"
 
 
-def _auto_enrich_on() -> bool:
-    import os
-
-    return os.getenv("CRM_AUTO_ENRICH", "1").strip().lower() not in ("0", "false", "no", "off")
-
-
 def _mirror_media_to_storage(
     lead: dict,
     *,
@@ -98,18 +92,15 @@ def _mirror_media_to_storage(
     except Exception as exc:  # noqa: BLE001
         logger.warning("Storage: set_analysis %s falhou: %s", lead.get("id"), exc)
 
-    # enriquece automaticamente via LLM (perfil + como abordar). Best-effort:
-    # falha de LLM/rede não derruba a captura; CRM_AUTO_ENRICH=0 desliga.
-    if _auto_enrich_on():
-        try:
-            from laboratorio.ops import crm_enrich
+    # enriquece automaticamente via LLM (perfil + como abordar). Best-effort,
+    # CRM_AUTO_ENRICH=0 desliga.
+    from laboratorio.ops import crm_enrich
 
-            crm_enrich.enrich(
-                lead["id"],
-                {**lead, "segment": _LP_SEGMENT, "projeto": _LP_PROJETO, "observacoes": observacoes},
-            )
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Auto-enrich %s falhou: %s", lead.get("id"), exc)
+    crm_enrich.auto_enrich(
+        lead["id"],
+        {**lead, "segment": _LP_SEGMENT, "projeto": _LP_PROJETO, "observacoes": observacoes},
+        bio=bio,
+    )
     return sent
 
 

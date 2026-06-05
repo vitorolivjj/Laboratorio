@@ -8,6 +8,14 @@ import re
 
 from laboratorio.social import groups, session
 from laboratorio.social.capture import stalk_profile
+from laboratorio.social.facebook_cdp import (
+    auto_post_enabled,
+    facebook_session,
+    navigate,
+    page_snapshot,
+    pick_facebook_page,
+    try_fill_composer,
+)
 from laboratorio.social.feed_analysis import (
     _PROFILE_PAUSE_MS,
     extract_posts_from_feed,
@@ -24,17 +32,9 @@ from laboratorio.social.feed_vision import (
     vision_enabled,
     vision_leads_to_report,
 )
+from laboratorio.social.groups import FbGroup, load_cached_groups
 from laboratorio.social.lead_classifier import classify_text, should_register_lead
 from laboratorio.social.lead_geo import cidade_for_post
-from laboratorio.social.facebook_cdp import (
-    auto_post_enabled,
-    facebook_session,
-    navigate,
-    page_snapshot,
-    pick_facebook_page,
-    try_fill_composer,
-)
-from laboratorio.social.groups import FbGroup, load_cached_groups, open_group
 
 # Grupos irrelevantes para PROJ-LP — Donizete ignora na escolha autônoma.
 _SKIP_GROUP_NAME = re.compile(
@@ -249,6 +249,18 @@ def run_navigation_cycle(
                             {"autor": post.autor, "url": "", "grupo": g.name, "contato": contato}
                         )
                         session.save_session(data)
+                        # auto-enriquece (perfil + como abordar) mesmo sem stalk:
+                        # este caminho não passa pelo stalk_profile, então chama aqui.
+                        from laboratorio.ops import crm_enrich
+
+                        crm_enrich.auto_enrich(
+                            lead["id"],
+                            {"nome": post.autor, "cidade": cidade, "contato": contato,
+                             "servico": "Pintura", "tags": f"autopromocao,{clf.tier}",
+                             "observacoes": post.texto[:480], "segment": "crm_landing_pintor",
+                             "projeto": "PROJ-LP"},
+                            bio=post.texto,
+                        )
                     except Exception as exc:
                         lines.append(f"CRM sem perfil falhou: {exc}")
                 continue

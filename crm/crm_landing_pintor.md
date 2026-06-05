@@ -21,6 +21,10 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 
 | ID | Nome | Cidade | Origem | Status | Resp. | Captura |
 |----|------|--------|--------|--------|-------|---------|
+| LEAD-067 | Fabio Augusto da Silva | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
+| LEAD-066 | Mohammed | São Paulo e Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
+| LEAD-065 | FSP Pinturas | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
+| LEAD-064 | Fernando S. Pereira | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-063 | Igor Santos | bh | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
 | LEAD-060 | Rubens Santos | Região | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
 | LEAD-059 | Gabriel Andrade Produção | Região | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
@@ -42,6 +46,86 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 ## Leads
 
 <!-- Donizete: novos leads abaixo -->
+
+## LEAD-067 — Fabio Augusto da Silva
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-067 |
+| **Nome** | Fabio Augusto da Silva |
+| **Cidade** | Região |
+| **Serviço** | Pintura |
+| **Contato** | — |
+| **Grupo origem** | Grupo 1726982011023476 |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,medio |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/fabio-augusto-da-silva/ |
+| **Próxima ação** | [medio] Agora o pintor profissional ganha de verdade! |
+| **Data captura** | 2026-06-05 |
+
+## LEAD-066 — Mohammed
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-066 |
+| **Nome** | Mohammed |
+| **Cidade** | São Paulo e Região |
+| **Serviço** | Pintura |
+| **Contato** | 11 921661327 |
+| **Grupo origem** | Grupo 1726982011023476 |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,medio |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/mohammed/ |
+| **Próxima ação** | [medio] Serviços de pintura e manutenção residencial. |
+| **Data captura** | 2026-06-05 |
+
+## LEAD-065 — FSP Pinturas
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-065 |
+| **Nome** | FSP Pinturas |
+| **Cidade** | Região |
+| **Serviço** | Pintura |
+| **Contato** | 11 99197-3667 |
+| **Grupo origem** | Grupo 1726982011023476 |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,fraco |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/fsp-pinturas/ |
+| **Próxima ação** | [fraco] Transformamos seu ambiente com qualidade e profissionalismo. |
+| **Data captura** | 2026-06-05 |
+
+## LEAD-064 — Fernando S. Pereira
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-064 |
+| **Nome** | Fernando S. Pereira |
+| **Cidade** | Região |
+| **Serviço** | Pintura |
+| **Contato** | null |
+| **Grupo origem** | Grupo 1726982011023476 |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,medio |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/fernando-s-pereira/ |
+| **Próxima ação** | [medio] Pintor Profissional Com Preço Justo. |
+| **Data captura** | 2026-06-05 |
 
 ## LEAD-063 — Igor Santos
 

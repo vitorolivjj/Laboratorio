@@ -30,7 +30,7 @@ _SYSTEM = (
 
 
 def _build_user(lead: dict, analysis: dict) -> str:
-    bio = str((analysis.get("analise") or {}).get("bio", ""))
+    bio = str(lead.get("bio") or (analysis.get("analise") or {}).get("bio", ""))
     return (
         f"Nome: {lead.get('nome', '')}\n"
         f"Cidade: {lead.get('cidade', '')}\n"
@@ -98,3 +98,26 @@ def enrich(lead_id: str, lead: dict) -> dict:
     )
     logger.info("Lead %s enriquecido (perfil=%s, custo=$%.4f)", lead_id, perfil, cost)
     return lead_assets.get_analysis(lead_id)
+
+
+def auto_enrich_on() -> bool:
+    """CRM_AUTO_ENRICH != 0 (default ligado)."""
+    import os
+
+    return os.getenv("CRM_AUTO_ENRICH", "1").strip().lower() not in ("0", "false", "no", "off")
+
+
+def auto_enrich(lead_id: str, lead: dict, *, bio: str = "") -> bool:
+    """Enriquece um lead recém-capturado se o auto-enrich estiver ligado.
+
+    Best-effort: qualquer falha (LLM/rede/DB) é engolida e logada — nunca derruba
+    a captura. Usado tanto no caminho com-stalk quanto no sem-URL.
+    """
+    if not auto_enrich_on():
+        return False
+    try:
+        enrich(lead_id, {**lead, "bio": bio} if bio else lead)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("auto_enrich %s falhou: %s", lead_id, exc)
+        return False
