@@ -44,6 +44,15 @@ systemctl daemon-reload
 systemctl enable laboratorio-api
 systemctl restart laboratorio-api
 
+# Timer de sincronização markdown -> Postgres (espelho, a cada 5 min).
+if [[ -f "$SCRIPT_DIR/db-sync.service" && -f "$SCRIPT_DIR/db-sync.timer" ]]; then
+  echo "==> db-sync timer..."
+  install -m 644 "$SCRIPT_DIR/db-sync.service" /etc/systemd/system/db-sync.service
+  install -m 644 "$SCRIPT_DIR/db-sync.timer" /etc/systemd/system/db-sync.timer
+  systemctl daemon-reload
+  systemctl enable --now db-sync.timer
+fi
+
 echo "==> nginx..."
 # IMPORTANTE: NÃO sobrescrever a config se ela já existe. O certbot edita este
 # arquivo para adicionar o bloco HTTPS (porta 443). Reinstalar a versão HTTP-only
