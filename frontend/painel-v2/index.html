@@ -212,10 +212,11 @@ const SEGMENTS = [
 function Field({ label, v }) {
   return <div><div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div><div className="text-sm text-slate-200 break-words">{v || "—"}</div></div>;
 }
-function FileCard({ f, onApprove }) {
+function FileCard({ f, onApprove, onDelete }) {
   const isImg = String(f.mime || "").startsWith("image") || /\.(png|jpe?g|webp|gif)$/i.test(f.storage_path || "");
   return (
-    <div className={"rounded-xl border overflow-hidden " + (f.aprovado === true ? "border-emerald-500/40" : f.aprovado === false ? "border-rose-500/30 opacity-60" : "border-white/5")}>
+    <div className={"rounded-xl border overflow-hidden group relative " + (f.aprovado === true ? "border-emerald-500/40" : f.aprovado === false ? "border-rose-500/30 opacity-60" : "border-white/5")}>
+      <button onClick={() => onDelete(f.id)} title="remover arquivo" className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-black/60 text-[10px] text-slate-300 opacity-0 group-hover:opacity-100 hover:text-rose-300">🗑</button>
       <a href={f.url} target="_blank" rel="noreferrer" className="block aspect-square bg-slate-950 flex items-center justify-center overflow-hidden">
         {isImg && f.url ? <img src={f.url} loading="lazy" alt={f.tipo} className="w-full h-full object-cover" /> : <span className="text-3xl">📄</span>}
       </a>
@@ -235,20 +236,45 @@ function CrmTab() {
   const [sel, setSel] = useState(null);
   const [detail, setDetail] = useState(null);
   const [q, setQ] = useState("");
+  const [busy, setBusy] = useState("");
+  const [edit, setEdit] = useState(false);
+  const [fPerfil, setFPerfil] = useState("");
+  const [fResumo, setFResumo] = useState("");
+  const fileRef = useRef(null);
   const loadList = useCallback(async () => {
     try { const r = await authFetch("/api/crm/leads" + (seg ? "?segment=" + seg : "")); if (r.ok) setLeads((await r.json()).leads || []); } catch (e) {}
   }, [seg]);
   useEffect(() => { loadList(); }, [loadList]);
   const loadDetail = useCallback(async (id) => {
-    setSel(id); setDetail(null);
+    setSel(id); setDetail(null); setEdit(false); setBusy("");
     try { const r = await authFetch("/api/crm/leads/" + id); if (r.ok) setDetail(await r.json()); } catch (e) {}
   }, []);
   async function approve(fid, ap) {
     try { await authFetch("/api/crm/leads/" + sel + "/files/" + fid + "/aprovar?aprovado=" + ap, { method: "POST" }); if (sel) loadDetail(sel); } catch (e) {}
   }
+  async function delFile(fid) {
+    if (!sel || !confirm("Remover este arquivo?")) return;
+    try { await authFetch("/api/crm/leads/" + sel + "/files/" + fid, { method: "DELETE" }); loadDetail(sel); } catch (e) {}
+  }
+  async function analisar() {
+    if (!sel || busy) return; setBusy("analisando com IA…");
+    try { const r = await authFetch("/api/crm/leads/" + sel + "/analisar", { method: "POST" }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro de rede"); setTimeout(() => setBusy(""), 4000); }
+  }
+  function startEdit() { setFPerfil(an.perfil || ""); setFResumo(an.resumo_abordagem || ""); setEdit(true); }
+  async function saveEdit() {
+    setBusy("salvando…");
+    try { const r = await authFetch("/api/crm/leads/" + sel, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ perfil: fPerfil, resumo_abordagem: fResumo }) }); if (r.ok) { setEdit(false); loadDetail(sel); } else { setBusy("falha ao salvar"); setTimeout(() => setBusy(""), 3000); } } catch (e) { setBusy(""); }
+  }
+  async function onUpload(e) {
+    const file = e.target.files && e.target.files[0]; if (!file || !sel) return;
+    setBusy("enviando " + file.name + "…");
+    try { const r = await authFetch("/api/crm/leads/" + sel + "/arquivos?nome=" + encodeURIComponent(file.name) + "&tipo=material", { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (er) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
+    e.target.value = "";
+  }
   const filtered = leads.filter((l) => !q || (l.nome || "").toLowerCase().includes(q.toLowerCase()) || (l.id || "").toLowerCase().includes(q.toLowerCase()));
   const d = detail && detail.lead, an = (detail && detail.analise) || {}, files = (detail && detail.arquivos) || [];
-  const extra = an.analise && typeof an.analise === "object" ? Object.entries(an.analise).filter(([, v]) => v != null && String(v).length) : [];
+  const extra = an.analise && typeof an.analise === "object" ? Object.entries(an.analise).filter(([k, v]) => !k.startsWith("_") && k !== "bio" && v != null && String(v).length) : [];
+  const working = busy && busy.endsWith("…");
   return (
     <div className="grid lg:grid-cols-3 gap-5">
       <section className="lg:col-span-1">
@@ -273,16 +299,33 @@ function CrmTab() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
               <Field label="Cidade" v={d.cidade} /><Field label="Contato" v={d.contato} /><Field label="Status" v={d.status} /><Field label="Projeto" v={d.projeto} />
             </div>
+            <div className="flex items-center gap-2 mt-4 flex-wrap">
+              <button onClick={analisar} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-violet-600/80 hover:bg-violet-600 disabled:opacity-50 text-white font-semibold">✨ Analisar IA</button>
+              {!edit && <button onClick={startEdit} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-semibold">✎ Editar</button>}
+              {busy && <span className={"text-xs " + (working ? "text-slate-400" : "text-rose-400")}>{busy}</span>}
+            </div>
           </div>
-          {(an.resumo_abordagem || extra.length > 0) && <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-4">
+          <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Como abordar</h3>
-            {an.resumo_abordagem && <p className="text-sm text-slate-200 leading-snug whitespace-pre-wrap">{an.resumo_abordagem}</p>}
-            {extra.length > 0 && <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-3">{extra.map(([k, v]) => <div key={k} className="text-xs"><span className="text-slate-500">{k}: </span><span className="text-slate-300">{Array.isArray(v) ? v.join(", ") : String(v)}</span></div>)}</div>}
-          </div>}
+            {edit
+              ? <div className="space-y-2">
+                  <input value={fPerfil} onChange={(e) => setFPerfil(e.target.value)} placeholder="perfil (ex.: pintor residencial)" className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-sky-500/50" />
+                  <textarea value={fResumo} onChange={(e) => setFResumo(e.target.value)} rows={3} placeholder="como abordar este lead…" className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500/50" />
+                  <div className="flex gap-2"><button onClick={saveEdit} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold">Salvar</button><button onClick={() => setEdit(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 text-slate-400">Cancelar</button></div>
+                </div>
+              : <React.Fragment>
+                  {an.resumo_abordagem ? <p className="text-sm text-slate-200 leading-snug whitespace-pre-wrap">{an.resumo_abordagem}</p> : <p className="text-xs text-slate-600">sem análise ainda — use ✨ Analisar IA ou ✎ Editar</p>}
+                  {extra.length > 0 && <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-3">{extra.map(([k, v]) => <div key={k} className="text-xs"><span className="text-slate-500">{k}: </span><span className="text-slate-300">{Array.isArray(v) ? v.join(", ") : String(v)}</span></div>)}</div>}
+                </React.Fragment>}
+          </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Arquivos <span className="text-slate-600 normal-case font-normal">· {files.length} · produção monta a página com os ✓</span></h3>
-            {files.length === 0 && <p className="text-xs text-slate-600">sem arquivos ainda — a captura sobe as fotos automaticamente</p>}
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">{files.map((f) => <FileCard key={f.id} f={f} onApprove={approve} />)}</div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Arquivos <span className="text-slate-600 normal-case font-normal">· {files.length} · produção monta a página com os ✓</span></h3>
+              <button onClick={() => fileRef.current && fileRef.current.click()} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-50 text-slate-300 font-semibold">⬆ Enviar arquivo</button>
+              <input ref={fileRef} type="file" onChange={onUpload} className="hidden" />
+            </div>
+            {files.length === 0 && <p className="text-xs text-slate-600">sem arquivos ainda — a captura sobe as fotos automaticamente, ou envie manualmente</p>}
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">{files.map((f) => <FileCard key={f.id} f={f} onApprove={approve} onDelete={delFile} />)}</div>
           </div>
         </div>}
       </section>
