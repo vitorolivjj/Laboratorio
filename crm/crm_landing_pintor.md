@@ -24,7 +24,6 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 | LEAD-067 | Fabio Augusto da Silva | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-066 | Mohammed | São Paulo e Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-065 | FSP Pinturas | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
-| LEAD-064 | Fernando S. Pereira | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-063 | Igor Santos | bh | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
 | LEAD-060 | Rubens Santos | Região | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
 | LEAD-059 | Gabriel Andrade Produção | Região | feed_vision — https://www.facebook.com/groups/124168141645517/ | prospectado | donizete_social | 2026-06-04 |
@@ -105,26 +104,6 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 | **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
 | **Prévia** | https://api.laboratorioagentes.com.br/previas/fsp-pinturas/ |
 | **Próxima ação** | [fraco] Transformamos seu ambiente com qualidade e profissionalismo. |
-| **Data captura** | 2026-06-05 |
-
-## LEAD-064 — Fernando S. Pereira
-
-| Campo | Valor |
-|-------|-------|
-| **ID** | LEAD-064 |
-| **Nome** | Fernando S. Pereira |
-| **Cidade** | Região |
-| **Serviço** | Pintura |
-| **Contato** | null |
-| **Grupo origem** | Grupo 1726982011023476 |
-| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
-| **Tags** | autopromocao,medio |
-| **Status** | prospectado |
-| **Responsável** | donizete_social |
-| **Projeto** | PROJ-LP |
-| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
-| **Prévia** | https://api.laboratorioagentes.com.br/previas/fernando-s-pereira/ |
-| **Próxima ação** | [medio] Pintor Profissional Com Preço Justo. |
 | **Data captura** | 2026-06-05 |
 
 ## LEAD-063 — Igor Santos

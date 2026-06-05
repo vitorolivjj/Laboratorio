@@ -98,7 +98,8 @@ def _mirror_media_to_storage(
 
     crm_enrich.auto_enrich(
         lead["id"],
-        {**lead, "segment": _LP_SEGMENT, "projeto": _LP_PROJETO, "observacoes": observacoes},
+        {**lead, "segment": _LP_SEGMENT, "projeto": _LP_PROJETO,
+         "observacoes": observacoes, "link_perfil": perfil_url},
         bio=bio,
     )
     return sent

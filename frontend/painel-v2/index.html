@@ -279,7 +279,7 @@ function CrmTab() {
   }
   const filtered = leads.filter((l) => !q || (l.nome || "").toLowerCase().includes(q.toLowerCase()) || (l.id || "").toLowerCase().includes(q.toLowerCase()));
   const d = detail && detail.lead, an = (detail && detail.analise) || {}, files = (detail && detail.arquivos) || [];
-  const extra = an.analise && typeof an.analise === "object" ? Object.entries(an.analise).filter(([k, v]) => !k.startsWith("_") && k !== "bio" && v != null && String(v).length) : [];
+  const az = an.analise && typeof an.analise === "object" ? an.analise : {};
   const working = busy && busy.endsWith("…");
   return (
     <div className="grid lg:grid-cols-3 gap-5">
@@ -327,7 +327,14 @@ function CrmTab() {
                 </div>
               : <React.Fragment>
                   {an.resumo_abordagem ? <p className="text-sm text-slate-200 leading-snug whitespace-pre-wrap">{an.resumo_abordagem}</p> : <p className="text-xs text-slate-600">sem análise ainda — use ✨ Analisar IA ou ✎ Editar</p>}
-                  {extra.length > 0 && <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-3">{extra.map(([k, v]) => <div key={k} className="text-xs"><span className="text-slate-500">{k}: </span><span className="text-slate-300">{Array.isArray(v) ? v.join(", ") : String(v)}</span></div>)}</div>}
+                  {(az.servico || az.maturidade) && <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 mt-3 text-xs">
+                    {az.servico && <div><span className="text-slate-500">Serviço: </span><span className="text-slate-300">{az.servico}</span></div>}
+                    {az.maturidade && <div><span className="text-slate-500">Maturidade: </span><span className="text-slate-300">{az.maturidade}</span></div>}
+                  </div>}
+                  {(az.ganchos || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Ganchos pro Caio</div><ul className="text-xs text-slate-300 space-y-0.5 list-disc list-inside">{az.ganchos.map((g, i) => <li key={i}>{g}</li>)}</ul></div>}
+                  {(az.objecoes || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Objeções · contorno</div><ul className="text-xs text-slate-300 space-y-0.5 list-disc list-inside">{az.objecoes.map((o, i) => <li key={i}>{o}</li>)}</ul></div>}
+                  {(az.dor || az.melhor_canal || az.tom) && <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-[11px] text-slate-500">{az.dor && <span>dor: <span className="text-slate-400">{az.dor}</span></span>}{az.melhor_canal && <span>canal: <span className="text-slate-400">{az.melhor_canal}</span></span>}{az.tom && <span>tom: <span className="text-slate-400">{az.tom}</span></span>}</div>}
+                  {az.link_perfil && <a href={az.link_perfil} target="_blank" rel="noreferrer" className="inline-block mt-3 text-xs text-sky-400 hover:text-sky-300">🔗 Ver perfil do lead</a>}
                 </React.Fragment>}
           </div>
           <div>

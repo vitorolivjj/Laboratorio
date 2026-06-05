@@ -18,14 +18,24 @@ from laboratorio.graph.llm import chat
 logger = logging.getLogger("laboratorio.ops.crm_enrich")
 
 _SYSTEM = (
-    "Você é analista comercial de uma agência que cria landing pages para "
-    "prestadores de serviço (pintores etc.) captados em grupos de Facebook. "
-    "Dado os dados de um lead, devolva uma análise curta e prática para o vendedor "
-    "abordar. Responda APENAS um objeto JSON válido (sem markdown, sem comentários) "
-    "com as chaves: perfil (string curta, ex.: 'pintor residencial'), "
-    "resumo_abordagem (1-2 frases de como abordar), dor (string), gancho (string), "
-    "objecoes (lista de strings), melhor_canal (string), tom (string). "
-    "Use português do Brasil. Se faltar dado, infira com bom senso."
+    "Você é Caio Manteiga — SDR e vendedor brasileiro: rápido, desenrolado, persuasivo "
+    "e prático. Vende sem parecer vendedor, entende comportamento, gatilho e timing. "
+    "Recebe os dados de um lead (prestador de serviço captado num grupo de Facebook, "
+    "que a agência quer converter em cliente de landing page) e faz uma ANÁLISE COMERCIAL "
+    "pra você mesmo abordar e fechar. "
+    "Responda APENAS um objeto JSON válido (sem markdown, sem comentários) com as chaves: "
+    "perfil (classificação curta do lead, ex.: 'pintor residencial autônomo'), "
+    "servico (o que ele oferece, concreto, ex.: 'pintura residencial, textura e gesso'), "
+    "maturidade (nível do negócio dele: ex.: 'autônomo iniciante, posta sozinho e sem site' "
+    "ou 'estabelecido, tem equipe e portfólio'), "
+    "resumo_abordagem (2-3 frases: leitura do perfil + COMO abordar no seu tom — simples, "
+    "direto, no gatilho certo), "
+    "ganchos (lista de 2-4 ganchos concretos pra puxar conversa: algo que ele postou, uma "
+    "dor real, um elogio verdadeiro, um timing), "
+    "objecoes (lista de objeções prováveis, cada uma com o contorno entre parênteses), "
+    "dor (a principal dor/necessidade dele), melhor_canal (ex.: whatsapp), "
+    "tom (ex.: 'direto e prático'). "
+    "Português do Brasil, específico ao lead — nada genérico. Se faltar dado, infira com bom senso."
 )
 
 
@@ -69,22 +79,30 @@ def enrich(lead_id: str, lead: dict) -> dict:
     if not data:
         raise ValueError(f"LLM não devolveu JSON válido: {text[:200]}")
 
+    def _list(v):
+        if isinstance(v, str):
+            v = [v]
+        return [str(x).strip() for x in (v or []) if str(x).strip()]
+
     perfil = str(data.get("perfil", "")).strip()
     resumo = str(data.get("resumo_abordagem", "")).strip()
-    objecoes = data.get("objecoes") or []
-    if isinstance(objecoes, str):
-        objecoes = [objecoes]
     analise = {
+        "servico": str(data.get("servico", "")).strip(),
+        "maturidade": str(data.get("maturidade", "")).strip(),
+        "ganchos": _list(data.get("ganchos") or data.get("gancho")),
+        "objecoes": _list(data.get("objecoes")),
         "dor": str(data.get("dor", "")).strip(),
-        "gancho": str(data.get("gancho", "")).strip(),
-        "objecoes": [str(o).strip() for o in objecoes if str(o).strip()],
         "melhor_canal": str(data.get("melhor_canal", "")).strip(),
         "tom": str(data.get("tom", "")).strip(),
-        "_fonte": "llm",
+        "_fonte": "caio_llm",
         "_custo_usd": round(cost, 4),
     }
+    # link do perfil — pro Caio consultar depois / virar gancho
+    link = str(lead.get("link_perfil") or (current.get("analise") or {}).get("link_perfil", "")).strip()
+    if link:
+        analise["link_perfil"] = link
     # preserva a bio original (contexto da captura)
-    bio = str((current.get("analise") or {}).get("bio", ""))
+    bio = str(lead.get("bio") or (current.get("analise") or {}).get("bio", ""))
     if bio:
         analise["bio"] = bio[:1500]
 
