@@ -95,6 +95,17 @@ def choose_next_group(*, refresh: bool = False) -> FbGroup:
     return ranked[0]
 
 
+def _norm_phone(value: str) -> str:
+    """Telefone só com dígitos; '' se curto demais para ser chave confiável.
+
+    Usado no dedup por telefone: a mesma pessoa pode aparecer com strings de
+    nome diferentes ("Leandro" vs "LEANDRO PINTURAS EM GERAL"), mas o telefone
+    é o mesmo — então deduplicamos por ele além do nome.
+    """
+    digits = re.sub(r"\D", "", str(value or ""))
+    return digits if len(digits) >= 8 else ""
+
+
 def run_navigation_cycle(
     *,
     max_leads: int = 1,
@@ -161,6 +172,24 @@ def run_navigation_cycle(
             str(c.get("autor", "")).strip().lower()
             for c in data.get("captured_leads", [])
         }
+        # Dedup por TELEFONE: pega a mesma pessoa com nomes diferentes (mesmo
+        # número). Semeia do que já capturamos nesta sessão + dos leads já no
+        # CRM LP (robusto entre sessões / reinícios).
+        captured_phones = {
+            p
+            for c in data.get("captured_leads", [])
+            if (p := _norm_phone(c.get("contato", "")))
+        }
+        try:
+            from laboratorio.ops import parsers as _parsers
+            from laboratorio.ops.crm_lp_store import CRM_LP as _CRM_LP
+
+            _seg = _parsers.parse_crm_segment(_CRM_LP.read_text(encoding="utf-8"))
+            for _ld in _seg.get("leads", []):
+                if (p := _norm_phone(_ld.get("contato", ""))):
+                    captured_phones.add(p)
+        except Exception:  # noqa: BLE001 — semear é best-effort
+            pass
 
         for post in posts:
             if captured >= max_leads:
@@ -185,6 +214,12 @@ def run_navigation_cycle(
                 oferece_servico=True,
             )
             contato = (vlead.telefone if vlead else "") or ""
+            phone_key = _norm_phone(contato)
+            if phone_key and phone_key in captured_phones:
+                lines.append(
+                    f"\nJá capturado antes (dedup telefone {contato}): {post.autor}"
+                )
+                continue
 
             if not perfil:
                 if post.score >= 3 and post.autor and post.autor != "autor":
@@ -208,8 +243,10 @@ def run_navigation_cycle(
                         )
                         captured += 1
                         captured_names.add(author_key)
+                        if phone_key:
+                            captured_phones.add(phone_key)
                         data.setdefault("captured_leads", []).append(
-                            {"autor": post.autor, "url": "", "grupo": g.name}
+                            {"autor": post.autor, "url": "", "grupo": g.name, "contato": contato}
                         )
                         session.save_session(data)
                     except Exception as exc:
@@ -238,8 +275,10 @@ def run_navigation_cycle(
                     lines.append(msg)
                     captured += 1
                     captured_names.add(author_key)
+                    if phone_key:
+                        captured_phones.add(phone_key)
                     data.setdefault("captured_leads", []).append(
-                        {"autor": post.autor, "url": perfil, "grupo": g.name}
+                        {"autor": post.autor, "url": perfil, "grupo": g.name, "contato": contato}
                     )
                     session.save_session(data)
                 except Exception as exc:
