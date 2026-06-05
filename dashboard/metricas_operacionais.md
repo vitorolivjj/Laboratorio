@@ -8,24 +8,24 @@ Visão centralizada da operação do Laboratório multiagente.
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
-**Última atualização automática:** 2026-06-04 (script local / GitHub Actions)
+**Última atualização automática:** 2026-06-05 (script local / GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-04 14:58 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-05 01:02 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
 
 | Indicador | Valor |
 |-----------|-------|
-| TASKs em execução | 1 (cadência 2min entre starts) |
+| TASKs em execução | 0 (cadência 2min entre starts) |
 | TASKs em planejamento | 0 |
 | Entregáveis (tasks `executando`) | 0 / 0 |
-| **Total leads (todos CRMs)** | **2** |
+| **Total leads (todos CRMs)** | **64** |
 | KPI LP — ativos | 1 |
 | KPI LP — taxa ativação | 100% |
 | Hipóteses `a_testar` | 2 |
@@ -34,53 +34,18 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Status | Qtd | Tasks |
 |--------|-----|-------|
-| `executando` | 1 | LP-PINTOR-001 |
+| `executando` | 0 | — |
 | `planejando` | 0 | — |
-| `aguardando` | 3 | LP-PINTOR-006, TASK-012, TASK-013 |
-| `backlog` | 13 | LP-PINTOR-001, LP-PINTOR-009, LP-PINTOR-008, LP-PINTOR-003, LP-PINTOR-005, TASK-014, TASK-015, TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021 |
-| `concluído` (kanban) | 17 | LP-PINTOR-007, LP-PINTOR-004, LAB-006, LP-PINTOR-002, LAB-005, LAB-004, LAB-003, LAB-002, TASK-022, TASK-003, TASK-011, TASK-010, TASK-008, TASK-007, TASK-006, TASK-005, TASK-000 |
-| `arquivado` (canceladas) | 2 | TASK-001, TASK-002 |
+| `aguardando` | 0 | — |
+| `backlog` | 0 | — |
+| `concluído` (kanban) | 0 | — |
+| `arquivado` (canceladas) | 0 | — |
 
 ### Tasks (arquivos persistentes)
 
 | Task | Status | Entregáveis | Progresso |
 |------|--------|-------------|-----------|
-| [LAB-002](../tasks/LAB-002.md) | `desconhecido` | 0/0 | — |
-| [LAB-003](../tasks/LAB-003.md) | `concluido` | 0/3 | 0% |
-| [LAB-004](../tasks/LAB-004.md) | `concluido` | 4/4 | 100% |
-| [LAB-005](../tasks/LAB-005.md) | `concluido` | 0/0 | — |
-| [LAB-006](../tasks/LAB-006.md) | `concluido` | 0/0 | — |
-| [LP-PINTOR-001](../tasks/LP-PINTOR-001.md) | `executando` | 0/0 | — |
-| [LP-PINTOR-002](../tasks/LP-PINTOR-002.md) | `concluido` | 0/0 | — |
-| [LP-PINTOR-003](../tasks/LP-PINTOR-003.md) | `backlog` | 0/0 | — |
-| [LP-PINTOR-004](../tasks/LP-PINTOR-004.md) | `concluido` | 0/0 | — |
-| [LP-PINTOR-005](../tasks/LP-PINTOR-005.md) | `backlog` | 0/0 | — |
-| [LP-PINTOR-006](../tasks/LP-PINTOR-006.md) | `aguardando` | 0/0 | — |
-| [LP-PINTOR-007](../tasks/LP-PINTOR-007.md) | `**concluido**` | 0/0 | — |
-| [LP-PINTOR-008](../tasks/LP-PINTOR-008.md) | `backlog` | 0/0 | — |
-| [LP-PINTOR-009](../tasks/LP-PINTOR-009.md) | `backlog` | 0/0 | — |
-| [TASK-001](../tasks/TASK-001.md) | `arquivado` | 5/8 | 62% |
-| [TASK-002](../tasks/TASK-002.md) | `arquivado` | 1/5 | 20% |
-| [TASK-003](../tasks/TASK-003.md) | `concluido` | 5/5 | 100% |
-| [TASK-005](../tasks/TASK-005.md) | `concluido` | 6/6 | 100% |
-| [TASK-006](../tasks/TASK-006.md) | `concluido` | 6/6 | 100% |
-| [TASK-007](../tasks/TASK-007.md) | `concluido` | 7/7 | 100% |
-| [TASK-008](../tasks/TASK-008.md) | `concluido` | 5/5 | 100% |
-| [TASK-009](../tasks/TASK-009.md) | `concluido` | 0/0 | — |
-| [TASK-010](../tasks/TASK-010.md) | `concluído` | 5/5 | 100% |
-| [TASK-011](../tasks/TASK-011.md) | `concluído` | 4/4 | 100% |
-| [TASK-012](../tasks/TASK-012.md) | `aguardando` | 0/0 | — |
-| [TASK-013](../tasks/TASK-013.md) | `aguardando` | 0/0 | — |
-| [TASK-014](../tasks/TASK-014.md) | `backlog` | 0/0 | — |
-| [TASK-015](../tasks/TASK-015.md) | `backlog` | 0/0 | — |
-| [TASK-016](../tasks/TASK-016.md) | `backlog` | 0/0 | — |
-| [TASK-017](../tasks/TASK-017.md) | `backlog` | 0/0 | — |
-| [TASK-018](../tasks/TASK-018.md) | `backlog` | 0/0 | — |
-| [TASK-019](../tasks/TASK-019.md) | `backlog` | 0/0 | — |
-| [TASK-020](../tasks/TASK-020.md) | `backlog` | 0/0 | — |
-| [TASK-021](../tasks/TASK-021.md) | `backlog` | 0/4 | 0% |
-| [TASK-022](../tasks/TASK-022.md) | `concluido` | 6/6 | 100% |
-| [VITOR-001](../tasks/VITOR-001.md) | `**cancelada**` | 0/0 | — |
+
 
 ### CRM segmentado
 
@@ -101,20 +66,33 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Etapa | Qtd |
 |-------|-----|
-| `prospectado` | 0 |
+| `prospectado` | 62 |
 | `pronto_pra_pagina` | 0 |
 | `previa_no_ar` | 0 |
 | `abordado` | 0 |
 | `ativo` | 1 |
 | `recusou` | 0 |
-| **Total** | **1** |
+| **Total** | **63** |
 
 ### Leads (todos os CRMs)
 
 | ID | CRM | Nome | Status | Captura |
 |----|-----|------|--------|---------|
 | LEAD-VIOLA | CRM Laboratório | Dr. Viola | `diagnostico` | 2026-05-31 |
-| LEAD-001 | CRM Landing Page Pintor | Stephanie Turnley | `ativo` | 2026-06-02 |
+| LEAD-063 | CRM Landing Page Pintor | Igor Santos | `prospectado` | 2026-06-04 |
+| LEAD-062 | CRM Landing Page Pintor | Rubens Santos | `prospectado` | 2026-06-04 |
+| LEAD-061 | CRM Landing Page Pintor | Rubens Santos | `prospectado` | 2026-06-04 |
+| LEAD-060 | CRM Landing Page Pintor | Rubens Santos | `prospectado` | 2026-06-04 |
+| LEAD-059 | CRM Landing Page Pintor | Gabriel Andrade Produção | `prospectado` | 2026-06-04 |
+| LEAD-058 | CRM Landing Page Pintor | Erick Americo | `prospectado` | 2026-06-04 |
+| LEAD-057 | CRM Landing Page Pintor | Helder | `prospectado` | 2026-06-04 |
+| LEAD-056 | CRM Landing Page Pintor | Helder Bajaninho | `prospectado` | 2026-06-04 |
+| LEAD-055 | CRM Landing Page Pintor | Helder Banjaninho | `prospectado` | 2026-06-04 |
+| LEAD-054 | CRM Landing Page Pintor | Helder | `prospectado` | 2026-06-04 |
+| LEAD-053 | CRM Landing Page Pintor | Ezequiel Silva | `prospectado` | 2026-06-04 |
+| LEAD-052 | CRM Landing Page Pintor | Ezequiel Silva | `prospectado` | 2026-06-04 |
+| LEAD-051 | CRM Landing Page Pintor | Ezequiel Silva | `prospectado` | 2026-06-04 |
+| LEAD-050 | CRM Landing Page Pintor | Helder Dos Reis | `prospectado` | 2026-06-04 |
 
 <!-- AUTO-SNAPSHOT:END -->
 
