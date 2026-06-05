@@ -165,7 +165,6 @@ def analyze_feed_screenshot(path: Path, *, grupo: str = "") -> list[VisionLead]:
 
 def capture_feed_screenshots(page, *, passes: int, shots_dir: Path) -> list[Path]:
     """Scroll lento e salva prints do viewport a cada N passadas."""
-    from laboratorio.social.feed_analysis import slow_scroll
 
     shots_dir.mkdir(parents=True, exist_ok=True)
     every = max(1, int(os.getenv("FB_VISION_SHOT_EVERY", "2")))
