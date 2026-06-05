@@ -12,18 +12,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <script>
-  tailwind.config = {
-    theme: { extend: {
-      fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
-      keyframes: {
-        slidein: { "0%": { opacity: 0, transform: "translateY(-8px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
-        pingsoft: { "0%": { transform: "scale(1)", opacity: 0.6 }, "100%": { transform: "scale(2.2)", opacity: 0 } },
-      },
-      animation: { slidein: "slidein .35s cubic-bezier(.22,1,.36,1)", pingsoft: "pingsoft 1.8s ease-out infinite" },
-    } },
-  };
+  tailwind.config = { theme: { extend: {
+    fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+    keyframes: {
+      slidein: { "0%": { opacity: 0, transform: "translateY(-8px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
+      pingsoft: { "0%": { transform: "scale(1)", opacity: 0.6 }, "100%": { transform: "scale(2.2)", opacity: 0 } },
+    },
+    animation: { slidein: "slidein .35s cubic-bezier(.22,1,.36,1)", pingsoft: "pingsoft 1.8s ease-out infinite" },
+  } } };
 </script>
-<style> body { background: #0a0c10; } ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 99px; } </style>
+<style> body { background: #0a0c10; } ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 99px; } </style>
 </head>
 <body class="font-sans text-slate-200 antialiased">
 <div id="root"></div>
@@ -31,24 +29,18 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ── config ──────────────────────────────────────────────────────────────────
-const API = "";                   // mesmo host do FastAPI (painel servido por ele)
-const DAILY_BUDGET = 5;           // espelha AUTOPILOT_DAILY_BUDGET_USD
+// ── config / api ─────────────────────────────────────────────────────────────
+const API = "";
+const DAILY_BUDGET = 5;
 const SNAP_MS = 8000, FEED_MS = 4000;
-
-// token (?token=... fica salvo; backend só exige se MAESTRO_API_TOKEN setado)
-(function () {
-  try {
-    const u = new URL(location.href), t = u.searchParams.get("token");
-    if (t) { localStorage.setItem("maestroToken", t); u.searchParams.delete("token"); history.replaceState({}, "", u); }
-  } catch (e) {}
-})();
-function authFetch(path) {
-  let tk = ""; try { tk = localStorage.getItem("maestroToken") || ""; } catch (e) {}
-  return fetch(API + path, { cache: "no-store", headers: tk ? { Authorization: "Bearer " + tk } : {} });
+(function () { try { const u = new URL(location.href), t = u.searchParams.get("token"); if (t) { localStorage.setItem("maestroToken", t); u.searchParams.delete("token"); history.replaceState({}, "", u); } } catch (e) {} })();
+function tok() { try { return localStorage.getItem("maestroToken") || ""; } catch (e) { return ""; } }
+function authFetch(path, opts) {
+  opts = opts || {}; const t = tok();
+  const headers = Object.assign({}, opts.headers, t ? { Authorization: "Bearer " + t } : {});
+  return fetch(API + path, Object.assign({ cache: "no-store" }, opts, { headers }));
 }
 
-// ── agentes (cor por papel) ─────────────────────────────────────────────────
 const AGENTS = {
   ronaldo_maestro: { name: "Ronaldo",  role: "Maestro",    color: "#60a5fa" },
   caio_manteiga:   { name: "Caio",     role: "Comercial",  color: "#34d399" },
@@ -60,208 +52,193 @@ const AGENTS = {
 const ORDER = Object.keys(AGENTS);
 function resolve(s) {
   const low = String(s || "").toLowerCase();
-  for (const id of ORDER) {
-    const a = AGENTS[id];
-    if (low.includes(id) || low.includes(a.name.toLowerCase()) || low.includes(id.split("_")[0])) return { id, ...a };
-  }
+  for (const id of ORDER) { const a = AGENTS[id]; if (low.includes(id) || low.includes(a.name.toLowerCase()) || low.includes(id.split("_")[0])) return { id, ...a }; }
   return { id: "?", name: String(s || "—").slice(0, 14), role: "", color: "#94a3b8" };
 }
 const WORKING = new Set(["executando", "ativo"]);
-
 function relTime(at) {
   if (!at) return "";
-  const d = new Date(String(at).replace(" UTC", "Z").replace(" ", "T"));
-  if (isNaN(d)) return "";
+  const d = new Date(String(at).replace(" UTC", "Z").replace(" ", "T")); if (isNaN(d)) return "";
   const s = Math.round((Date.now() - d.getTime()) / 1000);
-  if (s < 5) return "agora";
-  if (s < 60) return s + "s";
-  if (s < 3600) return Math.floor(s / 60) + "min";
-  if (s < 86400) return Math.floor(s / 3600) + "h";
-  return Math.floor(s / 86400) + "d";
+  if (s < 5) return "agora"; if (s < 60) return s + "s"; if (s < 3600) return Math.floor(s / 60) + "min";
+  if (s < 86400) return Math.floor(s / 3600) + "h"; return Math.floor(s / 86400) + "d";
 }
 
+// ── átomos ───────────────────────────────────────────────────────────────────
 function Avatar({ a, size = 34 }) {
-  return (
-    <div style={{ width: size, height: size, background: a.color + "22", color: a.color, borderColor: a.color + "55" }}
-      className="rounded-full border flex items-center justify-center font-bold shrink-0">
-      <span style={{ fontSize: size * 0.4 }}>{a.name[0] || "?"}</span>
-    </div>
-  );
+  return <div style={{ width: size, height: size, background: a.color + "22", color: a.color, borderColor: a.color + "55" }} className="rounded-full border flex items-center justify-center font-bold shrink-0"><span style={{ fontSize: size * 0.4 }}>{a.name[0] || "?"}</span></div>;
 }
 function LiveDot({ color = "#34d399" }) {
-  return (
-    <span className="relative inline-flex h-2 w-2">
-      <span style={{ background: color }} className="absolute inline-flex h-full w-full rounded-full animate-pingsoft" />
-      <span style={{ background: color }} className="relative inline-flex h-2 w-2 rounded-full" />
-    </span>
-  );
+  return <span className="relative inline-flex h-2 w-2"><span style={{ background: color }} className="absolute inline-flex h-full w-full rounded-full animate-pingsoft" /><span style={{ background: color }} className="relative inline-flex h-2 w-2 rounded-full" /></span>;
 }
 function Signal({ label, value, sub, tone = "slate", bar }) {
   const c = { slate: "text-slate-100", green: "text-emerald-400", amber: "text-amber-400", red: "text-rose-400", blue: "text-sky-400" }[tone];
-  return (
-    <div className="rounded-2xl bg-slate-900/60 border border-white/5 p-4">
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div>
-      <div className={"mt-1 text-2xl font-bold tabular-nums " + c}>{value}</div>
-      {bar != null && (
-        <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: Math.min(100, bar) + "%", background: bar > 80 ? "#fb7185" : "#34d399" }} />
-        </div>
-      )}
-      {sub && <div className="mt-1.5 text-xs text-slate-500">{sub}</div>}
-    </div>
-  );
+  return <div className="rounded-2xl bg-slate-900/60 border border-white/5 p-4"><div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div><div className={"mt-1 text-2xl font-bold tabular-nums " + c}>{value}</div>{bar != null && <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden"><div className="h-full rounded-full" style={{ width: Math.min(100, bar) + "%", background: bar > 80 ? "#fb7185" : "#34d399" }} /></div>}{sub && <div className="mt-1.5 text-xs text-slate-500">{sub}</div>}</div>;
 }
 
-function App() {
-  const [snap, setSnap] = useState(null);
-  const [feed, setFeed] = useState([]);
-  const [conn, setConn] = useState("loading");   // loading | ok | auth | down
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
-
-  const loadSnap = useCallback(async () => {
-    try {
-      const r = await authFetch("/api/maestro/snapshot");
-      if (r.status === 401 || r.status === 403) { setConn("auth"); return; }
-      if (!r.ok) { setConn("down"); return; }
-      setSnap(await r.json()); setConn("ok");
-    } catch (e) { setConn("down"); }
-  }, []);
-  const loadFeed = useCallback(async () => {
-    try {
-      const r = await authFetch("/api/maestro/interactions?limit=40");
-      if (!r.ok) return;
-      const j = await r.json(); setFeed(j.interactions || []);
-    } catch (e) {}
-  }, []);
-
-  useEffect(() => {
-    loadSnap(); loadFeed();
-    const a = setInterval(loadSnap, SNAP_MS), b = setInterval(loadFeed, FEED_MS);
-    return () => { clearInterval(a); clearInterval(b); };
-  }, [loadSnap, loadFeed]);
-
-  const ov = (snap && snap.overview) || {};
-  const usage = (snap && snap.usage) || {};
-  const agents = (snap && snap.agents) || [];
-  const don = (snap && snap.donizete_busca) || {};
-  const lp = ov.lp_capture || {};
+// ── TAB: operação ao vivo ────────────────────────────────────────────────────
+function OperacaoTab({ snap, feed, conn }) {
+  const ov = (snap && snap.overview) || {}, usage = (snap && snap.usage) || {}, agents = (snap && snap.agents) || [], don = (snap && snap.donizete_busca) || {}, lp = ov.lp_capture || {};
   const todayCost = usage.today_cost_usd != null ? usage.today_cost_usd : (ov.estimated_cost_usd || 0);
   const stale = (ov.stale_tasks || []).length;
   const lastErr = ov.last_error && ov.last_error !== "Nenhum erro recente" ? ov.last_error : null;
-
   return (
-    <div className="min-h-screen max-w-[1400px] mx-auto px-5 sm:px-8 py-6">
-      <header className="flex items-center justify-between gap-4 flex-wrap mb-6">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <LiveDot color={conn === "ok" ? "#34d399" : "#fbbf24"} />
-            <h1 className="text-xl font-extrabold text-white tracking-tight">Operação ao vivo</h1>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">Laboratório · {agents.length || 6} agentes</span>
-            <a href="/painel-classic/index.html" className="text-xs text-slate-500 hover:text-slate-300">painel clássico ↗</a>
-          </div>
-          <p className="text-sm text-slate-500 mt-0.5">O que os agentes estão fazendo, em tempo real.</p>
-        </div>
-        <div className="text-right">
-          <div className="font-mono text-sm text-slate-300 tabular-nums">{new Date(now).toLocaleTimeString("pt-BR")}</div>
-          <div className="text-[11px] flex items-center gap-1 justify-end">
-            {conn === "ok" && <React.Fragment><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /><span className="text-emerald-400">sistema online</span></React.Fragment>}
-            {conn === "loading" && <span className="text-slate-500">carregando…</span>}
-            {conn === "auth" && <span className="text-amber-400">precisa de token (?token=…)</span>}
-            {conn === "down" && <span className="text-rose-400">backend offline</span>}
-          </div>
-        </div>
-      </header>
-
+    <React.Fragment>
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-        <Signal label="Custo hoje" value={"US$ " + todayCost.toFixed(2).replace(".", ",")} sub={"de US$ " + DAILY_BUDGET.toFixed(0) + " (teto)" + (ov.cost_is_real === false ? " · estim." : "")} tone={todayCost >= DAILY_BUDGET ? "red" : "green"} bar={(todayCost / DAILY_BUDGET) * 100} />
+        <Signal label="Custo hoje" value={"US$ " + todayCost.toFixed(2).replace(".", ",")} sub={"de US$ " + DAILY_BUDGET + " (teto)" + (ov.cost_is_real === false ? " · estim." : "")} tone={todayCost >= DAILY_BUDGET ? "red" : "green"} bar={(todayCost / DAILY_BUDGET) * 100} />
         <Signal label="Mensagens hoje" value={ov.messages_today != null ? ov.messages_today : "—"} sub="WhatsApp · Caio" tone="blue" />
         <Signal label="Leads hoje" value={ov.leads_today != null ? ov.leads_today : "—"} sub="captados" tone="slate" />
         <Signal label="Tasks travadas" value={stale} sub={stale ? "paradas há horas" : "nada parado"} tone={stale ? "amber" : "green"} />
         <Signal label="Último erro" value={lastErr ? "!" : "—"} sub={lastErr ? String(lastErr).slice(0, 40) : "sem erros recentes"} tone={lastErr ? "red" : "slate"} />
       </div>
-
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><LiveDot /> Atividade ao vivo</h2>
-            <span className="text-xs text-slate-500">últimas ações · atualiza sozinho</span>
-          </div>
-          <div className="space-y-2 max-h-[62vh] overflow-y-auto pr-1">
-            {feed.length === 0 && (
-              <div className="rounded-2xl border border-white/5 bg-slate-900/40 p-6 text-center text-slate-500 text-sm">
-                {conn === "ok" ? "Nenhuma atividade recente — os agentes estão ociosos." : conn === "auth" ? "Abra com ?token=SEU_TOKEN" : "Aguardando o backend…"}
-              </div>
-            )}
-            {feed.map((x, i) => {
-              const a = resolve(x.agent);
-              const fresh = i === 0 && (Date.now() - new Date(String(x.at).replace(" UTC", "Z").replace(" ", "T")).getTime()) < 9000;
-              return (
-                <div key={i} className={"flex items-start gap-3 rounded-2xl border p-3 transition " + (fresh ? "border-emerald-500/30 bg-emerald-500/[0.04] animate-slidein" : "border-white/5 bg-slate-900/40")} style={{ opacity: i > 16 ? 0.55 : 1 }}>
-                  <Avatar a={a} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm" style={{ color: a.color }}>{a.name}</span>
-                      {a.role && <span className="text-[10px] text-slate-500">{a.role}</span>}
-                      {x.tool && <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">{x.tool}</span>}
-                      {!x.tool && x.kind && <span className="text-[10px] text-slate-600">{x.kind}</span>}
-                    </div>
-                    <p className="text-sm text-slate-300 mt-0.5 leading-snug line-clamp-2">{x.detail || x.context || "—"}</p>
-                  </div>
-                  <span className="font-mono text-[11px] text-slate-500 shrink-0 tabular-nums">{relTime(x.at)}</span>
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><LiveDot /> Atividade ao vivo</h2><span className="text-xs text-slate-500">últimas ações · atualiza sozinho</span></div>
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+            {feed.length === 0 && <div className="rounded-2xl border border-white/5 bg-slate-900/40 p-6 text-center text-slate-500 text-sm">{conn === "ok" ? "Nenhuma atividade recente — agentes ociosos." : conn === "auth" ? "Abra com ?token=SEU_TOKEN" : "Aguardando o backend…"}</div>}
+            {feed.map((x, i) => { const a = resolve(x.agent); const fresh = i === 0 && (Date.now() - new Date(String(x.at).replace(" UTC", "Z").replace(" ", "T")).getTime()) < 9000;
+              return <div key={i} className={"flex items-start gap-3 rounded-2xl border p-3 transition " + (fresh ? "border-emerald-500/30 bg-emerald-500/[0.04] animate-slidein" : "border-white/5 bg-slate-900/40")} style={{ opacity: i > 16 ? 0.55 : 1 }}>
+                <Avatar a={a} />
+                <div className="min-w-0 flex-1"><div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-sm" style={{ color: a.color }}>{a.name}</span>{a.role && <span className="text-[10px] text-slate-500">{a.role}</span>}{x.tool && <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">{x.tool}</span>}{!x.tool && x.kind && <span className="text-[10px] text-slate-600">{x.kind}</span>}</div><p className="text-sm text-slate-300 mt-0.5 leading-snug line-clamp-2">{x.detail || x.context || "—"}</p></div>
+                <span className="font-mono text-[11px] text-slate-500 shrink-0 tabular-nums">{relTime(x.at)}</span>
+              </div>; })}
           </div>
         </section>
-
         <aside className="space-y-6">
-          <div>
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">Agentes agora</h2>
-            <div className="space-y-2">
-              {(agents.length ? agents : ORDER.map((id) => ({ id, name: AGENTS[id].name, status: "aguardando", model: "" }))).map((ag) => {
-                const a = resolve(ag.id || ag.name);
-                const active = WORKING.has(ag.status);
-                const doing = active ? (ag.current_task && ag.current_task !== "—" ? ag.current_task : ag.last_action) : "aguardando";
-                return (
-                  <div key={ag.id || ag.name} className={"flex items-center gap-3 rounded-2xl border p-3 " + (active ? "border-white/10 bg-slate-900/70" : "border-white/5 bg-slate-900/30")}>
-                    <div className="relative"><Avatar a={a} size={36} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-slate-100">{ag.name}</span>
-                        <span className={"text-[10px] px-1.5 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : ag.status === "erro" ? "bg-rose-500/15 text-rose-400" : "bg-white/5 text-slate-500")}>{ag.status || "—"}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 truncate">{doing || "—"}</p>
-                    </div>
-                    {ag.model && <span className="font-mono text-[10px] text-slate-600 shrink-0">{ag.model}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {don.active && (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <LiveDot color="#f59e0b" />
-                <h3 className="text-sm font-bold text-amber-300">Captação Donizete</h3>
-                <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">ATIVA</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div><div className="text-xl font-bold text-amber-300 tabular-nums">{don.cycles != null ? don.cycles : "—"}</div><div className="text-[10px] text-slate-500">ciclos</div></div>
-                <div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.pronto != null ? lp.pronto : "—"}</div><div className="text-[10px] text-slate-500">prontos</div></div>
-                <div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.prospectado != null ? lp.prospectado : "—"}</div><div className="text-[10px] text-slate-500">prospect.</div></div>
-              </div>
-              {(don.last_group || don.lock_group_url) && <p className="text-xs text-slate-500 mt-2.5 truncate">grupo: <span className="text-slate-300">{don.last_group || String(don.lock_group_url || "").slice(0, 48)}</span></p>}
-            </div>
-          )}
+          <div><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">Agentes agora</h2><div className="space-y-2">
+            {(agents.length ? agents : ORDER.map((id) => ({ id, name: AGENTS[id].name, status: "aguardando", model: "" }))).map((ag) => { const a = resolve(ag.id || ag.name); const active = WORKING.has(ag.status); const doing = active ? (ag.current_task && ag.current_task !== "—" ? ag.current_task : ag.last_action) : "aguardando";
+              return <div key={ag.id || ag.name} className={"flex items-center gap-3 rounded-2xl border p-3 " + (active ? "border-white/10 bg-slate-900/70" : "border-white/5 bg-slate-900/30")}><div className="relative"><Avatar a={a} size={36} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="font-semibold text-sm text-slate-100">{ag.name}</span><span className={"text-[10px] px-1.5 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : ag.status === "erro" ? "bg-rose-500/15 text-rose-400" : "bg-white/5 text-slate-500")}>{ag.status || "—"}</span></div><p className="text-xs text-slate-500 truncate">{doing || "—"}</p></div>{ag.model && <span className="font-mono text-[10px] text-slate-600 shrink-0">{ag.model}</span>}</div>; })}
+          </div></div>
+          {don.active && <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-4"><div className="flex items-center gap-2 mb-2"><LiveDot color="#f59e0b" /><h3 className="text-sm font-bold text-amber-300">Captação Donizete</h3><span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">ATIVA</span></div><div className="grid grid-cols-3 gap-2 text-center"><div><div className="text-xl font-bold text-amber-300 tabular-nums">{don.cycles != null ? don.cycles : "—"}</div><div className="text-[10px] text-slate-500">ciclos</div></div><div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.pronto != null ? lp.pronto : "—"}</div><div className="text-[10px] text-slate-500">prontos</div></div><div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.prospectado != null ? lp.prospectado : "—"}</div><div className="text-[10px] text-slate-500">prospect.</div></div></div>{(don.last_group || don.lock_group_url) && <p className="text-xs text-slate-500 mt-2.5 truncate">grupo: <span className="text-slate-300">{don.last_group || String(don.lock_group_url || "").slice(0, 48)}</span></p>}</div>}
         </aside>
       </div>
+    </React.Fragment>
+  );
+}
 
-      <footer className="mt-8 text-center text-xs text-slate-600">
-        Laboratório · operação ao vivo · lê de <span className="font-mono text-slate-500">/api/maestro/snapshot</span> + <span className="font-mono text-slate-500">interactions</span>
-      </footer>
+// ── TAB: tasks (kanban) ──────────────────────────────────────────────────────
+const COLS = [
+  { key: "backlog", label: "Backlog" }, { key: "planejando", label: "Planejando" },
+  { key: "executando", label: "Executando" }, { key: "standby", label: "Standby" },
+  { key: "aguardando", label: "Aguardando" }, { key: "concluidas", label: "Concluídas" },
+];
+function TasksTab() {
+  const [board, setBoard] = useState(null);
+  const [msg, setMsg] = useState("");
+  const [novo, setNovo] = useState("");
+  const load = useCallback(async () => { try { const r = await authFetch("/api/tasks"); if (r.ok) setBoard(await r.json()); } catch (e) {} }, []);
+  useEffect(() => { load(); }, [load]);
+  async function move(id, to) { setMsg("movendo " + id + "…"); try { const r = await authFetch("/api/tasks/" + id + "/move", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to_state: to }) }); const j = await r.json(); setMsg(j.message || j.detail || "ok"); } catch (e) { setMsg("erro: " + e); } load(); }
+  async function criar() { if (!novo.trim()) return; setMsg("criando…"); try { const r = await authFetch("/api/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ titulo: novo.trim() }) }); const j = await r.json(); setMsg(j.message || "criada"); setNovo(""); } catch (e) { setMsg("erro: " + e); } load(); }
+  const cols = (board && board.columns) || {};
+  const total = COLS.reduce((n, c) => n + ((cols[c.key] || []).length), 0);
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Kanban de tasks <span className="text-slate-600 normal-case font-normal">· {total} tasks</span></h2>
+        <div className="ml-auto flex items-center gap-2">
+          <input value={novo} onChange={(e) => setNovo(e.target.value)} onKeyDown={(e) => e.key === "Enter" && criar()} placeholder="Nova task (título)…" className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-sm w-56 focus:outline-none focus:border-sky-500/50" />
+          <button onClick={criar} className="text-sm px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 text-white font-semibold">+ criar</button>
+        </div>
+      </div>
+      {msg && <p className="text-xs text-slate-400 mb-3 font-mono">{msg}</p>}
+      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))" }}>
+        {COLS.map((col) => { const cards = cols[col.key] || [];
+          return <div key={col.key} className="rounded-2xl bg-slate-900/40 border border-white/5 p-3 min-h-[120px]">
+            <div className="flex items-center justify-between mb-2"><span className="text-xs font-bold uppercase tracking-wider text-slate-400">{col.label}</span><span className="text-[10px] text-slate-600 tabular-nums">{cards.length}</span></div>
+            <div className="space-y-2">
+              {cards.length === 0 && <p className="text-xs text-slate-600 italic">vazio</p>}
+              {cards.map((c) => <div key={c.id} className="rounded-xl bg-slate-900/70 border border-white/5 p-2.5"><div className="font-mono text-[11px] text-sky-300">{c.id}</div><div className="text-xs text-slate-200 mt-0.5 leading-snug line-clamp-2">{c.title || "—"}</div><select value={col.key} onChange={(e) => move(c.id, e.target.value)} className="mt-2 w-full bg-slate-800 border border-white/5 rounded text-[10px] text-slate-400 px-1 py-1 focus:outline-none"><option value={col.key} disabled>mover →</option>{COLS.filter((x) => x.key !== col.key).map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}</select></div>)}
+            </div>
+          </div>; })}
+      </div>
+    </div>
+  );
+}
+
+// ── TAB: comunicação (Ronaldo) ───────────────────────────────────────────────
+function ComunicacaoTab() {
+  const [cmd, setCmd] = useState("");
+  const [log, setLog] = useState([]);
+  const [busy, setBusy] = useState(false);
+  async function send() {
+    const c = cmd.trim(); if (!c || busy) return; setBusy(true); setCmd("");
+    setLog((l) => [{ who: "you", text: c }, ...l]);
+    try { const r = await authFetch("/api/maestro/ronaldo/command", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command: c }) }); const j = await r.json(); setLog((l) => [{ who: "ron", text: j.reply || j.detail || "(sem resposta)" }, ...l]); }
+    catch (e) { setLog((l) => [{ who: "ron", text: "erro: " + e }, ...l]); }
+    setBusy(false);
+  }
+  async function speak(text) { try { const r = await authFetch("/api/maestro/ronaldo/speak", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) }); if (r.ok) { const b = await r.blob(); new Audio(URL.createObjectURL(b)).play(); } } catch (e) {} }
+  const ron = resolve("ronaldo_maestro");
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex items-center gap-3 mb-4"><Avatar a={ron} size={40} /><div><h2 className="text-sm font-bold text-slate-200">Falar com o Ronaldo</h2><p className="text-xs text-slate-500">comando/pergunta sobre a operação · ele consulta a memória, CRM e tasks</p></div></div>
+      <div className="flex gap-2 mb-4"><input value={cmd} onChange={(e) => setCmd(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="ex.: status de hoje · quantos leads quentes · criar task de X" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500/50" /><button onClick={send} disabled={busy} className="px-4 py-2.5 rounded-xl bg-sky-600/80 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold text-sm">{busy ? "…" : "Enviar"}</button></div>
+      <div className="space-y-3">
+        {log.length === 0 && <p className="text-sm text-slate-600 text-center py-8">Mande um comando — ex.: "resumo da operação agora".</p>}
+        {log.map((m, i) => m.who === "you"
+          ? <div key={i} className="flex justify-end"><div className="bg-sky-600/15 border border-sky-500/20 rounded-2xl rounded-br-sm px-4 py-2 text-sm text-slate-100 max-w-[80%]">{m.text}</div></div>
+          : <div key={i} className="flex items-start gap-2"><Avatar a={ron} size={28} /><div className="bg-slate-900/60 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-2 text-sm text-slate-200 max-w-[85%] whitespace-pre-wrap leading-snug">{m.text}<button onClick={() => speak(m.text)} className="ml-2 text-slate-500 hover:text-sky-400" title="Ouvir">🔊</button></div></div>)}
+      </div>
+    </div>
+  );
+}
+
+// ── TAB: mapa de agentes ─────────────────────────────────────────────────────
+function MapaTab({ snap }) {
+  const agents = (snap && snap.agents) || [];
+  const stat = {}; agents.forEach((a) => { stat[resolve(a.id).id] = a.status; });
+  const specialists = ORDER.filter((id) => id !== "ronaldo_maestro");
+  const ron = { id: "ronaldo_maestro", ...AGENTS.ronaldo_maestro };
+  function card(id) { const a = { id, ...AGENTS[id] }; const active = WORKING.has(stat[id]);
+    return <div className="rounded-2xl border border-white/5 bg-slate-900/50 p-4 flex flex-col items-center gap-2 text-center"><div className="relative"><Avatar a={a} size={48} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div><div className="font-semibold text-slate-100">{a.name}</div><div className="text-[11px] text-slate-500">{a.role}</div></div><span className={"text-[10px] px-2 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : "bg-white/5 text-slate-500")}>{stat[id] || "aguardando"}</span></div>;
+  }
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-6"><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Mapa de agentes</h2><p className="text-xs text-slate-500 mt-1">Ronaldo orquestra; os especialistas executam.</p></div>
+      <div className="max-w-xs mx-auto mb-2">{card("ronaldo_maestro")}</div>
+      <div className="flex justify-center mb-2"><div className="w-px h-6 bg-white/10" /></div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">{specialists.map((id) => <div key={id}>{card(id)}</div>)}</div>
+    </div>
+  );
+}
+
+// ── shell ────────────────────────────────────────────────────────────────────
+const TABS = [
+  { id: "operacao", label: "Operação ao vivo" }, { id: "tasks", label: "Tasks" },
+  { id: "comunicacao", label: "Comunicação" }, { id: "mapa", label: "Mapa" },
+];
+function App() {
+  const [tab, setTab] = useState("operacao");
+  const [snap, setSnap] = useState(null);
+  const [feed, setFeed] = useState([]);
+  const [conn, setConn] = useState("loading");
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const loadSnap = useCallback(async () => { try { const r = await authFetch("/api/maestro/snapshot"); if (r.status === 401 || r.status === 403) { setConn("auth"); return; } if (!r.ok) { setConn("down"); return; } setSnap(await r.json()); setConn("ok"); } catch (e) { setConn("down"); } }, []);
+  const loadFeed = useCallback(async () => { try { const r = await authFetch("/api/maestro/interactions?limit=40"); if (r.ok) { const j = await r.json(); setFeed(j.interactions || []); } } catch (e) {} }, []);
+  useEffect(() => { loadSnap(); loadFeed(); const a = setInterval(loadSnap, SNAP_MS), b = setInterval(loadFeed, FEED_MS); return () => { clearInterval(a); clearInterval(b); }; }, [loadSnap, loadFeed]);
+  const agents = (snap && snap.agents) || [];
+  return (
+    <div className="min-h-screen max-w-[1400px] mx-auto px-5 sm:px-8 py-6">
+      <header className="mb-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <LiveDot color={conn === "ok" ? "#34d399" : "#fbbf24"} />
+            <h1 className="text-xl font-extrabold text-white tracking-tight">Laboratório</h1>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{agents.length || 6} agentes</span>
+          </div>
+          <div className="text-right"><div className="font-mono text-sm text-slate-300 tabular-nums">{new Date(now).toLocaleTimeString("pt-BR")}</div><div className="text-[11px] flex items-center gap-1 justify-end">{conn === "ok" && <React.Fragment><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /><span className="text-emerald-400">online</span></React.Fragment>}{conn === "loading" && <span className="text-slate-500">carregando…</span>}{conn === "auth" && <span className="text-amber-400">precisa de token (?token=…)</span>}{conn === "down" && <span className="text-rose-400">backend offline</span>}</div></div>
+        </div>
+        <nav className="flex items-center gap-1 mt-4 border-b border-white/5">
+          {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} className={"px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition " + (tab === t.id ? "border-sky-500 text-white" : "border-transparent text-slate-500 hover:text-slate-300")}>{t.label}</button>)}
+        </nav>
+      </header>
+      {tab === "operacao" && <OperacaoTab snap={snap} feed={feed} conn={conn} />}
+      {tab === "tasks" && <TasksTab />}
+      {tab === "comunicacao" && <ComunicacaoTab />}
+      {tab === "mapa" && <MapaTab snap={snap} />}
+      <footer className="mt-10 text-center text-xs text-slate-600">Laboratório · painel v2 · lê de <span className="font-mono text-slate-500">/api/maestro</span> + <span className="font-mono text-slate-500">/api/tasks</span></footer>
     </div>
   );
 }
