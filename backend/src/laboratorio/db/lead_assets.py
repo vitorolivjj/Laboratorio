@@ -170,6 +170,28 @@ def count_files(lead_id: str, *, only_approved: bool = False) -> int:
     return len(list_files(lead_id, only_approved=only_approved))
 
 
+def file_counts() -> dict[str, int]:
+    """{lead_id: nº de arquivos} para enriquecer a lista sem N+1 (vazio sem banco)."""
+    try:
+        with connection() as conn, conn.cursor() as cur:
+            cur.execute("select lead_id, count(*) from lab_lead_files group by lead_id")
+            return {r[0]: int(r[1]) for r in cur.fetchall()}
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("file_counts falhou: %s", exc)
+        return {}
+
+
+def perfis() -> dict[str, str]:
+    """{lead_id: perfil} para o comercial ver o perfil já na lista (vazio sem banco)."""
+    try:
+        with connection() as conn, conn.cursor() as cur:
+            cur.execute("select id, perfil from lab_leads where perfil is not null and perfil <> ''")
+            return {r[0]: r[1] for r in cur.fetchall()}
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("perfis falhou: %s", exc)
+        return {}
+
+
 def set_approved(file_id: int, aprovado: bool | None) -> bool:
     with connection() as conn, conn.cursor() as cur:
         cur.execute(
