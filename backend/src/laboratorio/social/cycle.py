@@ -155,6 +155,12 @@ def run_navigation_cycle(
         session.save_session(data)
 
         vision_by_name = {v.nome.lower(): v for v in vision_leads}
+        # Dedup por nome: o caminho sem-URL não checava nada e re-capturava o
+        # mesmo perfil a cada ciclo (bug visto no teste: 1 pessoa virou 10 leads).
+        captured_names = {
+            str(c.get("autor", "")).strip().lower()
+            for c in data.get("captured_leads", [])
+        }
 
         for post in posts:
             if captured >= max_leads:
@@ -162,6 +168,10 @@ def run_navigation_cycle(
             if not should_register_lead(post.texto, nome=post.autor):
                 clf = classify_text(post.texto, nome=post.autor)
                 lines.append(f"\nIgnorado (não lead): {post.autor} — {clf.motivo}")
+                continue
+            author_key = post.autor.strip().lower()
+            if author_key and author_key in captured_names:
+                lines.append(f"\nJá capturado antes (dedup): {post.autor}")
                 continue
 
             perfil = post.perfil_url
@@ -197,6 +207,7 @@ def run_navigation_cycle(
                             f"\nLead CRM (sem URL perfil): {lead['id']} {post.autor} · cidade={cidade}"
                         )
                         captured += 1
+                        captured_names.add(author_key)
                         data.setdefault("captured_leads", []).append(
                             {"autor": post.autor, "url": "", "grupo": g.name}
                         )
@@ -226,6 +237,7 @@ def run_navigation_cycle(
                     )
                     lines.append(msg)
                     captured += 1
+                    captured_names.add(author_key)
                     data.setdefault("captured_leads", []).append(
                         {"autor": post.autor, "url": perfil, "grupo": g.name}
                     )
@@ -247,7 +259,7 @@ def run_navigation_cycle(
             lines.append(
                 "\nNenhum lead capturado neste ciclo — continue navegando ou troque de grupo."
             )
-    return "\n".join(lines)
+    return captured, "\n".join(lines)
 
 
 def run_post_cycle(*, variacao: int | None = None, publicar: bool | None = None) -> str:

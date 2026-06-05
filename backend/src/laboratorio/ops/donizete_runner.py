@@ -337,7 +337,7 @@ def _run_loop() -> None:
 
             st = _load_busca_state()
             fixed = _fixed_group_from_state(st)
-            summary = cycle.run_navigation_cycle(max_leads=1, fixed_group=fixed)
+            captured, summary = cycle.run_navigation_cycle(max_leads=1, fixed_group=fixed)
             st = _load_busca_state()
             st["cycles"] = int(st.get("cycles") or 0) + 1
             st["last_cycle_at"] = _now_iso()
@@ -345,8 +345,8 @@ def _run_loop() -> None:
             m = re.search(r"Grupo (?:fixo|escolhido): (.+)", summary)
             if m:
                 st["last_group"] = m.group(1).strip()
-            if "Lead LEAD-" in summary:
-                st["leads_captured"] = int(st.get("leads_captured") or 0) + 1
+            if captured:
+                st["leads_captured"] = int(st.get("leads_captured") or 0) + captured
                 _maybe_notify_vitor(summary)
             st["last_error"] = ""
             _save_busca_state(st)

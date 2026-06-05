@@ -145,7 +145,9 @@ def cmd_iniciar(task_id: str = "LP-PINTOR-001") -> int:
 
 def cmd_navegar(max_leads: int = 1) -> int:
     load_env()
-    print(cycle.run_navigation_cycle(max_leads=max_leads))
+    captured, report = cycle.run_navigation_cycle(max_leads=max_leads)
+    print(report)
+    print(f"\n(capturados neste ciclo: {captured})")
     return 0
 
 

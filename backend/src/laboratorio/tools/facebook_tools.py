@@ -207,7 +207,8 @@ class FacebookCicloNavegacaoTool(BaseTool):
 
     @safe
     def _run(self) -> str:
-        return cycle.run_navigation_cycle(max_leads=1)
+        _captured, report = cycle.run_navigation_cycle(max_leads=1)
+        return report
 
 
 class FacebookCicloPostTool(BaseTool):
