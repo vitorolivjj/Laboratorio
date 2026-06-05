@@ -32,15 +32,10 @@ app.include_router(maestro_router)
 app.include_router(donizete_router)
 app.include_router(tasks_router)
 
-# Painel v2 (operação ao vivo) é o principal em /painel.
+# Painel v2 (React/Tailwind) — operação ao vivo, tasks, comunicação e mapa em /painel.
 PAINEL_V2_DIR = REPO_ROOT / "frontend" / "painel-v2"
 if PAINEL_V2_DIR.is_dir():
     app.mount("/painel", StaticFiles(directory=str(PAINEL_V2_DIR), html=True), name="painel")
-
-# Painel clássico (kanban, mapa de agentes, central de voz) segue em /painel-classic.
-PAINEL_CLASSIC_DIR = REPO_ROOT / "frontend" / "painel-maestro"
-if PAINEL_CLASSIC_DIR.is_dir():
-    app.mount("/painel-classic", StaticFiles(directory=str(PAINEL_CLASSIC_DIR), html=True), name="painel-classic")
 
 DASHBOARD_DIR = REPO_ROOT / "dashboard"
 if DASHBOARD_DIR.is_dir():
