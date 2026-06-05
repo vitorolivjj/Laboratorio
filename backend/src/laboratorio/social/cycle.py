@@ -261,6 +261,14 @@ def run_navigation_cycle(
                              "projeto": "PROJ-LP"},
                             bio=post.texto,
                         )
+                        # salva as fotos do post (trabalho do lead) pra produção,
+                        # mesmo sem visitar o perfil
+                        if post.imagens:
+                            from laboratorio.social.capture import save_post_images
+
+                            n_img = save_post_images(lead, page, post.imagens, contato=contato)
+                            if n_img:
+                                lines.append(f"   + {n_img} foto(s) do post salvas")
                     except Exception as exc:
                         lines.append(f"CRM sem perfil falhou: {exc}")
                 continue

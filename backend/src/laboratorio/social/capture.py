@@ -105,6 +105,57 @@ def _mirror_media_to_storage(
     return sent
 
 
+def save_post_images(lead: dict, page, urls, *, contato: str = "") -> int:
+    """Baixa as fotos do próprio post (URLs do feed) → Storage + lab_lead_files.
+
+    Para o caminho sem-URL (sem perfil pra stalkar): pega as fotos do trabalho
+    que o lead postou no feed, pra produção montar a página. Best-effort.
+    """
+    urls = [u for u in (urls or []) if u]
+    if not urls:
+        return 0
+    try:
+        from laboratorio.db import lead_assets, storage
+    except Exception:  # noqa: BLE001
+        return 0
+    if not storage.enabled():
+        return 0
+    try:
+        root = crm_lp_store.ensure_lead_capture_dir(lead.get("slug") or lead["id"], lead_id=lead["id"])
+        raw_dir = root / "captura" / "raw"
+        saved = download_urls(page, urls, raw_dir, prefix="post")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("save_post_images download %s: %s", lead.get("id"), exc)
+        return 0
+    if not saved:
+        return 0
+    try:
+        lead_assets.ensure_lead(
+            lead["id"], segment=_LP_SEGMENT, nome=lead.get("nome", ""),
+            projeto=_LP_PROJETO, contato=contato,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("save_post_images ensure_lead %s: %s", lead.get("id"), exc)
+        return 0
+    sent = 0
+    for i, fn in enumerate(saved):
+        path = raw_dir / fn
+        if not path.is_file():
+            continue
+        try:
+            keypath = storage.lead_object_path(_LP_PROJETO, lead["id"], fn)
+            storage.upload_file(keypath, path)
+            lead_assets.add_file(
+                lead["id"], keypath, projeto=_LP_PROJETO, tipo="foto_trabalho",
+                url=storage.public_url(keypath), bytes_=path.stat().st_size,
+                origem="donizete_feed", ordem=i,
+            )
+            sent += 1
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("save_post_images upload %s: %s", fn, exc)
+    return sent
+
+
 def run_garimpo(*, scroll_first: bool = True) -> str:
     with facebook_cdp.facebook_session() as browser:
         page = pick_facebook_page(browser)

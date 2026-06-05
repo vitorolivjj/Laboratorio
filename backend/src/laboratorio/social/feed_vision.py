@@ -178,7 +178,9 @@ def capture_feed_screenshots(page, *, passes: int, shots_dir: Path) -> list[Path
             ts = datetime.now(timezone.utc).strftime("%H%M%S")
             dest = shots_dir / f"feed-{ts}-{i:02d}.png"
             try:
-                page.screenshot(path=str(dest), full_page=False)
+                # animations=disabled + timeout curto: o FB tem recursos/animações
+                # carregando infinito que travam o print padrão (30s "waiting fonts").
+                page.screenshot(path=str(dest), full_page=False, animations="disabled", timeout=12000)
                 paths.append(dest)
                 page.wait_for_timeout(int(os.getenv("FB_VISION_PAUSE_MS", "800")))
             except Exception as exc:

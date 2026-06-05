@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import os
-import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from laboratorio.social.facebook_cdp import (
     facebook_session,
@@ -27,6 +26,7 @@ class FeedPost:
     texto: str
     score: int
     motivo: str
+    imagens: list = field(default_factory=list)  # URLs de fotos do post (trabalho do lead)
 
 
 def slow_scroll(page, *, passes: int = 8) -> None:
@@ -126,10 +126,18 @@ def extract_posts_from_feed(page, *, limit: int = 20) -> list[FeedPost]:
                 autor = t; perfil = href; break;
               }
             }
+            const imgs = [];
+            for (const im of art.querySelectorAll('img')) {
+              const s = im.currentSrc || im.src || '';
+              if (/scontent|fbcdn/.test(s) && (im.naturalWidth >= 90 || im.width >= 90)) {
+                if (!imgs.includes(s)) imgs.push(s);
+              }
+              if (imgs.length >= 5) break;
+            }
             const key = (perfil || text.slice(0, 60)).toLowerCase();
             if (seen.has(key)) continue;
             seen.add(key);
-            posts.push({ autor, perfil, texto: text.slice(0, 800) });
+            posts.push({ autor, perfil, texto: text.slice(0, 800), imagens: imgs });
             if (posts.length >= limit) break;
           }
           return posts;
@@ -160,6 +168,7 @@ def extract_posts_from_feed(page, *, limit: int = 20) -> list[FeedPost]:
                 texto=texto[:400],
                 score=sc,
                 motivo=motivo,
+                imagens=[u for u in (item.get("imagens") or []) if isinstance(u, str)][:5],
             )
         )
     out.sort(key=lambda p: p.score, reverse=True)

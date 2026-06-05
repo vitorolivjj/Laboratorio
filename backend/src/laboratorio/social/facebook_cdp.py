@@ -129,7 +129,12 @@ def navigate(page: Any, url: str, *, wait_ms: int = 2500) -> str:
 
 def save_screenshot(page: Any, dest: Any) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    page.screenshot(path=str(dest), full_page=True)
+    # full_page no FB estoura timeout (feed gigante + fonts/animações infinitas);
+    # viewport + animations=disabled + timeout curto é confiável.
+    try:
+        page.screenshot(path=str(dest), full_page=False, animations="disabled", timeout=12000)
+    except Exception:
+        page.screenshot(path=str(dest), full_page=False, timeout=8000)
 
 
 def collect_image_urls(page: Any, *, limit: int = 24) -> list[str]:
