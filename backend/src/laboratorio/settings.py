@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     db_connect_timeout: int = 8
     db_connect_retries: int = 3
 
+    # --- Supabase Storage (arquivos de lead) ---
+    supabase_url: str = ""                  # https://<proj>.supabase.co
+    supabase_service_role_key: str = ""     # chave server-side (bypassa RLS) — preferida p/ upload
+    supabase_publishable_key: str = ""      # chave anon (fallback / leitura)
+    lead_files_bucket: str = "lead-files"   # bucket no Storage
+
     # --- Segurança ---
     maestro_api_token: str = ""             # token Bearer do painel (vazio = aberto)
 
@@ -55,6 +61,13 @@ class Settings(BaseSettings):
 
     def autopilot_on(self) -> bool:
         return self.autopilot_enabled.strip().lower() in ("1", "true", "yes", "on")
+
+    def storage_key(self) -> str:
+        """Chave p/ Storage: service_role se houver (preferida), senão a publishable."""
+        return self.supabase_service_role_key.strip() or self.supabase_publishable_key.strip()
+
+    def storage_enabled(self) -> bool:
+        return bool(self.supabase_url.strip() and self.storage_key())
 
     def tools_on(self) -> bool:
         return self.tools_enabled.strip().lower() not in ("0", "false", "no")
