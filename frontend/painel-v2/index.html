@@ -209,6 +209,8 @@ const SEGMENTS = [
   { key: "crm_landing_pintor", label: "Pintores" },
   { key: "crm_laboratorio", label: "Laboratório" },
 ];
+const STATUSES = ["prospectado", "abordado", "ativo", "pronto_pra_pagina", "previa_no_ar", "recusou"];
+const FILE_TIPOS = ["material", "foto_trabalho", "playbook", "documento", "logo", "screenshot_perfil", "outro"];
 function Field({ label, v }) {
   return <div><div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div><div className="text-sm text-slate-200 break-words">{v || "—"}</div></div>;
 }
@@ -238,9 +240,10 @@ function CrmTab() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState("");
   const [edit, setEdit] = useState(false);
-  const [fPerfil, setFPerfil] = useState("");
-  const [fResumo, setFResumo] = useState("");
+  const [form, setForm] = useState({});
+  const [upTipo, setUpTipo] = useState("material");
   const fileRef = useRef(null);
+  const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const loadList = useCallback(async () => {
     try { const r = await authFetch("/api/crm/leads" + (seg ? "?segment=" + seg : "")); if (r.ok) setLeads((await r.json()).leads || []); } catch (e) {}
   }, [seg]);
@@ -260,15 +263,18 @@ function CrmTab() {
     if (!sel || busy) return; setBusy("analisando com IA…");
     try { const r = await authFetch("/api/crm/leads/" + sel + "/analisar", { method: "POST" }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro de rede"); setTimeout(() => setBusy(""), 4000); }
   }
-  function startEdit() { setFPerfil(an.perfil || ""); setFResumo(an.resumo_abordagem || ""); setEdit(true); }
+  function startEdit() {
+    setForm({ nome: d.nome || "", cidade: d.cidade || "", contato: d.contato || "", status: d.status || "prospectado", perfil: an.perfil || "", resumo_abordagem: an.resumo_abordagem || "" });
+    setEdit(true);
+  }
   async function saveEdit() {
     setBusy("salvando…");
-    try { const r = await authFetch("/api/crm/leads/" + sel, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ perfil: fPerfil, resumo_abordagem: fResumo }) }); if (r.ok) { setEdit(false); loadDetail(sel); } else { setBusy("falha ao salvar"); setTimeout(() => setBusy(""), 3000); } } catch (e) { setBusy(""); }
+    try { const r = await authFetch("/api/crm/leads/" + sel, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); if (r.ok) { setEdit(false); loadDetail(sel); loadList(); } else { const j = await r.json(); setBusy("falha: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
   }
   async function onUpload(e) {
     const file = e.target.files && e.target.files[0]; if (!file || !sel) return;
     setBusy("enviando " + file.name + "…");
-    try { const r = await authFetch("/api/crm/leads/" + sel + "/arquivos?nome=" + encodeURIComponent(file.name) + "&tipo=material", { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (er) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
+    try { const r = await authFetch("/api/crm/leads/" + sel + "/arquivos?nome=" + encodeURIComponent(file.name) + "&tipo=" + encodeURIComponent(upTipo), { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (er) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
     e.target.value = "";
   }
   const filtered = leads.filter((l) => !q || (l.nome || "").toLowerCase().includes(q.toLowerCase()) || (l.id || "").toLowerCase().includes(q.toLowerCase()));
@@ -306,11 +312,17 @@ function CrmTab() {
             </div>
           </div>
           <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Como abordar</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">{edit ? "Editar lead" : "Como abordar"}</h3>
             {edit
-              ? <div className="space-y-2">
-                  <input value={fPerfil} onChange={(e) => setFPerfil(e.target.value)} placeholder="perfil (ex.: pintor residencial)" className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-sky-500/50" />
-                  <textarea value={fResumo} onChange={(e) => setFResumo(e.target.value)} rows={3} placeholder="como abordar este lead…" className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500/50" />
+              ? <div className="space-y-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Nome<input value={form.nome} onChange={(e) => setF("nome", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
+                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Contato<input value={form.contato} onChange={(e) => setF("contato", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
+                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Cidade<input value={form.cidade} onChange={(e) => setF("cidade", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
+                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Status<select value={form.status} onChange={(e) => setF("status", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50">{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+                  </div>
+                  <label className="block text-[10px] uppercase tracking-wider text-slate-500">Perfil<input value={form.perfil} onChange={(e) => setF("perfil", e.target.value)} placeholder="ex.: pintor residencial" className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
+                  <label className="block text-[10px] uppercase tracking-wider text-slate-500">Como abordar<textarea value={form.resumo_abordagem} onChange={(e) => setF("resumo_abordagem", e.target.value)} rows={3} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
                   <div className="flex gap-2"><button onClick={saveEdit} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold">Salvar</button><button onClick={() => setEdit(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 text-slate-400">Cancelar</button></div>
                 </div>
               : <React.Fragment>
@@ -319,9 +331,12 @@ function CrmTab() {
                 </React.Fragment>}
           </div>
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 gap-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Arquivos <span className="text-slate-600 normal-case font-normal">· {files.length} · produção monta a página com os ✓</span></h3>
-              <button onClick={() => fileRef.current && fileRef.current.click()} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-50 text-slate-300 font-semibold">⬆ Enviar arquivo</button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <select value={upTipo} onChange={(e) => setUpTipo(e.target.value)} title="tipo do arquivo a enviar" className="bg-slate-900 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-sky-500/50">{FILE_TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}</select>
+                <button onClick={() => fileRef.current && fileRef.current.click()} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-50 text-slate-300 font-semibold">⬆ Enviar</button>
+              </div>
               <input ref={fileRef} type="file" onChange={onUpload} className="hidden" />
             </div>
             {files.length === 0 && <p className="text-xs text-slate-600">sem arquivos ainda — a captura sobe as fotos automaticamente, ou envie manualmente</p>}

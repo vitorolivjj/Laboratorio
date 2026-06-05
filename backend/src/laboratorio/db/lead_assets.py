@@ -95,6 +95,30 @@ def set_analysis(
         return cur.rowcount > 0
 
 
+_CORE_COLS = {"nome", "cidade", "contato", "status", "etapa", "servico", "proxima_acao"}
+
+
+def update_core(lead_id: str, **fields) -> bool:
+    """Atualiza campos core em lab_leads (reflexo imediato no painel).
+
+    O markdown continua sendo a fonte (crm_lp_store.update_lead_fields espelha
+    de volta); este update é só pra o painel não esperar o sync. Whitelist de
+    colunas (sem SQL injection).
+    """
+    sets, vals = [], []
+    for key, val in fields.items():
+        if key in _CORE_COLS and val is not None:
+            sets.append(f"{key}=%s")
+            vals.append(str(val).strip())
+    if not sets:
+        return False
+    sets.append("updated_at=now()")
+    vals.append(lead_id.strip())
+    with connection() as conn, conn.cursor() as cur:
+        cur.execute(f"update lab_leads set {', '.join(sets)} where upper(id)=upper(%s)", vals)
+        return cur.rowcount > 0
+
+
 def get_analysis(lead_id: str) -> dict:
     """{perfil, resumo_abordagem, analise} do lead (vazio se não houver/sem banco)."""
     try:

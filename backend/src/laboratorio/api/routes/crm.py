@@ -12,8 +12,9 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 
 from laboratorio.api.auth import require_panel_token
+from laboratorio.config import REPO_ROOT
 from laboratorio.db import lead_assets, storage
-from laboratorio.ops import crm_enrich
+from laboratorio.ops import crm_enrich, crm_lp_store
 from laboratorio.repositories.leads import get_lead_repository
 
 router = APIRouter(
@@ -24,6 +25,11 @@ router = APIRouter(
 
 _LIST_FIELDS = ("id", "nome", "cidade", "contato", "segment", "status", "etapa", "projeto", "perfil")
 _MAX_UPLOAD = 15 * 1024 * 1024  # 15 MB por arquivo
+_SEG_MD = {
+    "crm_landing_pintor": "crm_landing_pintor.md",
+    "crm_laboratorio": "crm_laboratorio.md",
+    "crm_appvs": "crm_appvs.md",
+}
 
 
 def _require_lead(lead_id: str) -> dict:
@@ -33,10 +39,21 @@ def _require_lead(lead_id: str) -> dict:
     return lead
 
 
+def _segment_md_path(segment: str):
+    fname = _SEG_MD.get((segment or "").strip())
+    return (REPO_ROOT / "crm" / fname) if fname else None
+
+
 class AnaliseBody(BaseModel):
+    # análise (colunas DB-nativas)
     perfil: str | None = None
     resumo_abordagem: str | None = None
     analise: dict | None = None
+    # campos core (escrevem no markdown-fonte + DB)
+    nome: str | None = None
+    cidade: str | None = None
+    contato: str | None = None
+    status: str | None = None
 
 
 @router.get("/leads")
@@ -94,23 +111,42 @@ def analisar_lead(lead_id: str) -> dict:
 
 @router.patch("/leads/{lead_id}")
 def edit_lead(lead_id: str, body: AnaliseBody) -> dict:
-    """Edita a análise do lead (perfil, resumo, análise estruturada).
+    """Edita o lead. Dois grupos:
 
-    Só toca colunas DB-nativas (perfil/resumo/analise) — o sync markdown→DB não
-    mexe nelas, então a edição do painel é estável. Garante o lead pro update.
+    - **Análise** (perfil/resumo/analise): colunas DB-nativas; o sync markdown→DB
+      não as toca, então é estável.
+    - **Core** (nome/cidade/contato/status): escreve no markdown (fonte do sync)
+      + atualiza o DB na hora, pra não ser desfeito pelo sync de 5min.
     """
-    if body.perfil is None and body.resumo_abordagem is None and body.analise is None:
+    analise = {"perfil": body.perfil, "resumo_abordagem": body.resumo_abordagem, "analise": body.analise}
+    core = {k: v for k, v in (("nome", body.nome), ("cidade", body.cidade),
+                              ("contato", body.contato), ("status", body.status)) if v is not None}
+    if all(v is None for v in analise.values()) and not core:
         raise HTTPException(status_code=400, detail="Nada para editar")
+
     lead = _require_lead(lead_id)
     lead_assets.ensure_lead(
         lead_id, segment=lead.get("segment", ""), nome=lead.get("nome", ""),
         projeto=lead.get("projeto", ""), cidade=lead.get("cidade", ""),
         contato=lead.get("contato", ""),
     )
-    lead_assets.set_analysis(
-        lead_id, perfil=body.perfil, resumo_abordagem=body.resumo_abordagem, analise=body.analise
-    )
-    return {"ok": True, "analise": lead_assets.get_analysis(lead_id)}
+    if any(v is not None for v in analise.values()):
+        lead_assets.set_analysis(lead_id, **analise)
+    if core:
+        md = _segment_md_path(lead.get("segment", ""))
+        if not md:
+            raise HTTPException(status_code=422, detail="Segmento sem markdown editável")
+        try:
+            crm_lp_store.update_lead_fields(lead_id, path=md, **core)  # fonte
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        lead_assets.update_core(lead_id, **core)  # reflexo imediato
+
+    return {
+        "ok": True,
+        "lead": get_lead_repository().get(lead_id),
+        "analise": lead_assets.get_analysis(lead_id),
+    }
 
 
 @router.post("/leads/{lead_id}/arquivos")
