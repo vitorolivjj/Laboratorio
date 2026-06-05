@@ -15,7 +15,7 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-05 14:48 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-05 15:07 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
@@ -25,7 +25,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | TASKs em execução | 0 (cadência 2min entre starts) |
 | TASKs em planejamento | 0 |
 | Entregáveis (tasks `executando`) | 0 / 0 |
-| **Total leads (todos CRMs)** | **20** |
+| **Total leads (todos CRMs)** | **19** |
 | KPI LP — ativos | 1 |
 | KPI LP — taxa ativação | 100% |
 | Hipóteses `a_testar` | 2 |
@@ -66,13 +66,13 @@ Visão centralizada da operação do Laboratório multiagente.
 
 | Etapa | Qtd |
 |-------|-----|
-| `prospectado` | 18 |
+| `prospectado` | 17 |
 | `pronto_pra_pagina` | 0 |
 | `previa_no_ar` | 0 |
 | `abordado` | 0 |
 | `ativo` | 1 |
 | `recusou` | 0 |
-| **Total** | **19** |
+| **Total** | **18** |
 
 ### Leads (todos os CRMs)
 
@@ -82,7 +82,6 @@ Visão centralizada da operação do Laboratório multiagente.
 | LEAD-067 | CRM Landing Page Pintor | Fabio Augusto da Silva | `prospectado` | 2026-06-05 |
 | LEAD-066 | CRM Landing Page Pintor | Mohammed | `prospectado` | 2026-06-05 |
 | LEAD-065 | CRM Landing Page Pintor | FSP Pinturas | `prospectado` | 2026-06-05 |
-| LEAD-064 | CRM Landing Page Pintor | Fernando S. Pereira | `prospectado` | 2026-06-05 |
 | LEAD-063 | CRM Landing Page Pintor | Igor Santos | `prospectado` | 2026-06-04 |
 | LEAD-060 | CRM Landing Page Pintor | Rubens Santos | `prospectado` | 2026-06-04 |
 | LEAD-059 | CRM Landing Page Pintor | Gabriel Andrade Produção | `prospectado` | 2026-06-04 |
@@ -93,6 +92,7 @@ Visão centralizada da operação do Laboratório multiagente.
 | LEAD-019 | CRM Landing Page Pintor | Ezequiel Silva | `prospectado` | 2026-06-04 |
 | LEAD-015 | CRM Landing Page Pintor | Thiago Rodrigues | `prospectado` | 2026-06-04 |
 | LEAD-009 | CRM Landing Page Pintor | Maurício Santos | `prospectado` | 2026-06-04 |
+| LEAD-008 | CRM Landing Page Pintor | Alex Souza | `prospectado` | 2026-06-04 |
 
 <!-- AUTO-SNAPSHOT:END -->
 
