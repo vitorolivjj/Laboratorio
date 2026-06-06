@@ -109,19 +109,10 @@ def _api_key() -> str:
     return k
 
 
-def render_reel(
-    roteiro: str,
-    audio_url: str,
-    template: str = "confessionario",
-    *,
-    fundo: str | None = None,
-    timeout_s: int | None = None,
-) -> str:
-    """Monta o vídeo e devolve a URL do mp4. Faz poll até `done` (≤ timeout)."""
+def _render_movie(movie: dict[str, Any], *, timeout_s: int | None = None) -> str:
+    """POST do movie + poll até `done`. Devolve a URL do mp4."""
     key = _api_key()
-    movie = _build_movie(template, audio_url, roteiro, fundo)
     headers = {"x-api-key": key, "Content-Type": "application/json"}
-
     with httpx.Client(timeout=60.0) as client:
         resp = client.post(_API, headers=headers, json=movie)
         resp.raise_for_status()
@@ -149,6 +140,43 @@ def render_reel(
                 raise RuntimeError(f"JSON2Video erro no render: {st.get('message', st)}")
             time.sleep(6)
     raise RuntimeError(f"JSON2Video timeout no render (project {project})")
+
+
+def render_reel(
+    roteiro: str,
+    audio_url: str,
+    template: str = "confessionario",
+    *,
+    fundo: str | None = None,
+    timeout_s: int | None = None,
+) -> str:
+    """Monta o vídeo (Caminho B: estático+legenda) e devolve a URL do mp4."""
+    movie = _build_movie(template, audio_url, roteiro, fundo)
+    return _render_movie(movie, timeout_s=timeout_s)
+
+
+def render_talking_layout(
+    talking_video_url: str, *, timeout_s: int | None = None
+) -> str:
+    """Caminho A: compõe o vídeo falante (lip-sync, quadrado) num layout 9:16 da
+    marca — fundo #070B16, vídeo centralizado e legendas queimadas. Devolve mp4."""
+    scene: dict[str, Any] = {
+        "background-color": "#070B16",
+        "elements": [
+            {"type": "video", "src": talking_video_url,
+             "position": "center-center", "width": 1080},
+            {"type": "subtitles", "settings": {
+                "style": "classic", "font-family": "Oswald", "font-size": 58,
+                "word-color": "#3BA7FF", "line-color": "#FFFFFF",
+                "position": "bottom-center", "max-words-per-line": 5,
+            }},
+        ],
+    }
+    movie = {
+        "resolution": "custom", "width": _RESOLUTION["width"],
+        "height": _RESOLUTION["height"], "quality": "high", "scenes": [scene],
+    }
+    return _render_movie(movie, timeout_s=timeout_s)
 
 
 def render_from_audio_bytes(

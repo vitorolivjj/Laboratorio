@@ -1,10 +1,11 @@
 """Estreia — Reel-manifesto (insumo-05). Peça-pilar do Dia 4.
 
+Pipeline (Caminho A, identidade-e-animacao.md): voz (ElevenLabs) → lip-sync do
+avatar do Ronaldo (VEED Fabric/fal) → layout 9:16 da marca + legendas (JSON2Video).
+
 🟡 AMARELO: passa pela aprovação do Vitor ANTES de publicar.
   python scripts/estreia_reel.py            # gera a peça (NÃO publica) → revisar
   python scripts/estreia_reel.py --publish  # publica o Reel (após aprovação)
-
-Conteúdo congelado do insumo-05 (roteiro de estreia é o único escrito na íntegra).
 """
 
 from __future__ import annotations
@@ -17,9 +18,10 @@ from pathlib import Path
 _BACKEND = Path(__file__).resolve().parents[1] / "backend"
 sys.path.insert(0, str(_BACKEND / "src"))
 
-from laboratorio.config import load_env  # noqa: E402
+from laboratorio.config import REPO_ROOT, load_env  # noqa: E402
 
-# Roteiro (narração) — tempero mineiro leve, tom seco. Tags de emoção do v3 inline.
+_AVATAR = REPO_ROOT / "frontend/institucional/assets/imagens/agentes/ronaldo-maestro.png"
+
 NARRACAO = (
     "[seco] Ó... essa conta aqui era de um negócio que morreu. Agora é minha. "
     "[pausa] Eu sou uma IA. Não \"inspirada em IA\", não \"com ajuda de IA\", não. "
@@ -46,30 +48,39 @@ LEGENDA = (
 def main() -> int:
     load_env()
     ap = argparse.ArgumentParser()
-    ap.add_argument("--publish", action="store_true", help="publica o Reel (após aprovação do Vitor)")
-    ap.add_argument("--fundo", default=None, help="URL de footage/imagem de fundo (opcional)")
+    ap.add_argument("--publish", action="store_true", help="publica o Reel (após aprovação)")
+    ap.add_argument("--publish-url", default="", help="publica um mp4 JÁ gerado (sem re-gerar)")
+    ap.add_argument("--avatar", default=str(_AVATAR), help="caminho da imagem do avatar")
     args = ap.parse_args()
 
-    from laboratorio.ops import elevenlabs_tts, json2video, postproxy
+    from laboratorio.ops import elevenlabs_tts, json2video, postproxy, talking_avatar
 
+    # Atalho de aprovação: publica a peça já renderizada, sem re-gerar (não re-paga).
+    if args.publish_url:
+        print(f"Publicando estreia (mp4 pronto): {args.publish_url}")
+        post_id = postproxy.publicar(args.publish_url, LEGENDA, kind="reel")
+        print(f"✅ ESTREIA PUBLICADA · post_id={post_id}")
+        return 0
+
+    avatar_bytes = Path(args.avatar).read_bytes()
     slug = "estreia-reel-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    print(f"=== ESTREIA · Reel-manifesto · publish={args.publish} ===")
+    print(f"=== ESTREIA · Reel-manifesto (lip-sync) · publish={args.publish} ===")
 
     print("\n[1] Voz (ElevenLabs, Ronaldo, tom seco)…")
     audio = elevenlabs_tts.synthesize_speech(NARRACAO, agent="ronaldo")
     print(f"    ok: {len(audio)} bytes")
 
-    print("\n[2] Hospedando áudio…")
-    audio_url = json2video.host_audio(audio, slug)
-    print(f"    ok: {audio_url}")
+    print("\n[2] Lip-sync (VEED Fabric/fal — Ronaldo falando)…")
+    talking = talking_avatar.talking_video(avatar_bytes, audio, slug)
+    print(f"    ok: {talking}")
 
-    print("\n[3] Render (JSON2Video, confessionário)…")
-    mp4 = json2video.render_reel(NARRACAO, audio_url, "confessionario", fundo=args.fundo)
+    print("\n[3] Layout 9:16 da marca + legendas (JSON2Video)…")
+    mp4 = json2video.render_talking_layout(talking)
     print(f"    ok: {mp4}")
 
     if not args.publish:
         print("\n🟡 PEÇA PRONTA PARA APROVAÇÃO (não publicada).")
-        print(f"    Vídeo: {mp4}")
+        print(f"    Vídeo final: {mp4}")
         print(f"    Legenda:\n{LEGENDA}")
         print("\n    → Revise. Aprovado? rode com --publish.")
         return 0
