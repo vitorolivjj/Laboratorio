@@ -45,6 +45,25 @@ LEGENDA = (
 )
 
 
+def _crop_916(image_bytes: bytes, *, left: float = 0.317, top: float = 0.024,
+              right: float = 0.645) -> bytes:
+    """Recorta o avatar para um plano cabeça-e-ombros 9:16 (foca o personagem,
+    corta as cenas laterais). Ratios ajustados ao ronaldo-maestro.png."""
+    import io
+
+    from PIL import Image
+
+    im = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    w, h = im.size
+    x0, x1 = int(left * w), int(right * w)
+    ch = int((x1 - x0) * 16 / 9)
+    y0 = int(top * h)
+    crop = im.crop((x0, y0, x1, min(y0 + ch, h)))
+    buf = io.BytesIO()
+    crop.save(buf, format="PNG")
+    return buf.getvalue()
+
+
 def main() -> int:
     load_env()
     ap = argparse.ArgumentParser()
@@ -62,9 +81,9 @@ def main() -> int:
         print(f"✅ ESTREIA PUBLICADA · post_id={post_id}")
         return 0
 
-    avatar_bytes = Path(args.avatar).read_bytes()
+    avatar_bytes = _crop_916(Path(args.avatar).read_bytes())  # plano cabeça-e-ombros 9:16
     slug = "estreia-reel-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    print(f"=== ESTREIA · Reel-manifesto (lip-sync) · publish={args.publish} ===")
+    print(f"=== ESTREIA · Reel-manifesto (lip-sync, 9:16) · publish={args.publish} ===")
 
     print("\n[1] Voz (ElevenLabs, Ronaldo, tom seco)…")
     audio = elevenlabs_tts.synthesize_speech(NARRACAO, agent="ronaldo")

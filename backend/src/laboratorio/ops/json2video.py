@@ -156,29 +156,31 @@ def render_reel(
 
 
 def render_talking_layout(
-    talking_video_url: str, *, timeout_s: int | None = None
+    talking_video_url: str,
+    *,
+    font_size: int = 78,
+    timeout_s: int | None = None,
 ) -> str:
-    """Caminho A: compõe o vídeo falante (lip-sync, quadrado) num layout 9:16 da
-    marca — fundo #070B16, vídeo centralizado e legendas queimadas. Devolve mp4."""
+    """Caminho A: vídeo falante (lip-sync, já 9:16) preenchendo o canvas + legendas
+    queimadas. O enquadramento (cabeça-e-ombros) vem do avatar pré-recortado 9:16,
+    então aqui o vídeo só preenche (cover) e adicionamos a legenda."""
+    cw, ch = _RESOLUTION["width"], _RESOLUTION["height"]
     scene: dict[str, Any] = {
         "background-color": "#070B16",
         "elements": [
-            # Vídeo falante (quadrado) preenchendo o 9:16: zoom + recorte (cover),
-            # sem faixas vazias. Crop nas laterais; rosto central permanece.
             {"type": "video", "src": talking_video_url,
-             "x": 0, "y": 0,
-             "width": _RESOLUTION["width"], "height": _RESOLUTION["height"],
-             "resize": "cover"},
+             "x": 0, "y": 0, "width": cw, "height": ch, "resize": "cover"},
             {"type": "subtitles", "settings": {
-                "style": "classic", "font-family": "Oswald", "font-size": 58,
+                "style": "classic", "font-family": "Oswald", "font-size": int(font_size),
                 "word-color": "#3BA7FF", "line-color": "#FFFFFF",
-                "position": "bottom-center", "max-words-per-line": 5,
+                "outline-width": 6, "outline-color": "#070B16",
+                "position": "bottom-center", "max-words-per-line": 4,
             }},
         ],
     }
     movie = {
-        "resolution": "custom", "width": _RESOLUTION["width"],
-        "height": _RESOLUTION["height"], "quality": "high", "scenes": [scene],
+        "resolution": "custom", "width": cw, "height": ch,
+        "quality": "high", "scenes": [scene],
     }
     return _render_movie(movie, timeout_s=timeout_s)
 
