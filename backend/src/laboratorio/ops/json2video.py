@@ -33,34 +33,33 @@ _TEMPLATES = ("dialogo", "board", "antes_depois", "confessionario")
 
 
 def host_audio(audio: bytes, slug: str) -> str:
-    """Sobe o MP3 da narração no bucket de conteúdo e devolve a URL pública."""
+    """Sobe o MP3 da narração no Storage (bucket configurado) e devolve a URL.
+
+    Usa o bucket padrão do Storage (lead_files_bucket), sob o prefixo
+    `content/audio/`. JSON2Video precisa de uma URL pública.
+    """
     from laboratorio.db import storage
 
     if not storage.enabled():
         raise RuntimeError(
-            "Supabase Storage desabilitado — necessário para hospedar o áudio "
-            "(configure no .env da VPS). Em dev, passe audio_url pronto."
+            "Supabase Storage desabilitado — defina SUPABASE_URL + chave no .env "
+            "para hospedar o áudio."
         )
-    bucket = os.getenv("CONTENT_BUCKET", "content")
-    path = f"audio/{slug}.mp3"
+    path = f"content/audio/{slug}.mp3"
     storage.ensure_bucket(public=True)
-    storage.upload(path, audio, mime="audio/mpeg", upsert=True, bucket=bucket)
-    return storage.public_url(path, bucket=bucket)
+    storage.upload(path, audio, mime="audio/mpeg", upsert=True)
+    return storage.public_url(path)
 
 
 # --- templates -------------------------------------------------------------
 
 
 def _scene_confessionario(audio_url: str, legenda: str, fundo: str | None) -> dict[str, Any]:
-    """Plano único: footage/fundo + narração + legendas queimadas (auto-sync)."""
+    """Plano único: footage/fundo (se houver) + narração + legendas queimadas."""
     elements: list[dict[str, Any]] = []
     if fundo:
         elements.append({"type": "image" if _is_image(fundo) else "video",
                          "src": fundo, "resize": "cover", "duration": -1})
-    else:
-        elements.append({"type": "image",
-                         "src": "https://json2video.com/assets/dark-gradient.jpg",
-                         "resize": "cover", "duration": -1})
     elements.append({"type": "audio", "src": audio_url})
     # legendas queimadas sincronizadas pelo áudio
     elements.append({
@@ -74,7 +73,10 @@ def _scene_confessionario(audio_url: str, legenda: str, fundo: str | None) -> di
             "max-words-per-line": 4,
         },
     })
-    return {"comment": "confessionario", "elements": elements}
+    scene: dict[str, Any] = {"comment": "confessionario", "elements": elements}
+    if not fundo:  # sem footage: fundo sólido escuro (sem dependência externa)
+        scene["background-color"] = "#0a0a0a"
+    return scene
 
 
 def _build_movie(template: str, audio_url: str, legenda: str, fundo: str | None) -> dict[str, Any]:

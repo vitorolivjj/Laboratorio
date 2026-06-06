@@ -63,13 +63,14 @@ def publicar(media_url: str, body: str, kind: Kind = "reel") -> str:
     Deve ser chamado SOMENTE pelo fluxo da esteira (após agenda + aprovação).
     """
     base, key, profile = _conf()
-    payload = {
-        "profiles": [profile],
-        "type": kind,
-        "media": [{"url": media_url}],
-        "caption": body,
-    }
-    with httpx.Client(timeout=60.0) as client:
+    fmt = kind if kind in ("reel", "story", "carousel") else "reel"
+    # Schema Postproxy: media = array de URLs no TOP-LEVEL (não dentro de post,
+    # não objetos); formato por plataforma em post.platforms.instagram.format.
+    post_obj: dict[str, Any] = {"platforms": {"instagram": {"format": fmt}}}
+    if body and fmt != "story":  # stories não aceitam texto no body
+        post_obj["body"] = body
+    payload = {"profiles": [profile], "media": [media_url], "post": post_obj}
+    with httpx.Client(timeout=90.0) as client:
         r = client.post(f"{base}/api/posts", headers=_headers(key), json=payload)
         r.raise_for_status()
         data = r.json()
