@@ -163,8 +163,12 @@ def render_talking_layout(
     scene: dict[str, Any] = {
         "background-color": "#070B16",
         "elements": [
+            # Vídeo falante (quadrado) preenchendo o 9:16: zoom + recorte (cover),
+            # sem faixas vazias. Crop nas laterais; rosto central permanece.
             {"type": "video", "src": talking_video_url,
-             "position": "center-center", "width": 1080},
+             "x": 0, "y": 0,
+             "width": _RESOLUTION["width"], "height": _RESOLUTION["height"],
+             "resize": "cover"},
             {"type": "subtitles", "settings": {
                 "style": "classic", "font-family": "Oswald", "font-size": 58,
                 "word-color": "#3BA7FF", "line-color": "#FFFFFF",
