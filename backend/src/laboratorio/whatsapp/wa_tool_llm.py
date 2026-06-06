@@ -29,6 +29,34 @@ WA_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "criar_task",
+            "description": (
+                "Cria uma nova TASK no kanban. O ID (TASK-XXX) é gerado pelo "
+                "sistema — use o ID retornado, NUNCA invente. Use to_state="
+                "'executando' para já colocar o autopilot pra rodar."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "titulo": {"type": "string"},
+                    "objetivo": {"type": "string", "description": "Descrição/objetivo da task"},
+                    "agente": {
+                        "type": "string",
+                        "description": "Agente responsável: dev, juarez, loide, caio, donizete ou ronaldo_maestro",
+                    },
+                    "prioridade": {"type": "string", "description": "alta | media | baixa"},
+                    "to_state": {
+                        "type": "string",
+                        "description": "backlog (padrão) ou executando",
+                    },
+                },
+                "required": ["titulo"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "mover_task",
             "description": "Move task entre colunas do kanban",
             "parameters": {
@@ -97,6 +125,24 @@ WA_TOOLS: list[dict[str, Any]] = [
 def _run_tool(name: str, args: dict[str, Any]) -> str:
     if name == "listar_tasks":
         return tool_bridge.list_tasks()
+    if name == "criar_task":
+        from laboratorio.ops import task_kanban_api
+
+        r = task_kanban_api.create_task_api(
+            titulo=args.get("titulo", ""),
+            objetivo=args.get("objetivo", ""),
+            agente=args.get("agente", ""),
+            prioridade=args.get("prioridade", "media"),
+        )
+        tid = r.get("task_id", "") if isinstance(r, dict) else ""
+        msg = r.get("message", str(r)) if isinstance(r, dict) else str(r)
+        to = (args.get("to_state") or "backlog").strip().lower()
+        # Owner (Vitor) via WhatsApp pode mandar direto pra executando (force:
+        # ignora o gate de briefing). Sem to_state válido, fica no backlog.
+        if tid and to == "executando":
+            mv = tool_bridge.move_task(tid, "executando", "criada via WhatsApp", force=True)
+            return f"{msg}\n{mv}"
+        return msg
     if name == "mover_task":
         return tool_bridge.move_task(
             args.get("task_id", ""),
@@ -129,7 +175,11 @@ def try_tool_llm(message: str, snapshot_context: str) -> str | None:
     model = os.getenv("VITOR_WHATSAPP_MODEL", os.getenv("VOICE_LLM_MODEL", "gpt-4o-mini"))
     system = (
         "Você é Ronaldo Maestro no WhatsApp do Vitor. Use ferramentas para dados reais. "
-        "Não invente IDs de task. Resposta final curta em PT-BR.\n\n"
+        "Para CRIAR/MOVER/CONCLUIR tarefas você DEVE chamar a ferramenta correspondente "
+        "(criar_task, mover_task). NUNCA diga que criou/moveu uma task sem ter chamado a "
+        "ferramenta e recebido o resultado — e use o ID retornado, jamais invente um. "
+        "Se faltar uma ferramenta para o pedido, diga que não consegue executar (não finja). "
+        "Resposta final curta em PT-BR.\n\n"
         + snapshot_context[:6000]
     )
     messages: list[dict[str, Any]] = [
