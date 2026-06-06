@@ -121,7 +121,12 @@ def _advance_task(task: dict) -> str:
         "atualizar CRM etc.) e descreva o que foi feito e qual a próxima ação. "
         "NÃO crie novas tarefas nem subtarefas — apenas avance e relate a TASK "
         "atual. Se estiver bloqueada, registre o bloqueio e o que precisa para "
-        "destravar. Seja objetivo (máx. 8 linhas)."
+        "destravar. Seja objetivo (máx. 8 linhas).\n\n"
+        "CONCLUSÃO: quando a TASK estiver 100% pronta, chame "
+        f'concluir_task(task_id="{task["id"]}", resultado=...) para encerrá-la '
+        "(ela sai de 'executando', não é re-executada e o Vitor é avisado). Se "
+        "AINDA falta algo, NÃO chame concluir_task — apenas avance; ela será "
+        "retomada no próximo ciclo."
         f"{fb_block}"
     )
 

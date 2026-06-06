@@ -54,3 +54,25 @@ class MoverTaskTool(BaseTool):
     @safe
     def _run(self, task_id: str, to_state: str, nota: str = "", force: bool = False) -> str:
         return tool_bridge.move_task(task_id, to_state, nota, force=force)
+
+
+class _ConcluirTaskArgs(BaseModel):
+    task_id: str = Field(..., description="ID da TASK que VOCÊ terminou, ex.: TASK-012")
+    resultado: str = Field(
+        ..., description="Resumo do que foi entregue / resultado final (1-3 frases)"
+    )
+
+
+class ConcluirTaskTool(BaseTool):
+    name: str = "concluir_task"
+    description: str = (
+        "Conclui a SUA task quando ela está 100% pronta: move para 'concluidas' "
+        "com um resumo do resultado. Isso encerra a task (sai de 'executando', "
+        "não é mais re-executada) e avisa o Vitor. Use SOMENTE quando terminou de "
+        "fato; se ainda falta, NÃO chame — deixe em executando que será retomada."
+    )
+    args_schema: type[BaseModel] = _ConcluirTaskArgs
+
+    @safe
+    def _run(self, task_id: str, resultado: str) -> str:
+        return tool_bridge.move_task(task_id, "concluidas", resultado)

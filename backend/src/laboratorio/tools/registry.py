@@ -56,6 +56,7 @@ def tools_for(agent_id: str) -> list:
             RegistrarEventoTool,
         )
         from laboratorio.tools.tasks_tools import (
+            ConcluirTaskTool,
             CriarTaskTool,
             ListarTasksTool,
             MoverTaskTool,
@@ -66,8 +67,9 @@ def tools_for(agent_id: str) -> list:
         logger.warning("Tools indisponíveis (%s) — agentes seguem sem ferramentas", exc)
         return []
 
-    # Todos podem ler memória.
-    common = [LerMemoriaTool()]
+    # Todos podem ler memória e concluir a própria task (move p/ concluidas,
+    # encerra e notifica — evita re-execução pelo autopilot).
+    common = [LerMemoriaTool(), ConcluirTaskTool()]
 
     spec: dict[str, list] = {
         "ronaldo_maestro": [
