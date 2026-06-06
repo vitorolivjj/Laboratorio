@@ -151,6 +151,41 @@ def _task_has_briefing(task_id: str, *, tasks_dir: Path) -> bool:
     return bool(re.search(r"###\s+Briefing|##\s+Briefing", doc, re.I))
 
 
+# Transições que disparam notificação proativa ao Vitor (WhatsApp):
+# concluída → avisa entrega; standby/aguardando → avisa parada/decisão.
+_NOTIFY_ON_MOVE: dict[str, tuple[str, str, str]] = {
+    "concluidas": ("✅ TASK concluída", "", "tasks/concluidas.md"),
+    "standby": ("⏸️ TASK pausada", "Retomar quando puder", "tasks/standby.md"),
+    "aguardando": ("⛔ TASK bloqueada", "Precisa de decisão / desbloqueio", "tasks/aguardando.md"),
+}
+
+
+def _notify_task_transition(task_id: str, from_state: str, to_state: str, nota: str) -> None:
+    """Avisa o Vitor (WhatsApp) quando uma TASK conclui, pausa ou bloqueia.
+
+    Best-effort e desligável via TASK_NOTIFY=0; nunca derruba a movimentação.
+    """
+    import os
+
+    if os.getenv("TASK_NOTIFY", "1").strip().lower() in ("0", "false", "no"):
+        return
+    spec = _NOTIFY_ON_MOVE.get(to_state)
+    if not spec:
+        return
+    titulo, action, ref = spec
+    detail = nota.strip() or f"{task_id}: {from_state} → {to_state}"
+    try:
+        from laboratorio.whatsapp.notify import notify_vitor
+
+        notify_vitor(f"{titulo}: {task_id}", detail, action=action, ref=ref)
+    except Exception:  # noqa: BLE001 — notificação nunca quebra o kanban
+        import logging
+
+        logging.getLogger("laboratorio.tasks_store").warning(
+            "Falha ao notificar transição de %s para %s", task_id, to_state
+        )
+
+
 @_with_kanban_lock
 def move_task(
     task_id: str,
@@ -217,6 +252,7 @@ def move_task(
             write_text_atomic(doc_path, doc2)
 
     dual_write.sync_async()
+    _notify_task_transition(task_id, from_state, to_state, nota)
     return f"{task_id} movida de {from_state} → {to_state}."
 
 

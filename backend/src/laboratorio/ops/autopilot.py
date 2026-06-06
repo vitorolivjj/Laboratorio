@@ -256,6 +256,7 @@ def run_cycle() -> dict:
                 kind="error", context=f"autopilot:{tid}", agent="autopilot",
                 detail=f"Erro ao avançar {tid}: {exc}",
             )
+            _notify_task_error(tid, exc, state, now)
 
     _save_state(state)
     summary = {
@@ -266,6 +267,32 @@ def run_cycle() -> dict:
     }
     logger.info("Autopilot ciclo: %s", summary)
     return summary
+
+
+def _notify_task_error(tid: str, exc: Exception, state: dict, now: float) -> None:
+    """Notifica o Vitor (WhatsApp) quando uma TASK falha na execução do autopilot.
+
+    Throttle por task (AUTOPILOT_ERROR_NOTIFY_COOLDOWN, default 6h) para não
+    repetir o aviso a cada ciclo. Best-effort; nunca derruba o piloto.
+    """
+    if os.getenv("TASK_NOTIFY", "1").strip().lower() in ("0", "false", "no"):
+        return
+    cooldown = _int_env("AUTOPILOT_ERROR_NOTIFY_COOLDOWN", 21600)
+    key = f"__errnotify__{tid}"
+    if now - float(state.get(key, 0)) < cooldown:
+        return
+    state[key] = now
+    try:
+        from laboratorio.whatsapp.notify import notify_vitor
+
+        notify_vitor(
+            f"❌ TASK {tid} falhou na execução",
+            str(exc)[:300],
+            action="Verificar / decidir",
+            ref=f"autopilot:{tid}",
+        )
+    except Exception:  # noqa: BLE001 — notificação nunca quebra o ciclo
+        logger.warning("Falha ao notificar erro de %s", tid)
 
 
 def run_forever() -> None:
