@@ -167,7 +167,14 @@ def parse_executando_tasks(content: str) -> list[dict]:
         re.MULTILINE | re.DOTALL,
     ):
         block = m.group(3)
-        agents = _field(block, "Agente") or _field(block, "Responsável")
+        # create_task grava "Agente responsável"; outras origens usam "Agente"/
+        # "Responsável". Sem o 1º label, toda task criada caía no default
+        # ronaldo_maestro no autopilot (agente atribuído era ignorado).
+        agents = (
+            _field(block, "Agente responsável")
+            or _field(block, "Agente")
+            or _field(block, "Responsável")
+        )
         aux = _field(block, "Auxiliares")
         if aux and aux not in ("—", "-", ""):
             agents = f"{agents} · {aux}" if agents else aux
