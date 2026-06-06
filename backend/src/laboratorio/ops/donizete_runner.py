@@ -622,6 +622,12 @@ def stop_busca(*, task_id: str | None = None) -> str:
 
     with _lock:
         if not is_running() and _thread is None and not was_armed:
+            # Mesmo "já parada": garante a flag da sessão FB limpa, senão o
+            # capture_active() (fallback) deixa o painel mostrando busca fantasma.
+            data = fb_session.load_session()
+            if data.get("busca_ativa"):
+                data["busca_ativa"] = False
+                fb_session.save_session(data)
             return f"Busca já estava parada.\n\n{status_line()}"
 
         _stop.set()
