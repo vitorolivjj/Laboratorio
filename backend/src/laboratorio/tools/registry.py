@@ -60,6 +60,7 @@ def tools_for(agent_id: str) -> list:
             ListarTasksTool,
             MoverTaskTool,
         )
+        from laboratorio.tools.dev_tools import dev_executor_tools
         from laboratorio.tools.whatsapp_tools import EnviarWhatsAppTool
     except Exception as exc:  # noqa: BLE001
         logger.warning("Tools indisponíveis (%s) — agentes seguem sem ferramentas", exc)
@@ -89,6 +90,9 @@ def tools_for(agent_id: str) -> list:
             CriarTaskTool(),
             RegistrarAprendizadoTool(),
             RegistrarEventoTool(),
+            # Poder real de desenvolvimento (escrever/ler arquivo, shell, git,
+            # deploy) — com guard-rails e log de cada ação. Ver dev_tools.py.
+            *dev_executor_tools(),
         ],
         "caio_manteiga": [
             LerCRMTool(),

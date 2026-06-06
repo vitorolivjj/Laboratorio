@@ -52,8 +52,11 @@ def _memory_enabled() -> bool:
 
 def build_orchestrator_crew(user_objective: str) -> Crew:
     """Monta crew hierárquica: Ronaldo (manager) + especialistas com ferramentas."""
-    # No modo hierárquico o manager NÃO entra na lista de agents.
-    ronaldo = build_agent("ronaldo_maestro", verbose=True, allow_delegation=True)
+    # No modo hierárquico o manager NÃO entra na lista de agents e NÃO pode ter
+    # tools (CrewAI: "Manager agent should not have tools"). Ele só delega.
+    ronaldo = build_agent(
+        "ronaldo_maestro", verbose=True, allow_delegation=True, tools=[]
+    )
     juarez = build_agent("juarez", verbose=True)
     dev = build_agent("dev", verbose=True)
     loide = build_agent("loide", verbose=True)
@@ -66,8 +69,10 @@ def build_orchestrator_crew(user_objective: str) -> Crew:
         description=(
             f"Objetivo do Vitor:\n{user_objective}\n"
             f"{_memory_block(user_objective)}{semantic_block}\n\n"
-            "Como Ronaldo Maestro, coordene os especialistas (Juarez=operação, "
-            "Dev=software, Loide=UX, Caio=comercial, Donizete=captação de leads). "
+            "Como Ronaldo Maestro, coordene os especialistas. Ao delegar, use "
+            "EXATAMENTE estes ids (minúsculos) no campo coworker: "
+            "juarez (operação), dev (software), loide (UX), caio (comercial), "
+            "donizete (captação de leads). "
             "Acione SOMENTE quem o objetivo exige. Use suas ferramentas para "
             "consultar memória/CRM e, quando fizer sentido, registrar "
             "decisões/eventos ou criar TASKs.\n"
