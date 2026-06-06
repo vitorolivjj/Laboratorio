@@ -21,6 +21,8 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 
 | ID | Nome | Cidade | Origem | Status | Resp. | Captura |
 |----|------|--------|--------|--------|-------|---------|
+| LEAD-070 | Rafael Teixeira | osasco | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-06 |
+| LEAD-069 | Deyvid Jesus | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-067 | Fabio Augusto da Silva | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-066 | Mohammed | São Paulo e Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
 | LEAD-065 | FSP Pinturas | Região | feed_vision — https://www.facebook.com/groups/1726982011023476/ | prospectado | donizete_social | 2026-06-05 |
@@ -45,6 +47,46 @@ Leads do **produto** Landing Page Pintor — funil invertido: produz primeiro, e
 ## Leads
 
 <!-- Donizete: novos leads abaixo -->
+
+## LEAD-070 — Rafael Teixeira
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-070 |
+| **Nome** | Rafael Teixeira |
+| **Cidade** | osasco |
+| **Serviço** | Pintura |
+| **Contato** | 11972330799 |
+| **Grupo origem** | PINTORES (teste) |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,medio |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/rafael-teixeira/ |
+| **Próxima ação** | [medio] sou pintor profissional, trabalho : textura, grafiato, cimento queimado, acabamento fino. |
+| **Data captura** | 2026-06-06 |
+
+## LEAD-069 — Deyvid Jesus
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | LEAD-069 |
+| **Nome** | Deyvid Jesus |
+| **Cidade** | Região |
+| **Serviço** | Pintura |
+| **Contato** | 11951412089 |
+| **Grupo origem** | PINTORES (teste) |
+| **Origem** | feed_vision — https://www.facebook.com/groups/1726982011023476/ |
+| **Tags** | autopromocao,quente |
+| **Status** | prospectado |
+| **Responsável** | donizete_social |
+| **Projeto** | PROJ-LP |
+| **Link origem** | https://www.facebook.com/groups/1726982011023476/ |
+| **Prévia** | https://api.laboratorioagentes.com.br/previas/deyvid-jesus/ |
+| **Próxima ação** | [quente] SOU PINTOR PROFISSIONAL E ESTOU DISPONÍVEL PARA SEGUNDA FEIRA,MEU WHATSAPP PARA CONTATO:11951412089 |
+| **Data captura** | 2026-06-05 |
 
 ## LEAD-067 — Fabio Augusto da Silva
 

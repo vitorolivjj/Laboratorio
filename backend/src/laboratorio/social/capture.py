@@ -156,6 +156,97 @@ def save_post_images(lead: dict, page, urls, *, contato: str = "") -> int:
     return sent
 
 
+_PINTOR_SINAL = ("pintor", "pintura", "obra", "reforma", "acabamento", "textura", "massa corrida")
+
+
+def save_profile_images_by_search(page, lead: dict, nome: str, *, contato: str = "") -> int:
+    """Fluxo do lead: BUSCA o perfil no FB pelo nome → abre → confirma que é
+    pintor → salva as fotos de trabalho no Storage + lab_lead_files.
+
+    É o passo "abre o perfil dele e salva as imagens" pros leads que a visão
+    identifica mas não têm URL de perfil (a maioria). Best-effort + verifica que
+    o perfil é de pintor (evita salvar fotos do homônimo errado).
+    """
+    import urllib.parse
+
+    nome = (nome or "").strip()
+    if len(nome) < 4 or nome.lower() == "participante anônimo":
+        return 0
+    try:
+        from laboratorio.db import lead_assets, storage
+    except Exception:  # noqa: BLE001
+        return 0
+    if not storage.enabled():
+        return 0
+    try:
+        q = urllib.parse.quote(nome[:60])
+        navigate(page, f"https://www.facebook.com/search/people/?q={q}", wait_ms=4500)
+        prof = page.evaluate(
+            """() => {
+              for (const a of document.querySelectorAll('a[href*="facebook.com/"]')) {
+                const href = a.href || '';
+                const t = (a.innerText || '').trim();
+                if (t.length < 3) continue;
+                if (href.includes('/groups/') || href.includes('/search/') ||
+                    href.includes('/photo') || href.includes('/watch') || href.includes('/events')) continue;
+                if (/facebook\\.com\\/(profile\\.php\\?id=\\d+|people\\/|[\\w.-]{5,})$/.test(href.split('&')[0]))
+                  return href.split('&')[0];
+              }
+              return '';
+            }"""
+        )
+        if not prof:
+            return 0
+        navigate(page, prof, wait_ms=4000)
+        page.evaluate("window.scrollBy(0, window.innerHeight * 1.4)")
+        page.wait_for_timeout(2500)
+        txt = str(page.evaluate("(document.body.innerText||'').toLowerCase().slice(0,4000)") or "")
+        if not any(k in txt for k in _PINTOR_SINAL):
+            logger.info("Perfil de %s não confirma pintor — não salva fotos", nome)
+            return 0
+        urls = collect_image_urls(page, limit=10)
+        if not urls:
+            return 0
+        root = crm_lp_store.ensure_lead_capture_dir(
+            lead.get("slug") or lead["id"], lead_id=lead["id"], perfil_url=prof
+        )
+        raw_dir = root / "captura" / "raw"
+        saved = download_urls(page, urls, raw_dir, prefix="perfil")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("save_profile_images_by_search %s falhou: %s", nome, exc)
+        return 0
+    if not saved:
+        return 0
+    try:
+        lead_assets.ensure_lead(
+            lead["id"], segment=_LP_SEGMENT, nome=nome, projeto=_LP_PROJETO, contato=contato
+        )
+    except Exception:  # noqa: BLE001
+        return 0
+    sent = 0
+    for i, fn in enumerate(saved):
+        path = raw_dir / fn
+        if not path.is_file():
+            continue
+        try:
+            keypath = storage.lead_object_path(_LP_PROJETO, lead["id"], fn)
+            storage.upload_file(keypath, path)
+            lead_assets.add_file(
+                lead["id"], keypath, projeto=_LP_PROJETO, tipo="foto_trabalho",
+                url=storage.public_url(keypath), bytes_=path.stat().st_size,
+                origem="perfil_busca", ordem=i, metadata={"link_perfil": prof},
+            )
+            sent += 1
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("save_profile img %s: %s", fn, exc)
+    if sent:
+        try:
+            lead_assets.set_analysis(lead["id"], analise={"link_perfil": prof})
+        except Exception:  # noqa: BLE001
+            pass
+    return sent
+
+
 def run_garimpo(*, scroll_first: bool = True) -> str:
     with facebook_cdp.facebook_session() as browser:
         page = pick_facebook_page(browser)

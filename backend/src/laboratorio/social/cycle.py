@@ -191,6 +191,9 @@ def run_navigation_cycle(
         except Exception:  # noqa: BLE001 — semear é best-effort
             pass
 
+        # leads sem-URL: buscamos o perfil DEPOIS do loop (navegar agora quebraria
+        # a leitura dos próximos posts do feed).
+        pending_profiles: list[tuple] = []
         for post in posts:
             if captured >= max_leads:
                 break
@@ -261,14 +264,15 @@ def run_navigation_cycle(
                              "projeto": "PROJ-LP"},
                             bio=post.texto,
                         )
-                        # salva as fotos do post (trabalho do lead) pra produção,
-                        # mesmo sem visitar o perfil
+                        # fotos do próprio post (bônus, quando o DOM expõe)
                         if post.imagens:
                             from laboratorio.social.capture import save_post_images
 
                             n_img = save_post_images(lead, page, post.imagens, contato=contato)
                             if n_img:
                                 lines.append(f"   + {n_img} foto(s) do post salvas")
+                        # agenda a busca do perfil (fotos de trabalho) p/ depois do loop
+                        pending_profiles.append((dict(lead), post.autor, contato))
                     except Exception as exc:
                         lines.append(f"CRM sem perfil falhou: {exc}")
                 continue
@@ -308,6 +312,18 @@ def run_navigation_cycle(
 
             if captured < max_leads:
                 page.wait_for_timeout(_PROFILE_PAUSE_MS)
+
+        # Depois de varrer o feed: pros leads sem-URL, busca o perfil no FB e
+        # salva as fotos de trabalho (o passo "abre o perfil e salva imagens").
+        for pend_lead, pend_nome, pend_contato in pending_profiles:
+            try:
+                from laboratorio.social.capture import save_profile_images_by_search
+
+                n_prof = save_profile_images_by_search(page, pend_lead, pend_nome, contato=pend_contato)
+                if n_prof:
+                    lines.append(f"\n   {pend_lead['id']} {pend_nome}: {n_prof} foto(s) do perfil salvas")
+            except Exception as exc:  # noqa: BLE001
+                lines.append(f"   busca perfil {pend_nome} falhou: {exc}")
 
     if captured == 0:
         if fixed_group is not None:
