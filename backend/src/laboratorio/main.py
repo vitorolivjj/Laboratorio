@@ -330,6 +330,16 @@ def cmd_vitor_schedule(args) -> int:
         sent += 1
         print(f"Enviado lembrete {sid}")
     print(f"Total: {sent}")
+
+    # Esteira de Conteúdo: publica nos slots fixos se houver peça na fila.
+    try:
+        from laboratorio.ops import content_schedule
+
+        res = content_schedule.publish_due()
+        if res:
+            print(f"Esteira: {res}")
+    except Exception as exc:  # noqa: BLE001 — não derruba o ciclo de schedule
+        print(f"Esteira publish_due falhou: {exc}")
     return 0
 
 
