@@ -355,6 +355,14 @@ def cmd_content_run(args) -> int:
         res = content_run.rodar_ciclo(formato=args.formato, dry=args.dry)
     except Exception as exc:  # noqa: BLE001
         print(f"Erro: {exc}")
+        if not args.dry:  # geração real falhou → avisa o Vitor (requisito: notificar se parar)
+            try:
+                from laboratorio.whatsapp.notify import notify_vitor
+
+                notify_vitor("❌ Esteira falhou ao gerar conteúdo",
+                             str(exc)[:300], action="Verificar logs/content_run.out")
+            except Exception:  # noqa: BLE001
+                pass
         return 1
     print("=== CICLO ESTEIRA" + (" (dry)" if args.dry else "") + " ===")
     for k in ("status", "cor", "formato", "dest", "approval_id",
