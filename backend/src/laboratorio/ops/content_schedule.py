@@ -220,22 +220,27 @@ def _gen_mark(key: str) -> None:
     GEN_STATE_FILE.write_text(json.dumps(keep, ensure_ascii=False), encoding="utf-8")
 
 
-def _spawn_generation() -> None:
-    """Dispara `content-run` como processo destacado (não bloqueia o loop de 1 min)."""
-    import subprocess
-    import sys
+def _run_generation() -> dict:
+    """Roda 1 ciclo da esteira (síncrono). Notifica o Vitor em caso de erro.
 
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    out = open(LOGS_DIR / "content_run.out", "ab")  # noqa: SIM115
-    subprocess.Popen(  # noqa: S603 — comando fixo, sem input externo
-        [sys.executable, "-m", "laboratorio", "content-run"],
-        stdout=out, stderr=out, start_new_session=True, env={**os.environ},
-    )
+    Síncrono de propósito: o vitor-schedule é um systemd oneshot (KillMode=
+    control-group), então um processo destacado seria morto ao fim do tick.
+    Bloqueia o loop por alguns minutos 1×/dia — aceitável (em modo aprovação
+    nenhuma publicação depende disso em tempo real)."""
+    from laboratorio.ops import content_run
+
+    try:
+        return content_run.rodar_ciclo()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Esteira: geração diária falhou")
+        _notify("❌ Esteira falhou ao gerar conteúdo", str(exc)[:300],
+                ref="content_run")
+        return {"status": "erro", "motivo": str(exc)}
 
 
 def generate_due(now: datetime | None = None) -> dict | None:
-    """Se um horário de geração está vencido (e ainda não rodou hoje), dispara a
-    geração de uma peça. Idempotente por dia. Chamado pelo loop de 1 min."""
+    """Se um horário de geração está vencido (e ainda não rodou hoje), gera 1 peça.
+    Idempotente por dia. Chamado pelo loop de 1 min do vitor-schedule."""
     if not _autorun_enabled():
         return None
     now = now or datetime.now(TZ)
@@ -245,8 +250,8 @@ def generate_due(now: datetime | None = None) -> dict | None:
         slot_dt = now.replace(hour=h, minute=m, second=0, microsecond=0)
         key = _slot_key(now, h, m)
         if now >= slot_dt and (now - slot_dt).total_seconds() < win and key not in done:
-            _spawn_generation()
-            _gen_mark(key)
-            logger.info("Esteira: geração diária disparada (%s)", key)
-            return {"slot": key, "spawned": True}
+            _gen_mark(key)  # marca antes de rodar: evita re-tentar em loop se falhar
+            logger.info("Esteira: geração diária iniciada (%s)", key)
+            res = _run_generation()
+            return {"slot": key, "result": res}
     return None
