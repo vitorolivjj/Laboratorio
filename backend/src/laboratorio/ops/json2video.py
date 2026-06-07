@@ -185,6 +185,35 @@ def render_talking_layout(
     return _render_movie(movie, timeout_s=timeout_s)
 
 
+def render_static(
+    audio_url: str,
+    image_url: str,
+    *,
+    font_size: int = 78,
+    timeout_s: int | None = None,
+) -> str:
+    """Caminho B (board/narrado): avatar ESTÁTICO com leve movimento (Ken Burns)
+    + narração + legendas queimadas. Sem lip-sync (sem fal). 9:16."""
+    cw, ch = _RESOLUTION["width"], _RESOLUTION["height"]
+    scene: dict[str, Any] = {
+        "background-color": "#070B16",
+        "elements": [
+            {"type": "image", "src": image_url, "x": 0, "y": 0,
+             "width": cw, "height": ch, "resize": "cover"},  # estático (Ken Burns futuro)
+            {"type": "audio", "src": audio_url},
+            {"type": "subtitles", "settings": {
+                "style": "classic", "font-family": "Oswald", "font-size": int(font_size),
+                "word-color": "#3BA7FF", "line-color": "#FFFFFF",
+                "outline-width": 6, "outline-color": "#070B16",
+                "position": "bottom-center", "max-words-per-line": 4,
+            }},
+        ],
+    }
+    movie = {"resolution": "custom", "width": cw, "height": ch,
+             "quality": "high", "scenes": [scene]}
+    return _render_movie(movie, timeout_s=timeout_s)
+
+
 def render_from_audio_bytes(
     roteiro: str, audio: bytes, slug: str, template: str = "confessionario", **kw
 ) -> str:
