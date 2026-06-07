@@ -50,11 +50,16 @@ def _host(data: bytes, path: str, mime: str) -> str:
     return storage.public_url(path)
 
 
-def _make_base_video(image_bytes: bytes, *, seconds: int | None = None) -> bytes:
-    """Cria um clipe-base 9:16 a partir da foto (loop estático) para o LatentSync."""
+def _make_base_video(image_bytes: bytes, *, seconds: int | None = None,
+                     size: tuple[int, int] | None = None) -> bytes:
+    """Cria um clipe-base a partir da foto (loop estático) para o LatentSync.
+
+    `size` define (largura, altura) do clipe — default 9:16 (1080x1920). Para o
+    layout Sala de Controle usamos um tile quadrado (ex.: 720x720)."""
     import imageio_ffmpeg
 
     secs = seconds or int(os.getenv("LIPSYNC_BASE_SECONDS", "4"))
+    w, h = size or (1080, 1920)
     exe = imageio_ffmpeg.get_ffmpeg_exe()
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as fi:
         fi.write(image_bytes)
@@ -62,7 +67,8 @@ def _make_base_video(image_bytes: bytes, *, seconds: int | None = None) -> bytes
     out_path = img_path + ".mp4"
     cmd = [
         exe, "-y", "-loop", "1", "-i", img_path, "-t", str(secs), "-r", "25",
-        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,format=yuv420p",
+        "-vf", f"scale={w}:{h}:force_original_aspect_ratio=increase,"
+               f"crop={w}:{h},format=yuv420p",
         "-an", out_path,
     ]
     r = subprocess.run(cmd, capture_output=True, text=True)
@@ -130,14 +136,18 @@ def lip_sync(image_url: str, audio_url: str, *, resolution: str | None = None,
 
 
 def talking_video(image_bytes: bytes, audio_bytes: bytes, slug: str, *,
-                  image_mime: str = "image/png", **kw) -> str:
-    """Foto do avatar + áudio → vídeo falante. Usa o provider configurado."""
+                  image_mime: str = "image/png",
+                  base_size: tuple[int, int] | None = None, **kw) -> str:
+    """Foto do avatar + áudio → vídeo falante. Usa o provider configurado.
+
+    `base_size` (LatentSync) define o formato do clipe-base — passe (720,720)
+    para o tile quadrado do layout Sala de Controle."""
     aud_url = _host(audio_bytes, f"content/audio/{slug}.mp3", "audio/mpeg")
     if _provider() == "fabric":
         img_url = _host(image_bytes, f"content/avatar/{slug}.png", image_mime)
         return lip_sync(img_url, aud_url, **kw)
     # LatentSync (default): foto → clipe-base → lip-sync
-    base = _make_base_video(image_bytes)
+    base = _make_base_video(image_bytes, size=base_size)
     base_url = _host(base, f"content/base/{slug}.mp4", "video/mp4")
     return lip_sync_latentsync(base_url, aud_url, **kw)
 

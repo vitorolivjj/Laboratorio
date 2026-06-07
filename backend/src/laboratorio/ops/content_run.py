@@ -36,22 +36,47 @@ def _avatar_916() -> bytes:
     return buf.getvalue()
 
 
+def _avatar_quadrado() -> bytes:
+    """Avatar recortado quadrado (centralizado) para o tile da Sala de Controle."""
+    from PIL import Image
+
+    im = Image.open(_AVATAR).convert("RGB")
+    w, h = im.size
+    side = min(w, h)
+    x0 = (w - side) // 2
+    y0 = (h - side) // 2
+    crop = im.crop((x0, y0, x0 + side, y0 + side))
+    buf = io.BytesIO()
+    crop.save(buf, format="PNG")
+    return buf.getvalue()
+
+
 def _produzir(formato: str, roteiro: str, audio: bytes, audio_url: str, slug: str) -> str:
-    """Caminho A (confessionário, lip-sync) com fallback para B (estático)."""
+    """Caminho A (confessionário, lip-sync no layout Sala de Controle) com fallback B."""
+    layout = os.getenv("CONTENT_LAYOUT", "control_room").strip().lower()
+    if formato == "confessionario":
+        try:
+            from laboratorio.ops import control_room, talking_avatar
+
+            if layout == "control_room":
+                # tile quadrado pequeno → esconde a qualidade do lip-sync barato;
+                # legenda grande sincronizada carrega a peça.
+                talking = talking_avatar.talking_video(
+                    _avatar_quadrado(), audio, slug, base_size=(720, 720))
+                return control_room.render_control_room(
+                    talking, audio_url=audio_url, slug=slug,
+                    feed_name="Ronaldo", feed_role="Maestro")
+            # layout legado: vídeo falante 9:16 cheio + legendas (JSON2Video)
+            from laboratorio.ops import json2video
+            talking = talking_avatar.talking_video(_avatar_916(), audio, slug)
+            return json2video.render_talking_layout(talking)
+        except Exception as exc:  # noqa: BLE001 — fal/whisper indisponível → estático
+            logger.warning("Lip-sync/Sala de Controle indisponível (%s) — Caminho B", exc)
+    # Caminho B: avatar estático + legenda (JSON2Video)
+    from laboratorio.db import storage
     from laboratorio.ops import json2video
 
     avatar = _avatar_916()
-    if formato == "confessionario":
-        try:
-            from laboratorio.ops import talking_avatar
-
-            talking = talking_avatar.talking_video(avatar, audio, slug)
-            return json2video.render_talking_layout(talking)
-        except Exception as exc:  # noqa: BLE001 — fal indisponível/saldo → estático
-            logger.warning("Lip-sync indisponível (%s) — Caminho B (estático)", exc)
-    # Caminho B: avatar estático (Ken Burns) + legenda
-    from laboratorio.db import storage
-
     storage.ensure_bucket(public=True)
     path = f"content/avatar/{slug}.png"
     storage.upload(path, avatar, mime="image/png", upsert=True)
