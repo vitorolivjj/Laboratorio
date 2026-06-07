@@ -120,15 +120,22 @@ def rodar_ciclo(*, formato: str | None = None, dry: bool = False) -> dict:
         result["dest"] = "dry"
         return result
 
-    # Destino: verde → fila do agendamento; amarelo → aprovação do Vitor
-    from laboratorio.ops import content_schedule
+    # Destino. CONTENT_FORCE_APPROVAL=1 (default): toda peça vai pra aprovação do
+    # Vitor (com o vídeo); APROVAR publica no próximo slot. =0: verde publica
+    # sozinho (fila), amarelo vai pra aprovação.
+    force_approval = os.getenv("CONTENT_FORCE_APPROVAL", "1").strip().lower() not in (
+        "0", "false", "no")
+    if cor == "verde" and not force_approval:
+        from laboratorio.ops import content_schedule
 
-    if cor == "verde":
         content_schedule.enqueue(mp4, caption, kind="reel", roteiro=roteiro)
         result["dest"] = "fila"
     else:
-        content_audit.aplicar("amarelo", f"{legenda} · vídeo: {mp4}", ref=mp4)
+        from laboratorio.whatsapp import approvals
+
+        aid = approvals.request_content_publish(mp4, caption, kind="reel", roteiro=roteiro)
         result["dest"] = "aprovacao"
+        result["approval_id"] = aid
     content_pauta.registrar_publicado(fato, legenda)
     logger.info("Ciclo esteira: %s/%s → %s", result["cor"], result["formato"], result["dest"])
     return result

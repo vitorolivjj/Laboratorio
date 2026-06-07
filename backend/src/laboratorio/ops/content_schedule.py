@@ -4,10 +4,16 @@ Fila de peças aprovadas → publica via Postproxy nos CONTENT_PILLAR_SLOTS
 (default 08:00,12:30,19:00, horário de São Paulo). Plugado no loop de 1 min do
 `vitor-schedule`. Idempotente: no máximo 1 publicação por slot por dia.
 
+Geração diária (generate_due): também plugada no loop de 1 min — 1×/dia em
+CONTENT_GEN_SLOTS dispara `content-run` como processo destacado (não trava o
+loop com os ~minutos do lip-sync). Idempotente por dia.
+
 Config (env):
 - CONTENT_PILLAR_SLOTS=08:00,12:30,19:00
 - CONTENT_PUBLISH_ENABLED=1   (0 desliga a publicação automática)
 - CONTENT_SLOT_WINDOW_MIN=20  (janela após o slot p/ capturar mesmo com atraso)
+- CONTENT_AUTORUN=1           (0 desliga a geração diária automática)
+- CONTENT_GEN_SLOTS=07:00     (horários de geração, antes dos slots de publicação)
 """
 
 from __future__ import annotations
@@ -24,6 +30,7 @@ logger = logging.getLogger("laboratorio.ops.content_schedule")
 
 TZ = ZoneInfo("America/Sao_Paulo")
 QUEUE_FILE = LOGS_DIR / "content_queue.json"
+GEN_STATE_FILE = LOGS_DIR / "content_gen_state.json"
 
 
 def _enabled() -> bool:
@@ -172,3 +179,74 @@ def publish_due(now: datetime | None = None) -> dict | None:
     _notify(f"📤 Esteira publicou ({piece.get('kind')})", f"slot {slot} · post {post_id}", ref=str(post_id))
     logger.info("Esteira publicou %s no slot %s (post %s)", piece["id"], slot, post_id)
     return {"slot": slot, "published": True, "post_id": post_id, "piece": piece["id"]}
+
+
+# --- geração diária automática --------------------------------------------
+
+
+def _autorun_enabled() -> bool:
+    load_env()
+    return os.getenv("CONTENT_AUTORUN", "1").strip().lower() not in ("0", "false", "no")
+
+
+def _gen_slots() -> list[tuple[int, int]]:
+    load_env()
+    raw = os.getenv("CONTENT_GEN_SLOTS", "07:00")
+    out: list[tuple[int, int]] = []
+    for s in raw.split(","):
+        s = s.strip()
+        if ":" in s:
+            try:
+                h, m = s.split(":")
+                out.append((int(h), int(m)))
+            except ValueError:
+                continue
+    return out
+
+
+def _gen_done() -> set[str]:
+    try:
+        return set(json.loads(GEN_STATE_FILE.read_text(encoding="utf-8")))
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def _gen_mark(key: str) -> None:
+    done = _gen_done()
+    done.add(key)
+    GEN_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    # mantém só os 30 mais recentes p/ não crescer indefinidamente
+    keep = sorted(done)[-30:]
+    GEN_STATE_FILE.write_text(json.dumps(keep, ensure_ascii=False), encoding="utf-8")
+
+
+def _spawn_generation() -> None:
+    """Dispara `content-run` como processo destacado (não bloqueia o loop de 1 min)."""
+    import subprocess
+    import sys
+
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    out = open(LOGS_DIR / "content_run.out", "ab")  # noqa: SIM115
+    subprocess.Popen(  # noqa: S603 — comando fixo, sem input externo
+        [sys.executable, "-m", "laboratorio", "content-run"],
+        stdout=out, stderr=out, start_new_session=True, env={**os.environ},
+    )
+
+
+def generate_due(now: datetime | None = None) -> dict | None:
+    """Se um horário de geração está vencido (e ainda não rodou hoje), dispara a
+    geração de uma peça. Idempotente por dia. Chamado pelo loop de 1 min."""
+    if not _autorun_enabled():
+        return None
+    now = now or datetime.now(TZ)
+    done = _gen_done()
+    win = _window_min() * 60
+    for h, m in _gen_slots():
+        slot_dt = now.replace(hour=h, minute=m, second=0, microsecond=0)
+        key = _slot_key(now, h, m)
+        if now >= slot_dt and (now - slot_dt).total_seconds() < win and key not in done:
+            _spawn_generation()
+            _gen_mark(key)
+            logger.info("Esteira: geração diária disparada (%s)", key)
+            return {"slot": key, "spawned": True}
+    return None

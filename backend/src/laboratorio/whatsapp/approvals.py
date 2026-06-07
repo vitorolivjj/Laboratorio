@@ -84,6 +84,7 @@ def _format_request(kind: str, short_id: str, summary: str) -> str:
         "high_cost": "Gasto alto",
         "agent_action": "Ação do agente",
         "evolution_batch": "Autoevolução (resumo diário)",
+        "content_publish": "Publicar conteúdo (Esteira)",
     }.get(kind, kind)
     return (
         f"🔔 Preciso da sua aprovação [{short_id}]\n"
@@ -191,6 +192,32 @@ def request_client_template(
             "template_name": spec.name,
             "body_params": body_params,
             "language_code": language_code,
+        },
+        requested_by=requested_by,
+    )
+
+
+def request_content_publish(
+    mp4_url: str,
+    caption: str,
+    *,
+    kind: str = "reel",
+    roteiro: str = "",
+    requested_by: str = "esteira",
+) -> str:
+    """Enfileira uma peça da Esteira p/ aprovação do Vitor. APROVAR → publica no slot."""
+    preview = (caption or "").strip().replace("\n", " ")
+    if len(preview) > 110:
+        preview = preview[:107] + "..."
+    summary = f"{kind} · \"{preview}\"\nVídeo: {mp4_url}"
+    return _create_pending(
+        kind="content_publish",
+        summary=summary,
+        payload={
+            "mp4_url": mp4_url,
+            "caption": caption,
+            "kind": kind if kind in ("reel", "story", "carousel") else "reel",
+            "roteiro": roteiro[:200],
         },
         requested_by=requested_by,
     )
@@ -341,6 +368,17 @@ def _execute_pending(item: dict[str, Any]) -> str:
         from laboratorio.evolution.digest import apply_evolution_batch
 
         return "✓ Autoevolução aplicada:\n" + apply_evolution_batch(item)
+
+    if kind == "content_publish":
+        from laboratorio.ops import content_schedule
+
+        q = content_schedule.enqueue(
+            payload.get("mp4_url", ""),
+            payload.get("caption", ""),
+            kind=payload.get("kind", "reel"),
+            roteiro=payload.get("roteiro", ""),
+        )
+        return f"✓ Conteúdo na fila ({q['id']}) — publica no próximo slot."
 
     raise ValueError(f"Tipo de aprovação desconhecido: {kind}")
 

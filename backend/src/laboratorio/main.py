@@ -331,15 +331,36 @@ def cmd_vitor_schedule(args) -> int:
         print(f"Enviado lembrete {sid}")
     print(f"Total: {sent}")
 
-    # Esteira de Conteúdo: publica nos slots fixos se houver peça na fila.
+    # Esteira de Conteúdo: gera 1×/dia e publica nos slots fixos se houver peça.
     try:
         from laboratorio.ops import content_schedule
 
+        gen = content_schedule.generate_due()
+        if gen:
+            print(f"Esteira geração: {gen}")
         res = content_schedule.publish_due()
         if res:
             print(f"Esteira: {res}")
     except Exception as exc:  # noqa: BLE001 — não derruba o ciclo de schedule
-        print(f"Esteira publish_due falhou: {exc}")
+        print(f"Esteira (schedule) falhou: {exc}")
+    return 0
+
+
+def cmd_content_run(args) -> int:
+    """Roda um ciclo da Esteira de Conteúdo (geração de 1 peça)."""
+    load_env()
+    from laboratorio.ops import content_run
+
+    try:
+        res = content_run.rodar_ciclo(formato=args.formato, dry=args.dry)
+    except Exception as exc:  # noqa: BLE001
+        print(f"Erro: {exc}")
+        return 1
+    print("=== CICLO ESTEIRA" + (" (dry)" if args.dry else "") + " ===")
+    for k in ("status", "cor", "formato", "dest", "approval_id",
+              "fato", "legenda", "mp4", "motivo"):
+        if res.get(k):
+            print(f"  {k}: {res[k]}")
     return 0
 
 
@@ -481,6 +502,7 @@ COMMANDS = {
     "donizete-mac-prepare": cmd_donizete_mac_prepare,
     "donizete-busca-local": cmd_donizete_busca_local,
     "vitor-schedule": cmd_vitor_schedule,
+    "content-run": cmd_content_run,
     "memory-check": cmd_memory_check,
     "memory-sync": cmd_memory_sync,
     "memory-recall": cmd_memory_recall,
@@ -655,6 +677,13 @@ def main() -> None:
         help="log_event | memory_recall | send_client_message | run_graph_pilot | …",
     )
     p_action.add_argument("--json", dest="params_json", default="{}", help='Params JSON, ex: \'{"query":"x"}\'')
+
+    p_content = sub.add_parser(
+        "content-run",
+        help="Esteira de Conteúdo — gera 1 peça (Sala de Controle)",
+    )
+    p_content.add_argument("--formato", default=None, help="confessionario (default) | board | …")
+    p_content.add_argument("--dry", action="store_true", help="Não enfileira/aprovação/notifica")
 
     p_evo = sub.add_parser(
         "evolution-digest",
