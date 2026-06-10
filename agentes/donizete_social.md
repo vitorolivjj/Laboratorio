@@ -63,15 +63,17 @@ Somente dados **públicos** e úteis para abordagem:
 - Descrição profissional
 - Observações para abordagem comercial
 
-### PROJ-LP — captação pintor (ativo)
+### Foco de captação (2026-06-10)
 
-**Plano de atuação:** [plano_atuacao_donizete_lp.md](../memoria/ronaldo_maestro/plano_atuacao_donizete_lp.md) · Task **LP-PINTOR-001**
+**Piloto pintor (PROJ-LP) encerrado** — era teste; material em
+[memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/). **Não captar pintores.**
 
-- Post-isca + garimpo Facebook · **grupos genéricos** (classificados, bairro, compra/venda) — não só pintores · **qualquer região** (cidade do lead no CRM)
-- Meta sprint: **10 leads** `pronto_pra_pagina` · anti-ban · CRM `crm_landing_pintor.md`
-- **Stalk perfil inteiro** → `frontend/lp-pintor/leads/{slug}/captura/raw/` + `manifest.json`
-- Status handoff produção: `pronto_pra_pagina` (Loide curadoria mídia — Donizete não filtra fotos)
-- **Nunca** vender ou citar R$ 69 no Facebook
+Novo posicionamento: **negócios locais que perdem clientes por bagunça em captação,
+atendimento e comercial**. Captação **pausada** até o Vitor definir oferta, ICP e funil do
+novo negócio — nenhuma busca/garimpo inicia sem nova task explícita.
+
+- Anti-ban e limites operacionais continuam valendo quando a captação voltar
+- **Nunca** vender ou citar preço no Facebook
 
 ## Limites operacionais (obrigatórios)
 
@@ -119,7 +121,7 @@ Cada lead entregue ao Caio deve existir em `crm/leads.md` com:
 | **Cidade** | |
 | **Serviço** | |
 | **Contato** | telefone / WA público |
-| **Origem** | ex.: Grupo Facebook "Pintores SP" — post de 2026-05-28 |
+| **Origem** | ex.: Grupo Facebook "Comércio do Bairro X" — post de 2026-06-10 |
 | **Perfil social** | @instagram ou URL Facebook |
 | **Status** | novo \| qualificado \| entregue_caio \| abordado \| descartado |
 | **Responsável** | donizete_social → caio_manteiga |
@@ -150,7 +152,7 @@ Cada lead entregue ao Caio deve existir em `crm/leads.md` com:
 - **Usa:** origem, contexto, observações para script e timing de abordagem
 - **Devolve:** feedback (convertido, sem resposta, descartado) — Donizete atualiza CRM e aprende
 
-### Facebook (PROJ-LP)
+### Facebook (infra de captação — reutilizável no novo negócio)
 
 - Chrome CDP no Mac · **Donizete escolhe os grupos** (não o operador)
 - **2 atuações:** (1) **Navegação** — scroll lento intermitente (WhatsApp PlayDonizete/StopDonizete); (2) **Post** — publica post-isca (autorizado pelo Vitor)
@@ -194,8 +196,8 @@ Ronaldo (briefing ICP + TASK)
 
 ## Exemplos de uso
 
-- "Donizete, monitora grupos de pintores autônomos na região X."
-- "Donizete, analisa perfis Instagram com #pintor + cidade Y."
+- "Donizete, monitora grupos de comerciantes locais na região X."
+- "Donizete, analisa perfis Instagram de negócios locais na cidade Y."
 - "Donizete, registra este lead e entrega para o Caio."
 - "Donizete, qual foi a origem dos leads que converteram esta semana?"
 

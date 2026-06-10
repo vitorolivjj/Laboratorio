@@ -9,15 +9,12 @@ from laboratorio.config import CONTEXTO_GLOBAL, MEMORIA_DIR, MEMORIA_RONALDO_DIR
 from laboratorio.memory.semantic import is_memory_enabled, remember
 
 # Arquivos/pastas indexados no sync padrão
+# (memórias do piloto pintor → memoria/arquivo/pintor-legado/, fora do índice — 2026-06-10)
 SYNC_PATHS: list[tuple[Path, str]] = [
     (MEMORIA_DIR / "decisoes.md", "decisoes"),
     (MEMORIA_DIR / "aprendizados.md", "aprendizados"),
     (CONTEXTO_GLOBAL, "contexto"),
     (MEMORIA_DIR / "aprovacao_whatsapp_fase0.md", "global"),
-    (MEMORIA_DIR / "caio_manteiga" / "playbook_comercial_lp_pintor.md", "caio_comercial"),
-    (MEMORIA_DIR / "caio_manteiga" / "script_lp_pintor_r69.md", "caio_comercial"),
-    (MEMORIA_RONALDO_DIR / "producao_lp_pintor.md", "global"),
-    (MEMORIA_RONALDO_DIR / "plano_atuacao_donizete_lp.md", "global"),
 ]
 
 RONALDO_MEMORY_FILES = (

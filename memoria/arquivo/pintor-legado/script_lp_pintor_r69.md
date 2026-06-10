@@ -1,5 +1,7 @@
 # Script Caio — LP Pintor R$ 69 (PROJ-LP)
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 **Playbook completo:** [playbook_comercial_lp_pintor.md](playbook_comercial_lp_pintor.md)  
 **Templates Meta:** [templates_meta_wa.md](templates_meta_wa.md) · LP-PINTOR-006
 

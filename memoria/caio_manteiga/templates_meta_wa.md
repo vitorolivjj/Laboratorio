@@ -74,4 +74,4 @@ cd backend
 
 - Código: `backend/src/laboratorio/whatsapp/templates.py`
 - Ação: `send_client_template` · trava igual `send_client_message`
-- Manual: `memoria/ronaldo_maestro/operacao_landing_pintor.md` §9
+- Manual: `memoria/arquivo/pintor-legado/operacao_landing_pintor.md` §9

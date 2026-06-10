@@ -1,9 +1,11 @@
 # CRM Landing Page Pintor
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 <!-- crm-meta
 segmento: crm_landing_pintor
-nome: CRM Landing Page Pintor
-descricao: Leads do produto Landing Page (funil invertido R$ 69) — pintores e prestadores locais.
+nome: Arquivo / Pintor — legado
+descricao: ARQUIVO (legado) — leads do piloto Landing Page Pintor, encerrado 2026-06-10. Histórico/aprendizado.
 funil: prospectado, pronto_pra_pagina, previa_no_ar, abordado, ativo, recusou
 -->
 

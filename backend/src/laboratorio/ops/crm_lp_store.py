@@ -1,4 +1,7 @@
-"""CRM Landing Pintor (`crm/crm_landing_pintor.md`) — funil PROJ-LP."""
+"""CRM Landing Pintor — funil PROJ-LP (piloto ENCERRADO 2026-06-10).
+
+O CRM vive em `crm/arquivo/crm_landing_pintor.md` (legado, fora da visão principal).
+Store mantido p/ histórico/testes; nenhuma captação nova deve escrever aqui."""
 
 from __future__ import annotations
 
@@ -12,7 +15,7 @@ from laboratorio.config import CRM_DIR, REPO_ROOT
 from laboratorio.db import dual_write
 from laboratorio.ops.markdown_io import insert_after_marker, read_text, write_text_atomic
 
-CRM_LP = CRM_DIR / "crm_landing_pintor.md"
+CRM_LP = CRM_DIR / "arquivo" / "crm_landing_pintor.md"
 LEADS_ROOT = REPO_ROOT / "frontend" / "lp-pintor" / "leads"
 _LP_MARKER = "<!-- Donizete: novos leads abaixo -->"
 

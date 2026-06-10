@@ -1,7 +1,7 @@
 # Case vitrine — Landing Page Pintor (PROJ-LP) — **FECHADO**
 
 **Produto:** LP profissional para pintores · **Preço:** R$ 69 PIX (ativação única)  
-**KPI:** **1/1 ativo** ✓ — [crm/crm_landing_pintor.md](../../crm/crm_landing_pintor.md)
+**KPI:** **1/1 ativo** ✓ — [crm/arquivo/crm_landing_pintor.md](../../crm/arquivo/crm_landing_pintor.md)
 
 ## Resultado
 

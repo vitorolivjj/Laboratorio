@@ -2,20 +2,26 @@
 
 **Fonte única de verdade** do momento: o que o ecossistema precisa saber agora para agir alinhado.
 
+## Posicionamento (novo — 2026-06-10)
+
+O Laboratório atende **negócios locais que perdem clientes por bagunça em captação,
+atendimento e comercial**. O piloto Landing Page Pintor (PROJ-LP) **foi um teste e está
+encerrado** — validou a fábrica (captação → produção → venda → entrega por agentes) e virou
+aprendizado em `memoria/arquivo/pintor-legado/`. **Pintor não é mais foco de nenhum agente.**
+
 ## Foco atual
 
-**Sprint captação LP** — **LP-PINTOR-001** (5 leads) + **001B** (5) · patrulha **crítica 30 min** sem progresso · WIP **4** · produção **LP-PINTOR-009**/lead em paralelo.
-
-**KPI vitrine:** **1/1 ativo** ✓ — LEAD-001 Stephanie Turnley · R$ 69 · [crm/crm_landing_pintor.md](../crm/crm_landing_pintor.md)
+1. **Transição para o novo modelo de negócio** — aguardando instruções do Vitor (definição de
+   oferta, ICP e funil). Nenhum agente inicia captação/abordagem até isso ser definido.
+2. **Esteira de Conteúdo (vitrine)** — validada e **em produção**: gera 1 peça/dia (~07:00),
+   aprovação do Vitor via WhatsApp, publica nos slots 08:00/12:30/19:00. **Não mexer.**
 
 ## Prioridades
 
 | # | Prioridade | Dono | Status |
 |---|------------|------|--------|
-| **P0** | **LP-PINTOR-001** — captação Donizete/FB (10 leads) | Donizete | **executando** |
-| P1 | Handoff produção (Loide + Dev) por lead `pronto_pra_pagina` | Loide · Dev · Juarez | sob demanda |
-| P2 | LP-PINTOR-008 — automação build/takedown in-house | Dev | backlog |
-| P3 | LP-PINTOR-006 — template Meta WA | Vitor + Dev | aguardando (baixa) |
+| **P0** | Definição do novo negócio (oferta, ICP, funil) | Vitor + Ronaldo | aguardando Vitor |
+| P1 | Esteira de Conteúdo — operação diária + aprovações | Donizete · Ronaldo | em produção |
 | — | VitorOS (PROJ-002) | Dev + Loide | pausado |
 
 ## Stack Lab (operacional)
@@ -32,20 +38,21 @@
 
 - **Orçamento:** baixo — MVP, free tier
 - **Caio proativo:** sempre trava WA — inbound continua instantâneo
-- **Captação FB:** ativa — anti-ban inalterado · **não vender no FB**
+- **Captação FB:** **pausada** até o novo funil ser definido · anti-ban inalterado · **não vender no FB**
 - **Separação:** Laboratório (fábrica) ≠ `centralvitor` (VitorOS deploy)
 - **Escalacao Vitor:** credencial, custo, prod Lab, estrutural — WA +5533999353242
 
 ## Projetos em destaque
 
 - **PROJ-LAB** — fábrica multiagente · `api.laboratorioagentes.com.br`
-- **PROJ-LP** — Landing Pintor R$69 · [operacao_landing_pintor.md](../memoria/ronaldo_maestro/operacao_landing_pintor.md) · [producao_lp_pintor.md](../memoria/ronaldo_maestro/producao_lp_pintor.md)
-- **PROJ-002** — VitorOS · retoma após PROJ-LP escala
+- **PROJ-003** — Vitrine/Esteira de Conteúdo · em produção (1 peça/dia + aprovação)
+- **PROJ-LP** — ~~Landing Pintor R$69~~ · **encerrado (teste validado)** · arquivo: [memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/)
+- **PROJ-002** — VitorOS · pausado
 
 ## Última atualização
 
 | Campo | Valor |
 |-------|-------|
-| Data | 2026-06-03 |
-| Atualizado por | Ronaldo · Dev |
-| Resumo | Webflow revogado · 007 fechada (in-house) · captação liberada · meta 10 leads Donizete |
+| Data | 2026-06-10 |
+| Atualizado por | Vitor · Claude |
+| Resumo | PROJ-LP encerrado e arquivado · novo posicionamento: negócios locais (captação/atendimento/comercial) · aguardando instruções do novo negócio |

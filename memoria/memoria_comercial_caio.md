@@ -39,7 +39,10 @@ Oferta, preço, copy, CTA, funil, follow-up e resultados comerciais **por oferta
 
 ---
 
-## Oferta: Landing low ticket — pintores (TASK-001)
+## Oferta: Landing low ticket — pintores (TASK-001) — 🗄 ENCERRADA (2026-06-10)
+
+> Piloto encerrado — **não usar como oferta ativa**. Mantida como aprendizado de
+> copy/funil low-ticket. Detalhes em `memoria/arquivo/pintor-legado/`.
 
 - **Público:** pintores autônomos, pouca familiaridade digital, orçamento limitado
 - **Dor:** depende só de indicação; não tem link profissional pra mandar

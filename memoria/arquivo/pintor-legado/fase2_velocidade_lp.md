@@ -1,5 +1,7 @@
 # Fase 2 — Velocidade LP (fora do escopo sprint 2026-06-03)
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 Documento de escopo para a **segunda onda** de aceleração, após o pacote sprint (patrulha 30 min, WIP 4, tasks fatiadas, `lp_publish_lead.py`, modo sprint Donizete).
 
 ---

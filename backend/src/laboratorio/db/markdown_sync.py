@@ -17,7 +17,8 @@ from laboratorio.ops import parsers
 from laboratorio.ops.tasks_store import STATE_FILES
 
 CRM_DIR = REPO_ROOT / "crm"
-CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.md"]
+# crm_landing_pintor.md → crm/arquivo/ (piloto encerrado 2026-06-10; fora da visão principal)
+CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_appvs.md"]
 PROJETOS_REGISTRY = REPO_ROOT / "projetos" / "projetos.md"
 
 

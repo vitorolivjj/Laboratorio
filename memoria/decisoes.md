@@ -27,6 +27,20 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### Pivô: fim do piloto pintor → negócios locais — 2026-06-10
+
+- **Contexto:** O Landing Page Pintor (PROJ-LP) era **teste** da fábrica — validou captação,
+  produção, venda (1 cliente ativo) e entrega por agentes. Vitor decidiu iniciar o modelo de
+  negócio real.
+- **Decisão:** Encerrar PROJ-LP e arquivar todo o legado (CRM → `crm/arquivo/`, memórias →
+  `memoria/arquivo/pintor-legado/`, tasks LP-PINTOR canceladas). Novo posicionamento:
+  **negócios locais que perdem clientes por bagunça em captação, atendimento e comercial**.
+  Captação e abordagem **pausadas** até Vitor definir oferta/ICP/funil. **Esteira de Conteúdo
+  não muda** (validada, em produção).
+- **Responsável:** Vitor
+- **Agentes impactados:** Todos (Donizete e Caio em especial — sem foco pintor)
+- **Validade / revisar em:** Definição do novo negócio (próxima instrução do Vitor)
+
 ### Kanban pós-reset — captura LP-PINTOR + Ronaldo bridge — 2026-06-03
 
 - **Contexto:** Kanban operacional reiniciado; WhatsApp não pode inventar TASK-001 nem armar captura rotativa sem task.

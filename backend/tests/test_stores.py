@@ -67,7 +67,8 @@ def test_crm_add_and_update(tmp: Path):
 
 def test_crm_lp_add_and_update(tmp: Path):
     crm = tmp / "crm_landing_pintor.md"
-    shutil.copy(_REPO / "crm" / "crm_landing_pintor.md", crm)
+    # CRM pintor arquivado (piloto encerrado) — segue como fixture do parser/store LP
+    shutil.copy(_REPO / "crm" / "arquivo" / "crm_landing_pintor.md", crm)
     expected_id = crm_lp_store.next_lead_id(markdown_io.read_text(crm))
     lead = crm_lp_store.add_lead_lp(
         nome="Pintor Teste FB",

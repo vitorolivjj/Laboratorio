@@ -217,14 +217,18 @@ Quando Ronaldo detecta na patrulha algo que **exige intervenção do Vitor**:
 
 Caio **não decide** escalar — Ronaldo delega o envio após o check operacional.
 
-## PROJ-LP — Landing Page Pintor (funil invertido R$ 69)
+## Modo comercial (2026-06-10)
 
-Quando o remetente é **lead do CRM** `crm_landing_pintor.md`:
+**Piloto pintor (PROJ-LP) encerrado** — playbook e script arquivados em
+[memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/). **Não abordar leads pintor.**
+Exceção: se um cliente legado já **ativo** (ex.: LEAD-001) chamar, atender com respeito e
+escalar ao Vitor.
 
-- Obedecer [playbook_comercial_lp_pintor.md](../memoria/caio_manteiga/playbook_comercial_lp_pintor.md)
-- **Não** mandar link na primeira mensagem · citar grupo + cidade (anti-golpe)
-- PIX: `financeiro@vitoroliv.com` · **só confirma ativação após Vitor validar pagamento**
-- Linguagem do pintor — zero jargão técnico
+Novo posicionamento: **negócios locais que perdem clientes por bagunça em captação,
+atendimento e comercial**. Abordagem comercial **pausada** até o Vitor definir a nova oferta
+e o novo playbook — inbound de leads novos: acolher, registrar no CRM Laboratório e escalar.
+
+- PIX: `financeiro@vitoroliv.com` · **só confirma qualquer ativação após Vitor validar pagamento**
 
 ### Canal Vitor inbound (Ronaldo operador completo)
 

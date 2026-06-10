@@ -1,5 +1,7 @@
 # Webflow — PROJ-LP (DEPRECATED)
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 > **Revogado 2026-06-02 / confirmado 2026-06-03.** Produção oficial = in-house · [producao_lp_pintor.md](producao_lp_pintor.md). Não iniciar conta Webflow nem LP-PINTOR-007 Webflow.
 
 **Histórico:** proposta descartada após avaliação interna. Vitrine e escala usam `frontend/lp-pintor/` + `/previas/{slug}/`.

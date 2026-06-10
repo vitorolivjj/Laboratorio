@@ -1,5 +1,7 @@
 # Playbook Comercial — Caio (Vendas / WhatsApp) — PROJ-LP
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 > Cenário diferente de venda comum: **o lead não pediu nada.** Ele foi captado no Facebook, é abordado do nada, desconfia de golpe e não entende de internet — mas você chega **já entregando valor** (a página pronta). Todo o playbook gira em torno disso.
 
 **Produto:** Landing Page Pintor · **Ativação:** R$ 69 PIX único · **Chave PIX:** financeiro@vitoroliv.com  

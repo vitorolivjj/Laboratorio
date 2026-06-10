@@ -54,4 +54,25 @@ Portfólio de iniciativas do Laboratório e do ecossistema do Vitor.
 
 ---
 
+### Landing Page Pintor — piloto (ARQUIVADO)
+
+- **ID:** PROJ-LP
+- **Status:** concluido (piloto encerrado 2026-06-10 — era teste do modelo)
+- **Objetivo (era):** Validar a fábrica ponta a ponta com produto low-ticket (LP R$ 69, funil invertido).
+- **Resultado:** Fábrica validada — captação FB (Donizete), produção (Loide+Dev), venda (Caio, 1 cliente ativo LEAD-001), auditoria (Ronaldo).
+- **Legado:** CRM em `crm/arquivo/` · memórias em `memoria/arquivo/pintor-legado/` · aprendizados gerais em `playbook_produto_low_ticket.md`.
+- **Última atualização:** 2026-06-10
+
+---
+
+### Novo negócio — negócios locais (EM DEFINIÇÃO)
+
+- **ID:** PROJ-004 (provisório)
+- **Status:** ideia (aguardando instruções do Vitor)
+- **Posicionamento:** Negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+- **Próximo passo:** Vitor define oferta, ICP e funil — só então captação/abordagem reativam.
+- **Última atualização:** 2026-06-10
+
+---
+
 <!-- Novos projetos acima desta linha -->

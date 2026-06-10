@@ -1,5 +1,7 @@
 # Plano de atuação — Donizete Social · PROJ-LP
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 **Task:** LP-PINTOR-001 (+ CRM LP-PINTOR-003) · **Gate liberado:** 2026-06-03 — página modelo [exemplo-pintor](https://api.laboratorioagentes.com.br/previas/exemplo-pintor/) aprovada pelo Vitor  
 **Produto:** Landing pintor R$ 69 · funil invertido · **CRM:** `crm/crm_landing_pintor.md`  
 **Meta sprint (2026-06-03):** **10 leads** em `pronto_pra_pagina`

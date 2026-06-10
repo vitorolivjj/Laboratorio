@@ -53,7 +53,7 @@ cd backend
 
 | Destino | Conteúdo |
 |---------|----------|
-| `crm/crm_landing_pintor.md` | Funil LP (`prospectado` → `pronto_pra_pagina` …) |
+| `crm/arquivo/crm_landing_pintor.md` (legado) | Funil LP (`prospectado` → `pronto_pra_pagina` …) |
 | `frontend/lp-pintor/leads/{slug}/captura/raw/` | Screenshots + imagens do perfil |
 | `captura/manifest.json` | Metadados do stalk |
 

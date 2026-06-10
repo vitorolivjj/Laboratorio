@@ -1,5 +1,7 @@
 # Operação Landing Page Pintor — Manual (Ronaldo)
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 **Projeto:** PROJ-LP · **Prefixo tasks:** `LP-PINTOR-` · **CRM:** crm_landing_pintor
 **Status:** ativo · **Ticket:** R$ 69 PIX · **Produção:** in-house `/previas/`
 

@@ -16,7 +16,8 @@ from laboratorio.ops import parsers
 from laboratorio.repositories import pick
 
 CRM_DIR = REPO_ROOT / "crm"
-CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.md"]
+# crm_landing_pintor.md → crm/arquivo/ (piloto encerrado 2026-06-10; fora da visão principal)
+CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_appvs.md"]
 
 _COLS = (
     "id,segment,nome,cidade,servico,contato,origem,status,etapa,responsavel,"

@@ -1,5 +1,7 @@
 # Produção LP Pintor — PROJ-LP (in-house)
 
+> **🗄 ARQUIVO / PINTOR — LEGADO** (2026-06-10) · Piloto Landing Page Pintor encerrado — mantido só como histórico/aprendizado. **Não é mais foco** de nenhum agente. Novo posicionamento: negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
+
 **Decisão (2026-06-02, reforço 2026-06-03):** produção em **HTML/CSS + build estático** — Webflow **revogado**.
 
 **URL:** `https://api.laboratorioagentes.com.br/previas/{slug}/`

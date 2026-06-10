@@ -37,7 +37,7 @@ CLI: `./run.sh agent-action` · grafo: `./run.sh graph-run <TASK-LP>`
 
 - Taxa ativação = ativos ÷ prévias entregues
 - CRM atualizado · patrulha + audit pós-task
-- KPI vitrine em `crm/crm_landing_pintor.md`
+- KPI vitrine em `crm/arquivo/crm_landing_pintor.md` (piloto encerrado)
 
 ## 6. Repetir
 
