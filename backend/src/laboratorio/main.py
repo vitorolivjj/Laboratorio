@@ -398,6 +398,22 @@ def cmd_memory_sync(args) -> int:
     load_env()
     from laboratorio.memory.sync import sync_all
 
+    # Purge opcional: remove chunks cujo source_ref casa com o padrão (ILIKE).
+    # Uso: memory-sync --purge-ref '%pintor%' (limpa legado antes de reindexar).
+    if getattr(args, "purge_ref", None):
+        from laboratorio.memory.semantic import _connection, is_memory_enabled
+
+        if not is_memory_enabled():
+            print("Memória semântica desabilitada (SUPABASE_DB_URL ausente)")
+            return 1
+        with _connection() as conn, conn.cursor() as cur:
+            cur.execute(
+                "delete from public.lab_semantic_memories where source_ref ilike %s",
+                (args.purge_ref,),
+            )
+            print(f"Purge: {cur.rowcount} chunk(s) removido(s) (ref ~ {args.purge_ref})")
+            conn.commit()
+
     stats = sync_all(dry_run=args.dry_run)
     mode = "dry-run" if args.dry_run else "gravado"
     print(f"Sync {mode}: {stats['chunks']} chunks em {stats['files']} arquivos")
@@ -653,6 +669,10 @@ def main() -> None:
 
     p_sync = sub.add_parser("memory-sync", help="Indexa memoria/ no Supabase (embeddings)")
     p_sync.add_argument("--dry-run", action="store_true", help="Conta chunks sem gravar")
+    p_sync.add_argument(
+        "--purge-ref", default=None,
+        help="Remove chunks com source_ref ILIKE padrão antes do sync (ex.: '%%pintor%%')",
+    )
 
     p_recall = sub.add_parser("memory-recall", help="Busca semântica de teste")
     p_recall.add_argument("query", nargs="+", help="Texto da consulta")
