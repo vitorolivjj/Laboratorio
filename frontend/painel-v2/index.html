@@ -527,17 +527,25 @@ function AtendimentoTab({ snap, leads, openLead }) {
 }
 
 // ── TAB: marketing (esteira de conteúdo) ─────────────────────────────────────
-function MarketingTab({ snap }) {
+function MarketingTab({ snap, refresh }) {
   const queue = (snap && snap.content_queue) || [];
   const approvals = ((snap && snap.approvals_pending) || []).filter((a) => a.kind === "content_publish");
   const pending = queue.filter((q) => q.status === "pending");
   const published = queue.filter((q) => q.status === "published").reverse();
+  const [busy, setBusy] = useState("");
+  async function cancelar(id) {
+    if (!confirm("Cancelar esta peça? Ela NÃO será publicada no slot.")) return;
+    setBusy(id);
+    try { await authFetch("/api/content/queue/" + id + "/cancel", { method: "POST" }); } catch (e) {}
+    setBusy(""); refresh && refresh();
+  }
   function card(q, tag, tagColor) {
     return <div key={q.id} className="rounded-xl border border-line bg-panel p-3">
       <div className="flex items-center gap-2"><span style={{ color: tagColor, background: tagColor + "14", borderColor: tagColor + "33" }} className="text-[10px] px-1.5 py-0.5 rounded-full border">{tag}</span><span className="text-[10px] font-mono text-zinc-600">{q.kind}</span><span className="ml-auto font-mono text-[10px] text-zinc-600">{relTime(q.published_at || q.created_at)}</span></div>
       {q.mp4_url && <video controls preload="none" src={q.mp4_url} className="mt-2 w-full max-h-52 rounded-lg bg-black" />}
       <p className="text-xs text-zinc-400 mt-2 line-clamp-3 whitespace-pre-wrap">{q.caption || q.roteiro || "—"}</p>
       {q.post_id && <p className="text-[10px] text-zinc-600 font-mono mt-1">post {q.post_id} · slot {q.slot || "—"}</p>}
+      {q.status === "pending" && <button disabled={busy === q.id} onClick={() => cancelar(q.id)} className="mt-2 w-full text-xs py-1.5 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-400/20 hover:bg-rose-500/20 font-semibold disabled:opacity-50">✕ Cancelar publicação</button>}
     </div>;
   }
   return (
@@ -759,7 +767,7 @@ function App() {
           {tab === "tasks" && <TasksTab />}
           {tab === "crm" && <CrmTab leads={leads} reloadLeads={loadLeads} selLead={selLead} setSelLead={setSelLead} />}
           {tab === "atendimento" && <AtendimentoTab snap={snap} leads={leads} openLead={openLead} />}
-          {tab === "marketing" && <MarketingTab snap={snap} />}
+          {tab === "marketing" && <MarketingTab snap={snap} refresh={refresh} />}
           {tab === "comunicacao" && <ComunicacaoTab />}
           {tab === "mapa" && <MapaTab snap={snap} />}
           <footer className="mt-10 text-center text-xs text-zinc-700">Laboratório · painel v3 · funil oficial + aprovações + atendimento + esteira</footer>

@@ -96,6 +96,19 @@ def list_queue(status: str | None = None) -> list[dict]:
     return [i for i in items if (status is None or i.get("status") == status)]
 
 
+def cancel(item_id: str) -> dict | None:
+    """Cancela um item PENDENTE da fila (não será publicado). None se não achar."""
+    items = _load()
+    for it in items:
+        if it.get("id") == item_id and it.get("status") == "pending":
+            it["status"] = "cancelled"
+            it["cancelled_at"] = datetime.now(TZ).isoformat()
+            _save(items)
+            logger.info("Conteúdo cancelado na fila: %s", item_id)
+            return it
+    return None
+
+
 def pending_count() -> int:
     return len(list_queue("pending"))
 
