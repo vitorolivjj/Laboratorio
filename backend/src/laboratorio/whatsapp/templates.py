@@ -21,7 +21,7 @@ class WaTemplateSpec:
 TEMPLATES: dict[str, WaTemplateSpec] = {
     "abertura_pintor_contato": WaTemplateSpec(
         name="abertura_pintor_contato",
-        label="Abertura — pedir permissão para falar",
+        label="(legado, piloto pintor) Abertura — não usar em abordagem nova",
         language="pt_BR",
         body_params=("nome", "cidade"),
         meta_category="MARKETING",
@@ -31,7 +31,89 @@ TEMPLATES: dict[str, WaTemplateSpec] = {
         ),
         sample_params=("Stephanie", "Jardinópolis"),
     ),
+    # --- Abordagens do novo negócio (Plano Comercial §11; aprovadas pelo Vitor em
+    # 2026-06-11 — aprovação única por template, sem aprovação por mensagem) ---
+    "abordagem_clinica": WaTemplateSpec(
+        name="abordagem_clinica",
+        label="Abordagem — clínica/consultório",
+        language="pt_BR",
+        body_params=("nome_negocio",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá, {{1}}! Olhei rapidamente a presença de vocês e percebi alguns pontos "
+            "que podem estar afetando a chegada e o retorno de pacientes pelo WhatsApp. "
+            "Em clínica, muitas vezes o problema não é falta de procura, mas vazamento "
+            "entre o interesse, o atendimento e o agendamento. Posso te mandar uma "
+            "leitura rápida?"
+        ),
+        sample_params=("Clínica Exemplo",),
+    ),
+    "abordagem_veterinaria": WaTemplateSpec(
+        name="abordagem_veterinaria",
+        label="Abordagem — clínica veterinária",
+        language="pt_BR",
+        body_params=("nome_negocio",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá, {{1}}! Vi que vocês têm presença local e atendimento pelo WhatsApp. "
+            "Em clínica veterinária, muito contato se perde por falta de triagem, "
+            "retorno e organização de agenda. Posso te mandar um Dossiê de Vazamentos "
+            "com alguns pontos que observei?"
+        ),
+        sample_params=("Vet Exemplo",),
+    ),
+    "abordagem_servicos_profissionais": WaTemplateSpec(
+        name="abordagem_servicos_profissionais",
+        label="Abordagem — advocacia/perícia/serviços profissionais",
+        language="pt_BR",
+        body_params=("nome_negocio",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá, {{1}}! Pelo tipo de serviço de vocês, cada contato precisa ser bem "
+            "triado e acompanhado. Quando não existe processo, muita oportunidade boa "
+            "esfria no WhatsApp ou fica sem retorno. Posso te mandar uma leitura rápida "
+            "de possíveis vazamentos comerciais?"
+        ),
+        sample_params=("Escritório Exemplo",),
+    ),
+    "abordagem_reforma_obra": WaTemplateSpec(
+        name="abordagem_reforma_obra",
+        label="Abordagem — reforma/obra/serviços com orçamento",
+        language="pt_BR",
+        body_params=("nome_negocio",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá, {{1}}! Vi que vocês trabalham com orçamento e serviço local. Nesse "
+            "tipo de negócio, um lead perdido ou um orçamento sem follow-up pode custar "
+            "caro. Posso te mandar uma leitura rápida com possíveis pontos onde "
+            "contatos podem estar vazando?"
+        ),
+        sample_params=("Reformas Exemplo",),
+    ),
+    "abordagem_oficina_tecnico": WaTemplateSpec(
+        name="abordagem_oficina_tecnico",
+        label="Abordagem — oficina/serviço técnico",
+        language="pt_BR",
+        body_params=("nome_negocio",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá, {{1}}! Oficinas e serviços técnicos dependem muito de resposta "
+            "rápida, clareza e retorno. Vi alguns pontos que talvez estejam atrapalhando "
+            "a conversão de contatos em orçamento. Posso te mandar uma leitura simples?"
+        ),
+        sample_params=("Oficina Exemplo",),
+    ),
 }
+
+# Templates de abordagem proativa aprovados (decisão 2026-06-11): dentro deles o
+# Caio dispara sem aprovação individual, respeitando o limite diário.
+ABORDAGEM_TEMPLATES = (
+    "abordagem_clinica",
+    "abordagem_veterinaria",
+    "abordagem_servicos_profissionais",
+    "abordagem_reforma_obra",
+    "abordagem_oficina_tecnico",
+)
 
 
 def get_template(name: str) -> WaTemplateSpec:
@@ -43,4 +125,4 @@ def get_template(name: str) -> WaTemplateSpec:
 
 
 def default_abertura_template() -> str:
-    return os.getenv("WHATSAPP_TEMPLATE_ABERTURA", "abertura_pintor_contato").strip()
+    return os.getenv("WHATSAPP_TEMPLATE_ABERTURA", "abordagem_clinica").strip()

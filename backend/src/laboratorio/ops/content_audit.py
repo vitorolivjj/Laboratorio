@@ -29,18 +29,20 @@ confiança aumentaria ou cairia?" Aumentaria→verde; cairia→vermelho; não se
 
 🔴 VERMELHO (descarta): mentira factual; VALOR de venda exposto (real ou inventado —
 só vale "entrou venda/dinheiro", nunca cifra); expõe mecanismo interno (stack, ferramenta,
-prompt, arquitetura, credencial); identifica o Vitor (nome/rosto/voz); dado sensível de
-lead/cliente; promessa de capacidade que a fábrica não faz; Ronaldo nega ser IA / afirma
-ser humano; exposição que gere risco real à operação.
+prompt, arquitetura, credencial); dado sensível de lead/cliente; dado PESSOAL sensível do
+Vitor (endereço, família, documentos) — nome/rosto/voz do Vitor PODEM aparecer (ele é o
+rosto público desde 2026-06-11); promessa de capacidade que a fábrica não faz; Ronaldo
+nega ser IA / afirma ser humano; vender IA como milagre (posicionamento: IA no bastidor,
+processo na frente); exposição que gere risco real à operação.
 
 🟡 AMARELO (sobe pro Vitor): menção a cliente/lead mesmo anonimizada; qualquer número/valor;
 tema sensível (pode soar arrogante/polêmico); formato/série em 1º uso; post de estreia/marco;
 resposta a crítica/pergunta comercial; cita projeto interno não público; tom no limite (ironia
-que pode ler como deboche).
+que pode ler como deboche); primeira aparição do Vitor em formato novo.
 
 🟢 VERDE (publica direto): nasce de fato real (ou dramatização honesta); conta pelo EFEITO
-(não pelo mecanismo); zero identificação do Vitor; zero dado sensível; nenhuma promessa;
-mantém transparência (Ronaldo é IA); voz do Ronaldo + template aprovado.
+(não pelo mecanismo); zero dado sensível; nenhuma promessa; mantém transparência (Ronaldo
+é IA, bastidor do Laboratório); voz do Ronaldo + template aprovado.
 
 Devolva APENAS JSON: {"cor": "verde|amarelo|vermelho", "motivo": "1 frase objetiva",
 "gatilho": "qual regra disparou (ou 'nenhum')"}"""

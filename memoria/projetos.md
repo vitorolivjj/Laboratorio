@@ -65,13 +65,16 @@ Portfólio de iniciativas do Laboratório e do ecossistema do Vitor.
 
 ---
 
-### Novo negócio — negócios locais (EM DEFINIÇÃO)
+### Novo negócio — negócios locais (FASE DE VALIDAÇÃO)
 
-- **ID:** PROJ-004 (provisório)
-- **Status:** ideia (aguardando instruções do Vitor)
-- **Posicionamento:** Negócios locais que perdem clientes por bagunça em captação, atendimento e comercial.
-- **Próximo passo:** Vitor define oferta, ICP e funil — só então captação/abordagem reativam.
-- **Última atualização:** 2026-06-10
+- **ID:** PROJ-004
+- **Status:** em_andamento (plano de negócio v1 implantado em 2026-06-11)
+- **Posicionamento:** Negócios locais que perdem clientes por bagunça em captação, atendimento e comercial. IA no bastidor, processo na frente. Rosto público: Vitor.
+- **Escada:** Dossiê de Vazamentos (grátis) → Plano de Ataque (R$450) → Sprint (R$1.5–4k+) → Acompanhamento Mensal (R$297–1.5k/mês).
+- **Agentes principais:** Donizete (captação por score), Juarez (sondagem), Ronaldo (análise/Dossiê), Caio (abordagem com template + qualificação), Vitor (calls e leitura).
+- **Resumo operacional:** [plano_negocio.md](plano_negocio.md) · Fonte completa: vault Obsidian do Vitor.
+- **Próximo passo:** fase de validação — 3-5 Dossiês reais, 2 Planos de Ataque vendidos; travar modelo da página do Dossiê (P00-01).
+- **Última atualização:** 2026-06-11
 
 ---
 

@@ -21,16 +21,16 @@ def tools_for(agent_id: str) -> list:
     if not tools_enabled():
         return []
     try:
-        from laboratorio.tools.crm_tools import (
-            AdicionarLeadTool,
-            AtualizarStatusLeadTool,
-            LerCRMTool,
-        )
         from laboratorio.tools.crm_lp_tools import (
             AdicionarLeadLPTool,
             AtualizarStatusLeadLPTool,
             LerCRMLPTool,
         )
+        from laboratorio.tools.crm_tools import (
+            AtualizarStatusLeadTool,
+            LerCRMTool,
+        )
+        from laboratorio.tools.dev_tools import dev_executor_tools
         from laboratorio.tools.facebook_tools import (
             FacebookAbrirGrupoTool,
             FacebookAnalisarPostsTool,
@@ -61,8 +61,7 @@ def tools_for(agent_id: str) -> list:
             ListarTasksTool,
             MoverTaskTool,
         )
-        from laboratorio.tools.dev_tools import dev_executor_tools
-        from laboratorio.tools.whatsapp_tools import EnviarWhatsAppTool
+        from laboratorio.tools.whatsapp_tools import AbordarLeadTool, EnviarWhatsAppTool
     except Exception as exc:  # noqa: BLE001
         logger.warning("Tools indisponíveis (%s) — agentes seguem sem ferramentas", exc)
         return []
@@ -100,6 +99,7 @@ def tools_for(agent_id: str) -> list:
             LerCRMTool(),
             AtualizarStatusLeadTool(),
             EnviarWhatsAppTool(),
+            AbordarLeadTool(),
         ],
         "donizete_social": [
             LerCRMLPTool(),

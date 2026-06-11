@@ -13,6 +13,35 @@ class _EnviarWhatsAppArgs(BaseModel):
     body: str = Field(..., description="Texto da mensagem a enviar")
 
 
+class _AbordarLeadArgs(BaseModel):
+    to_wa_id: str = Field(..., description="WhatsApp do lead (com DDI, ex.: 5533...)")
+    template: str = Field(
+        ...,
+        description=(
+            "Template aprovado por segmento: abordagem_clinica | abordagem_veterinaria | "
+            "abordagem_servicos_profissionais | abordagem_reforma_obra | "
+            "abordagem_oficina_tecnico"
+        ),
+    )
+    nome_negocio: str = Field(..., description="Nome do negócio do lead (personaliza a mensagem)")
+
+
+class AbordarLeadTool(BaseTool):
+    name: str = "abordar_lead"
+    description: str = (
+        "Abordagem comercial proativa do Caio com TEMPLATE APROVADO pelo Vitor "
+        "(sem aprovação individual; limite diário). Use só para primeiro contato "
+        "com lead qualificado do CRM. Mensagem fora de template → enviar_whatsapp."
+    )
+    args_schema: type[BaseModel] = _AbordarLeadArgs
+
+    @safe
+    def _run(self, to_wa_id: str, template: str, nome_negocio: str) -> str:
+        from laboratorio.whatsapp.abordagem import abordar
+
+        return abordar(to_wa_id, template, nome_negocio)
+
+
 class EnviarWhatsAppTool(BaseTool):
     name: str = "enviar_whatsapp"
     description: str = (

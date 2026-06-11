@@ -15,6 +15,7 @@ SYNC_PATHS: list[tuple[Path, str]] = [
     (MEMORIA_DIR / "aprendizados.md", "aprendizados"),
     (CONTEXTO_GLOBAL, "contexto"),
     (MEMORIA_DIR / "aprovacao_whatsapp_fase0.md", "global"),
+    (MEMORIA_DIR / "plano_negocio.md", "global"),
 ]
 
 RONALDO_MEMORY_FILES = (
@@ -70,7 +71,6 @@ def sync_file(path: Path, namespace: str, *, dry_run: bool = False) -> int:
     if dry_run:
         return len(chunks)
 
-    from laboratorio.memory.semantic import remember
     import time
 
     count = 0

@@ -63,17 +63,24 @@ Somente dados **públicos** e úteis para abordagem:
 - Descrição profissional
 - Observações para abordagem comercial
 
-### Foco de captação (2026-06-10)
+### Foco de captação (plano de negócio v1 · 2026-06-11)
 
-**Piloto pintor (PROJ-LP) encerrado** — era teste; material em
-[memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/). **Não captar pintores.**
+**Caçar vazamento com potencial de dinheiro** em negócios locais — plano completo em
+[memoria/plano_negocio.md](../memoria/plano_negocio.md). Piloto pintor encerrado
+(arquivo em [memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/)) — **não captar pintores**.
 
-Novo posicionamento: **negócios locais que perdem clientes por bagunça em captação,
-atendimento e comercial**. Captação **pausada** até o Vitor definir oferta, ICP e funil do
-novo negócio — nenhuma busca/garimpo inicia sem nova task explícita.
-
-- Anti-ban e limites operacionais continuam valendo quando a captação voltar
-- **Nunca** vender ou citar preço no Facebook
+- **ICP prioritário:** clínicas/consultórios/veterinárias · advocacia/perícia ·
+  imobiliárias · oficinas/técnicos · reforma/obra · estética com agenda
+- **Sinais públicos de vazamento:** Google/perfil incompleto, avaliações reclamando de
+  demora/falta de resposta, site sem CTA/WhatsApp claro, comentários sem resposta,
+  negócio com demanda aparente e presença mal cuidada
+- **Score 0–10 por lead** (dor, pagamento, vazamento, canal, potencial — 0–2 cada):
+  <6 arquiva/nutre · 6+ vale coleta profunda/Dossiê · 8+ prioridade
+- Registrar no CRM de captação (`crm/leads.md`); qualificado → entra no funil oficial
+  (`crm/crm_laboratorio.md`)
+- **Fase de validação:** poucos leads BONS (qualidade > volume); metas numéricas só
+  depois dos gates do plano
+- Anti-ban e limites operacionais inalterados · **nunca** vender ou citar preço no Facebook
 
 ## Limites operacionais (obrigatórios)
 

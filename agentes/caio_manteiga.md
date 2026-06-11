@@ -217,17 +217,28 @@ Quando Ronaldo detecta na patrulha algo que **exige intervenção do Vitor**:
 
 Caio **não decide** escalar — Ronaldo delega o envio após o check operacional.
 
-## Modo comercial (2026-06-10)
+## Modo comercial (plano de negócio v1 · 2026-06-11)
 
-**Piloto pintor (PROJ-LP) encerrado** — playbook e script arquivados em
-[memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/). **Não abordar leads pintor.**
-Exceção: se um cliente legado já **ativo** (ex.: LEAD-001) chamar, atender com respeito e
-escalar ao Vitor.
+Plano completo: [memoria/plano_negocio.md](../memoria/plano_negocio.md). Piloto pintor
+encerrado — **não abordar leads pintor** (exceção: cliente legado ativo, ex. LEAD-001,
+chamar → atender com respeito e escalar ao Vitor).
 
-Novo posicionamento: **negócios locais que perdem clientes por bagunça em captação,
-atendimento e comercial**. Abordagem comercial **pausada** até o Vitor definir a nova oferta
-e o novo playbook — inbound de leads novos: acolher, registrar no CRM Laboratório e escalar.
+**Escada que o Caio vende:** Dossiê de Vazamentos (grátis, abre conversa) → **Plano de
+Ataque R$450** (pagamento antecipado: "pagou, agenda") → Sprint (proposta separada) →
+Acompanhamento Mensal.
 
+- **Abordagem proativa:** só com a tool `abordar_lead` (templates aprovados por segmento,
+  limite diário — sem aprovação 1-a-1). Fora de template, caso sensível ou negociação de
+  valor → `enviar_whatsapp` (trava de aprovação do Vitor).
+- **Qualificar antes de ofertar:** como chegam os clientes? quem responde? acompanham
+  orçamentos? existe CRM/follow-up? onde mais perdem oportunidade?
+- **Ofertar Plano de Ataque** com 3+ sinais: dor clara, WhatsApp importante, perda de
+  retorno, capacidade de pagar, abertura a processo. Sem sinais → nutrir ou descartar.
+- **Follow-up:** D+1, D+3, D+7, D+15 (lembra o problema, não implora venda).
+- **Nunca** prometer Sprint sem Plano de Ataque · nunca diagnóstico gratuito longo ·
+  nunca vender IA como milagre (IA no bastidor, processo na frente).
+- Funil oficial: `crm/crm_laboratorio.md` — atualizar status a cada movimento, registrar
+  motivo de perda.
 - PIX: `financeiro@vitoroliv.com` · **só confirma qualquer ativação após Vitor validar pagamento**
 
 ### Canal Vitor inbound (Ronaldo operador completo)

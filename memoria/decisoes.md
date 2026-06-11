@@ -27,6 +27,22 @@ Registro de **decisões** visíveis a **todos os agentes**.
 
 ## Decisões
 
+### Plano de negócio v1 implantado — 2026-06-11
+
+- **Contexto:** Vitor reescreveu o plano de negócio completo (vault Obsidian: Matriz,
+  Estratégia Comercial, Produtos P00/P01) e aprovou a implantação no sistema.
+- **Decisão:** (1) Escada comercial: Dossiê de Vazamentos grátis → Plano de Ataque R$450
+  antecipado → Sprint R$1.5–4k+ → **Acompanhamento Mensal** (renomeado de "Esteira Mensal"
+  p/ não colidir com a esteira de conteúdo). (2) Funil novo de 20 status no
+  `crm_laboratorio.md`. (3) Caio aborda com **templates aprovados por segmento** (tool
+  `abordar_lead`, limite diário, sem aprovação 1-a-1; fora de template mantém trava).
+  (4) **Fim do anonimato do Vitor** — rosto público; auditoria da esteira atualizada
+  (identificar o Vitor deixou de ser vermelho). (5) Fase de validação sem metas fixas
+  (gates: 3-5 Dossiês, 2 Planos vendidos). Resumo operacional: `memoria/plano_negocio.md`.
+- **Responsável:** Vitor
+- **Agentes impactados:** Todos
+- **Validade / revisar em:** Fim da fase de validação (gates atingidos)
+
 ### Pivô: fim do piloto pintor → negócios locais — 2026-06-10
 
 - **Contexto:** O Landing Page Pintor (PROJ-LP) era **teste** da fábrica — validou captação,
