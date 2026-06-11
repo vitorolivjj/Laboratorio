@@ -15,7 +15,7 @@ Visão centralizada da operação do Laboratório multiagente.
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-11 15:59 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-11 18:50 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
@@ -54,19 +54,32 @@ Visão centralizada da operação do Laboratório multiagente.
 | Etapa | Qtd |
 |-------|-----|
 | `novo` | 0 |
-| `qualificacao` | 0 |
-| `diagnostico` | 1 |
-| `proposta` | 0 |
-| `negociacao` | 0 |
-| `fechado` | 0 |
+| `pesquisado` | 0 |
+| `vazamento_provavel` | 0 |
+| `dossie_enviado` | 0 |
+| `aguardando_resposta` | 0 |
+| `respondeu` | 0 |
+| `qualificando` | 1 |
+| `pronto_plano_ataque` | 0 |
+| `plano_ataque_enviado` | 0 |
+| `plano_ataque_pago` | 0 |
+| `call_agendada` | 0 |
+| `plano_em_producao` | 0 |
+| `plano_entregue` | 0 |
+| `sprint_proposta` | 0 |
+| `sprint_fechada` | 0 |
+| `acompanhamento_proposto` | 0 |
+| `cliente_ativo` | 0 |
+| `pausado` | 0 |
 | `perdido` | 0 |
+| `arquivado` | 0 |
 | **Total** | **1** |
 
 ### Leads (todos os CRMs)
 
 | ID | CRM | Nome | Status | Captura |
 |----|-----|------|--------|---------|
-| LEAD-VIOLA | CRM Laboratório | Dr. Viola | `diagnostico` | 2026-05-31 |
+| LEAD-VIOLA | CRM Laboratório | Dr. Viola | `qualificando` | 2026-05-31 |
 
 <!-- AUTO-SNAPSHOT:END -->
 
