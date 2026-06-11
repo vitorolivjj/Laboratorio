@@ -383,15 +383,26 @@ def _execute_pending(item: dict[str, Any]) -> str:
     raise ValueError(f"Tipo de aprovação desconhecido: {kind}")
 
 
-def handle_owner_decision(action: Decision, approval_id: str) -> str:
-    """Processa APROVAR/RECUSAR do Vitor. Retorna texto de resposta."""
+def list_pending() -> list[dict[str, Any]]:
+    """Aprovações pendentes (mais recentes primeiro) — consumido pelo painel."""
+    state = _load_state()
+    pending = [item for item in state.values() if item.get("status") == "pending"]
+    return sorted(pending, key=lambda i: i.get("created_at", ""), reverse=True)
+
+
+def resolve_decision(action: Decision, approval_id: str) -> dict[str, Any]:
+    """Núcleo do APROVAR/RECUSAR — resultado estruturado (painel + WhatsApp).
+
+    Retorna {ok, code, message}; code ∈ ok | not_found | already_resolved | error."""
     aid = approval_id.upper()
     state = _load_state()
     item = state.get(aid)
     if not item:
-        return f"ID {aid} não encontrado ou já expirou."
+        return {"ok": False, "code": "not_found",
+                "message": f"ID {aid} não encontrado ou já expirou."}
     if item.get("status") != "pending":
-        return f"ID {aid} já foi {item.get('status')}."
+        return {"ok": False, "code": "already_resolved",
+                "message": f"ID {aid} já foi {item.get('status')}."}
 
     if action == "reject":
         item["status"] = "rejected"
@@ -399,24 +410,30 @@ def handle_owner_decision(action: Decision, approval_id: str) -> str:
         state[aid] = item
         _save_state(state)
         logger.info("Aprovação %s recusada", aid)
-        return f"✗ Recusado [{aid}] — nada foi executado."
+        return {"ok": True, "code": "ok",
+                "message": f"✗ Recusado [{aid}] — nada foi executado."}
 
     try:
         result_detail = _execute_pending(item)
     except WhatsAppApiError as exc:
         logger.exception("Falha Meta ao executar aprovação %s", aid)
         code = f" (Meta #{exc.meta_code})" if exc.meta_code else ""
-        return f"Erro Meta [{aid}]: {exc}{code}"
-    except Exception as exc:
+        return {"ok": False, "code": "error", "message": f"Erro Meta [{aid}]: {exc}{code}"}
+    except Exception as exc:  # noqa: BLE001
         logger.exception("Falha ao executar aprovação %s", aid)
-        return f"Erro ao executar [{aid}]: {exc}"
+        return {"ok": False, "code": "error", "message": f"Erro ao executar [{aid}]: {exc}"}
 
     item["status"] = "approved"
     item["resolved_at"] = _now_iso()
     state[aid] = item
     _save_state(state)
     logger.info("Aprovação %s concedida", aid)
-    return f"✓ Aprovado [{aid}]\n{result_detail}"
+    return {"ok": True, "code": "ok", "message": f"✓ Aprovado [{aid}]\n{result_detail}"}
+
+
+def handle_owner_decision(action: Decision, approval_id: str) -> str:
+    """Processa APROVAR/RECUSAR do Vitor (WhatsApp). Retorna texto de resposta."""
+    return resolve_decision(action, approval_id)["message"]
 
 
 _QUEUE_APPROVE_RE = re.compile(

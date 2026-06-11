@@ -9,8 +9,10 @@ import os
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request, Response
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from laboratorio.api.routes.approvals import router as approvals_router
 from laboratorio.api.routes.crm import router as crm_router
 from laboratorio.api.routes.donizete import router as donizete_router
 from laboratorio.api.routes.maestro import router as maestro_router
@@ -29,10 +31,14 @@ app = FastAPI(
     version="0.2.0",
 )
 
+# snapshot é o maior payload e desce a cada 8s no painel — gzip corta ~80%
+app.add_middleware(GZipMiddleware, minimum_size=2048)
+
 app.include_router(maestro_router)
 app.include_router(donizete_router)
 app.include_router(tasks_router)
 app.include_router(crm_router)
+app.include_router(approvals_router)
 
 # Painel v2 (React/Tailwind) — operação ao vivo, tasks, comunicação e mapa em /painel.
 PAINEL_V2_DIR = REPO_ROOT / "frontend" / "painel-v2"

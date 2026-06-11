@@ -26,7 +26,8 @@ router = APIRouter(
 _LIST_FIELDS = ("id", "nome", "cidade", "contato", "segment", "status", "etapa", "projeto", "perfil")
 _MAX_UPLOAD = 15 * 1024 * 1024  # 15 MB por arquivo
 _SEG_MD = {
-    "crm_landing_pintor": "crm_landing_pintor.md",
+    # pintor arquivado (piloto encerrado 2026-06-10) — segue editável no novo caminho
+    "crm_landing_pintor": "arquivo/crm_landing_pintor.md",
     "crm_laboratorio": "crm_laboratorio.md",
     "crm_appvs": "crm_appvs.md",
 }
@@ -54,6 +55,36 @@ class AnaliseBody(BaseModel):
     cidade: str | None = None
     contato: str | None = None
     status: str | None = None
+
+
+class CreateLeadBody(BaseModel):
+    nome: str
+    segment: str = "crm_laboratorio"
+    contato: str = ""
+    cidade: str = ""
+    servico: str = ""
+    origem: str = "painel"
+    status: str = "novo"
+    observacoes: str = ""
+
+
+@router.post("/leads")
+def create_lead(body: CreateLeadBody) -> dict:
+    """Cria lead manual no CRM do segmento (default: funil oficial do Laboratório)."""
+    md = _segment_md_path(body.segment)
+    if not md:
+        raise HTTPException(status_code=422, detail=f"Segmento desconhecido: {body.segment}")
+    from laboratorio.ops import crm_store
+
+    try:
+        lead = crm_store.add_lead_segment(
+            md, nome=body.nome, contato=body.contato, cidade=body.cidade,
+            servico=body.servico, origem=body.origem, status=body.status,
+            observacoes=body.observacoes,
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"ok": True, "lead": {**lead, "segment": body.segment}}
 
 
 @router.get("/leads")

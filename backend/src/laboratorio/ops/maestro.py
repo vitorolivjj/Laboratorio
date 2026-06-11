@@ -387,6 +387,24 @@ def build_maestro_snapshot() -> dict[str, Any]:
     }
     append_metric_from_overview(overview)
 
+    # Fila quente do painel: aprovações pendentes + fila da esteira de conteúdo.
+    # Lazy + tolerante a falha (mesmo padrão dos demais blocos) — não derruba o snapshot.
+    approvals_pending: list[dict[str, Any]] = []
+    try:
+        from laboratorio.whatsapp.approvals import list_pending
+
+        approvals_pending = list_pending()
+    except Exception:  # noqa: BLE001
+        logger.warning("Snapshot: falha ao ler aprovações pendentes", exc_info=True)
+    content_queue: list[dict[str, Any]] = []
+    try:
+        from laboratorio.ops.content_schedule import list_queue
+
+        # fila completa (pending + published) — painel Marketing mostra histórico
+        content_queue = list_queue()[-30:]
+    except Exception:  # noqa: BLE001
+        logger.warning("Snapshot: falha ao ler fila de conteúdo", exc_info=True)
+
     return {
         "generated_at": now,
         "sync_meta": _sync_meta(),
@@ -417,6 +435,8 @@ def build_maestro_snapshot() -> dict[str, Any]:
             for t in standby_tasks
         ],
         "donizete_busca": donizete_busca,
+        "approvals_pending": approvals_pending,
+        "content_queue": content_queue,
     }
 
 

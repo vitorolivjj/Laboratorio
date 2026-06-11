@@ -143,6 +143,83 @@ def add_lead(
     return f"Lead {lead['id']} criado ({lead['nome']}, status={lead['status']})."
 
 
+_SEG_MARKER = "<!-- novos leads abaixo -->"
+
+
+def add_lead_segment(
+    path: Path,
+    *,
+    nome: str,
+    contato: str = "",
+    cidade: str = "",
+    servico: str = "",
+    origem: str = "painel",
+    observacoes: str = "",
+    score: str = "0",
+    temperatura: str = "frio",
+    prioridade: str = "P2",
+    status: str = "novo",
+    responsavel: str = "caio_manteiga",
+    task: str = "—",
+) -> dict:
+    """Cria lead num CRM de segmento (ex.: crm_laboratorio.md).
+
+    Status é validado contra o funil do bloco crm-meta do próprio arquivo
+    (cai no VALID_STATUS legado se não houver meta). Se o arquivo não tiver
+    marcador de inserção, um `<!-- novos leads abaixo -->` é criado sob
+    `## Leads`. Devolve o dict do lead criado."""
+    from laboratorio.ops import parsers
+
+    if not nome.strip():
+        raise ValueError("Lead precisa de um nome/identificação.")
+    text = read_text(path)
+    if not text:
+        raise FileNotFoundError(f"CRM não encontrado: {path}")
+    funil = parsers.parse_crm_meta(text).get("funil") or []
+    valid = tuple(funil) or VALID_STATUS
+    if status not in valid:
+        raise ValueError(f"Status inválido: {status}. Use um de {valid}.")
+
+    # IDs são globais no sistema (lab_lead_files/análises são keyed por lead_id):
+    # considera também os CRMs históricos p/ nunca reusar um LEAD-NNN antigo.
+    from laboratorio.config import REPO_ROOT
+
+    historic = ""
+    for extra in (REPO_ROOT / "crm" / "leads.md",
+                  REPO_ROOT / "crm" / "arquivo" / "crm_landing_pintor.md"):
+        if extra != path:
+            historic += read_text(extra) or ""
+
+    lead = {
+        "id": next_lead_id(text + historic),
+        "nome": nome.strip(),
+        "contato": contato.strip(),
+        "cidade": cidade.strip(),
+        "servico": servico.strip(),
+        "origem": origem.strip() or "painel",
+        "observacoes": observacoes.strip(),
+        "score": score.strip() or "0",
+        "temperatura": temperatura.strip() or "frio",
+        "prioridade": prioridade.strip() or "P2",
+        "status": status,
+        "responsavel": responsavel.strip() or "caio_manteiga",
+        "task": task.strip() or "—",
+        "captura": _today(),
+    }
+
+    marker = _SEG_MARKER if _SEG_MARKER in text else _LEADS_MARKER
+    if marker not in text:
+        text = text.replace("## Leads\n", f"## Leads\n\n{_SEG_MARKER}\n", 1)
+        marker = _SEG_MARKER
+        if marker not in text:
+            raise ValueError(f"CRM sem seção '## Leads' para inserir: {path.name}")
+    text = insert_after_marker(text, marker, _lead_section(lead))
+    text = _update_index(text, _index_row(lead))
+    write_text_atomic(path, text)
+    dual_write.sync_async()
+    return lead
+
+
 def update_lead_status(
     lead_id: str, status: str, nota: str = "", *, path: Path = CRM_LEADS
 ) -> str:

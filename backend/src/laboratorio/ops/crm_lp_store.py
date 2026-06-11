@@ -222,7 +222,30 @@ _EDIT_LABELS = {
     "nome": "Nome", "cidade": "Cidade", "contato": "Contato",
     "servico": "Serviço", "status": "Status",
 }
-_INDEX_COL = {"nome": 2, "cidade": 3, "status": 5}  # cols: |id|nome|cidade|origem|status|resp|captura|
+_INDEX_COL = {"nome": 2, "cidade": 3, "status": 5}  # fallback legado (índice do CRM LP)
+
+
+def _valid_status(text: str) -> tuple[str, ...]:
+    """Status válidos do arquivo: funil do bloco crm-meta; sem meta → legado LP."""
+    from laboratorio.ops import parsers
+
+    funil = parsers.parse_crm_meta(text).get("funil") or []
+    return tuple(funil) or VALID_LP_STATUS
+
+
+def _index_cols(text: str) -> dict[str, int]:
+    """Mapeia campo→coluna da tabela-índice lendo o header `| ID | ... |`.
+
+    Cada segmento de CRM tem colunas diferentes (LP: status na col 5;
+    laboratorio: na col 6) — escrever em posição fixa corromperia o índice."""
+    m = re.search(r"^\|\s*ID\s*\|.*$", text, re.MULTILINE)
+    if not m:
+        return _INDEX_COL
+    cols = [c.strip().lower() for c in m.group(0).split("|")]
+    mapping = {k: cols.index(label) for k, label in
+               (("nome", "nome"), ("cidade", "cidade"), ("status", "status"))
+               if label in cols}
+    return mapping or _INDEX_COL
 
 
 def update_lead_fields(lead_id: str, *, path: Path = CRM_LP, **fields) -> dict:
@@ -231,14 +254,15 @@ def update_lead_fields(lead_id: str, *, path: Path = CRM_LP, **fields) -> dict:
     Escreve no markdown (fonte do sync) + dispara o espelho pro DB, então a
     edição é estável (o sync markdown→DB não desfaz). Só mexe nos campos
     informados (None = ignora). Campos aceitos: nome, cidade, contato, servico,
-    status. Levanta se o lead não existir ou status inválido.
-    """
+    status. Levanta se o lead não existir ou status inválido (status válidos
+    vêm do funil do crm-meta do próprio arquivo)."""
     lead_id = lead_id.strip().upper()
     text = read_text(path)
     if not text or lead_id not in text:
         raise ValueError(f"Lead não encontrado no CRM LP: {lead_id}")
-    if fields.get("status") is not None and fields["status"] not in VALID_LP_STATUS:
-        raise ValueError(f"Status inválido: {fields['status']}.")
+    valid = _valid_status(text)
+    if fields.get("status") is not None and fields["status"] not in valid:
+        raise ValueError(f"Status inválido: {fields['status']}. Use um de {valid}.")
 
     new = text
     changed: list[str] = []
@@ -261,10 +285,12 @@ def update_lead_fields(lead_id: str, *, path: Path = CRM_LP, **fields) -> dict:
                 lambda m, v=val: f"{m.group(1)}{v}", new, count=1, flags=re.MULTILINE,
             )
 
-    # linha do índice (id|nome|cidade|origem|status|resp|captura)
+    # linha do índice — colunas detectadas pelo header do próprio arquivo
+    index_cols = _index_cols(text)
+
     def _row_sub(m: re.Match) -> str:
         cols = m.group(0).split("|")
-        for key, col in _INDEX_COL.items():
+        for key, col in index_cols.items():
             if fields.get(key) is not None and len(cols) > col:
                 cols[col] = f" {str(fields[key]).strip()} "
         return "|".join(cols)

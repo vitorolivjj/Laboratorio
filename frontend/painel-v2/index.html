@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Operação ao vivo — Laboratório</title>
-<meta name="theme-color" content="#0a0c10" />
+<title>Laboratório — Painel</title>
+<meta name="theme-color" content="#0b0c0e" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,6 +14,7 @@
 <script>
   tailwind.config = { theme: { extend: {
     fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+    colors: { ink: "#0b0c0e", panel: "#131418", line: "rgba(255,255,255,0.06)" },
     keyframes: {
       slidein: { "0%": { opacity: 0, transform: "translateY(-8px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
       pingsoft: { "0%": { transform: "scale(1)", opacity: 0.6 }, "100%": { transform: "scale(2.2)", opacity: 0 } },
@@ -21,18 +22,22 @@
     animation: { slidein: "slidein .35s cubic-bezier(.22,1,.36,1)", pingsoft: "pingsoft 1.8s ease-out infinite" },
   } } };
 </script>
-<style> body { background: #0a0c10; } ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 99px; } </style>
+<style>
+  body { background: #0b0c0e; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #26282d; border-radius: 99px; }
+</style>
 </head>
-<body class="font-sans text-slate-200 antialiased">
+<body class="font-sans text-zinc-200 antialiased">
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef, useCallback } = React;
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
 // ── config / api ─────────────────────────────────────────────────────────────
 const API = "";
 const DAILY_BUDGET = 5;
-const SNAP_MS = 8000, FEED_MS = 4000;
+const SNAP_MS = 8000, FEED_MS = 4000, LEADS_MS = 60000;
 (function () { try { const u = new URL(location.href), t = u.searchParams.get("token"); if (t) { localStorage.setItem("maestroToken", t); u.searchParams.delete("token"); history.replaceState({}, "", u); } } catch (e) {} })();
 function tok() { try { return localStorage.getItem("maestroToken") || ""; } catch (e) { return ""; } }
 function authFetch(path, opts) {
@@ -42,18 +47,18 @@ function authFetch(path, opts) {
 }
 
 const AGENTS = {
-  ronaldo_maestro: { name: "Ronaldo",  role: "Maestro",    color: "#60a5fa" },
+  ronaldo_maestro: { name: "Ronaldo",  role: "Maestro",    color: "#a5b4fc" },
   caio_manteiga:   { name: "Caio",     role: "Comercial",  color: "#34d399" },
-  donizete_social: { name: "Donizete", role: "Captura",    color: "#f59e0b" },
-  dev:             { name: "Dev",      role: "Software",   color: "#a78bfa" },
-  juarez:          { name: "Juarez",   role: "Backoffice", color: "#22d3ee" },
-  loide:           { name: "Loide",    role: "UX",         color: "#f472b6" },
+  donizete_social: { name: "Donizete", role: "Captação",   color: "#fbbf24" },
+  dev:             { name: "Dev",      role: "Software",   color: "#c4b5fd" },
+  juarez:          { name: "Juarez",   role: "Sondagem",   color: "#67e8f9" },
+  loide:           { name: "Loide",    role: "UX",         color: "#f9a8d4" },
 };
 const ORDER = Object.keys(AGENTS);
 function resolve(s) {
   const low = String(s || "").toLowerCase();
   for (const id of ORDER) { const a = AGENTS[id]; if (low.includes(id) || low.includes(a.name.toLowerCase()) || low.includes(id.split("_")[0])) return { id, ...a }; }
-  return { id: "?", name: String(s || "—").slice(0, 14), role: "", color: "#94a3b8" };
+  return { id: "?", name: String(s || "—").slice(0, 14), role: "", color: "#a1a1aa" };
 }
 const WORKING = new Set(["executando", "ativo"]);
 function relTime(at) {
@@ -63,53 +68,194 @@ function relTime(at) {
   if (s < 5) return "agora"; if (s < 60) return s + "s"; if (s < 3600) return Math.floor(s / 60) + "min";
   if (s < 86400) return Math.floor(s / 3600) + "h"; return Math.floor(s / 86400) + "d";
 }
+function digits(s) { return String(s || "").replace(/\D+/g, ""); }
+
+// ── funil oficial (crm_laboratorio · Plano Comercial §8) ─────────────────────
+const FUNIL = [
+  ["novo", "Novo"], ["pesquisado", "Pesquisado"], ["vazamento_provavel", "Vazamento provável"],
+  ["dossie_enviado", "Dossiê enviado"], ["aguardando_resposta", "Aguardando resposta"], ["respondeu", "Respondeu"],
+  ["qualificando", "Qualificando"], ["pronto_plano_ataque", "Pronto p/ Plano de Ataque"],
+  ["plano_ataque_enviado", "Plano enviado"], ["plano_ataque_pago", "Plano PAGO"], ["call_agendada", "Call agendada"],
+  ["plano_em_producao", "Plano em produção"], ["plano_entregue", "Plano entregue"],
+  ["sprint_proposta", "Sprint proposta"], ["sprint_fechada", "Sprint fechada"],
+  ["acompanhamento_proposto", "Acompanhamento proposto"], ["cliente_ativo", "Cliente ATIVO"],
+  ["pausado", "Pausado"], ["perdido", "Perdido"], ["arquivado", "Arquivado"],
+];
+const FUNIL_LABEL = Object.fromEntries(FUNIL);
+const GRUPOS = [
+  { id: "captacao", label: "Captação",        color: "#a1a1aa", status: ["novo", "pesquisado", "vazamento_provavel"] },
+  { id: "dossie",   label: "Dossiê",          color: "#38bdf8", status: ["dossie_enviado", "aguardando_resposta", "respondeu"] },
+  { id: "qualif",   label: "Qualificação",    color: "#fbbf24", status: ["qualificando", "pronto_plano_ataque"] },
+  { id: "plano",    label: "Plano de Ataque", color: "#fb923c", status: ["plano_ataque_enviado", "plano_ataque_pago", "call_agendada", "plano_em_producao", "plano_entregue"] },
+  { id: "cliente",  label: "Sprint · Cliente", color: "#34d399", status: ["sprint_proposta", "sprint_fechada", "acompanhamento_proposto", "cliente_ativo"] },
+  { id: "saida",    label: "Saídas",          color: "#71717a", status: ["pausado", "perdido", "arquivado"] },
+];
+function grupoOf(status) { return GRUPOS.find((g) => g.status.includes(status)) || GRUPOS[0]; }
+const KIND_LABEL = {
+  content_publish: "Publicar conteúdo · Esteira", client_message: "Mensagem a cliente",
+  client_template: "Template Meta (abertura)", high_cost: "Gasto alto",
+  agent_action: "Ação de agente", evolution_batch: "Autoevolução",
+};
 
 // ── átomos ───────────────────────────────────────────────────────────────────
 function Avatar({ a, size = 34 }) {
-  return <div style={{ width: size, height: size, background: a.color + "22", color: a.color, borderColor: a.color + "55" }} className="rounded-full border flex items-center justify-center font-bold shrink-0"><span style={{ fontSize: size * 0.4 }}>{a.name[0] || "?"}</span></div>;
+  return <div style={{ width: size, height: size, background: a.color + "1c", color: a.color, borderColor: a.color + "44" }} className="rounded-full border flex items-center justify-center font-bold shrink-0"><span style={{ fontSize: size * 0.4 }}>{a.name[0] || "?"}</span></div>;
 }
 function LiveDot({ color = "#34d399" }) {
   return <span className="relative inline-flex h-2 w-2"><span style={{ background: color }} className="absolute inline-flex h-full w-full rounded-full animate-pingsoft" /><span style={{ background: color }} className="relative inline-flex h-2 w-2 rounded-full" /></span>;
 }
-function Signal({ label, value, sub, tone = "slate", bar }) {
-  const c = { slate: "text-slate-100", green: "text-emerald-400", amber: "text-amber-400", red: "text-rose-400", blue: "text-sky-400" }[tone];
-  return <div className="rounded-2xl bg-slate-900/60 border border-white/5 p-4"><div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div><div className={"mt-1 text-2xl font-bold tabular-nums " + c}>{value}</div>{bar != null && <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden"><div className="h-full rounded-full" style={{ width: Math.min(100, bar) + "%", background: bar > 80 ? "#fb7185" : "#34d399" }} /></div>}{sub && <div className="mt-1.5 text-xs text-slate-500">{sub}</div>}</div>;
+function Signal({ label, value, sub, tone = "zinc", bar }) {
+  const c = { zinc: "text-zinc-100", green: "text-emerald-400", amber: "text-amber-400", red: "text-rose-400", blue: "text-sky-400" }[tone];
+  return <div className="rounded-xl bg-panel border border-line p-4"><div className="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold">{label}</div><div className={"mt-1 text-2xl font-bold tabular-nums " + c}>{value}</div>{bar != null && <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden"><div className="h-full rounded-full" style={{ width: Math.min(100, bar) + "%", background: bar > 80 ? "#fb7185" : "#34d399" }} /></div>}{sub && <div className="mt-1.5 text-xs text-zinc-500">{sub}</div>}</div>;
+}
+function Field({ label, v }) {
+  return <div><div className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</div><div className="text-sm text-zinc-200 break-words">{v || "—"}</div></div>;
+}
+function StatusBadge({ status }) {
+  const g = grupoOf(status);
+  return <span style={{ color: g.color, background: g.color + "14", borderColor: g.color + "33" }} className="text-[10px] px-1.5 py-0.5 rounded-full border whitespace-nowrap">{FUNIL_LABEL[status] || status}</span>;
+}
+function SectionTitle({ children, right }) {
+  return <div className="flex items-center justify-between mb-3"><h2 className="text-[12px] font-bold text-zinc-400 uppercase tracking-widest">{children}</h2>{right}</div>;
+}
+const inputCls = "bg-ink border border-line rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-indigo-400/50 placeholder:text-zinc-600";
+const btnPrimary = "text-sm px-3 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 text-white font-semibold disabled:opacity-50";
+const btnGhost = "text-sm px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 font-semibold disabled:opacity-50";
+
+// ── fila quente (aprovações + travados) ──────────────────────────────────────
+function ApprovalCard({ item, onDecide, busy }) {
+  const p = item.payload || {};
+  const isVideo = item.kind === "content_publish" && p.mp4_url;
+  return (
+    <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.04] p-3">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20">{item.id}</span>
+        <span className="text-xs font-semibold text-zinc-200">{KIND_LABEL[item.kind] || item.kind}</span>
+        <span className="ml-auto font-mono text-[10px] text-zinc-500">{relTime(item.created_at)}</span>
+      </div>
+      <p className="text-xs text-zinc-400 mt-1.5 whitespace-pre-wrap break-words leading-snug max-h-20 overflow-hidden">{item.summary || "—"}</p>
+      {isVideo && <video controls preload="none" src={p.mp4_url} className="mt-2 w-full max-h-56 rounded-lg bg-black" />}
+      {p.caption && <p className="text-[11px] text-zinc-500 mt-1.5 line-clamp-2">{p.caption}</p>}
+      <div className="flex gap-2 mt-2.5">
+        <button disabled={busy} onClick={() => onDecide(item.id, "approve")} className="flex-1 text-xs py-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-400/20 hover:bg-emerald-500/25 font-semibold disabled:opacity-50">✓ Aprovar</button>
+        <button disabled={busy} onClick={() => onDecide(item.id, "reject")} className="flex-1 text-xs py-1.5 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-400/20 hover:bg-rose-500/20 font-semibold disabled:opacity-50">✕ Recusar</button>
+      </div>
+    </div>
+  );
+}
+function FilaQuente({ snap, leads, refresh, openLead }) {
+  const [busy, setBusy] = useState("");
+  const [msg, setMsg] = useState("");
+  const approvals = (snap && snap.approvals_pending) || [];
+  const stale = ((snap && snap.overview) || {}).stale_tasks || [];
+  const queue = ((snap && snap.content_queue) || []).filter((q) => q.status === "pending");
+  const waiting = (leads || []).filter((l) => ["dossie_enviado", "aguardando_resposta", "respondeu"].includes(l.status));
+  const total = approvals.length + stale.length + waiting.length;
+  async function decide(id, action) {
+    setBusy(id); setMsg("");
+    try {
+      const r = await authFetch("/api/approvals/" + id + "/decide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
+      const j = await r.json();
+      setMsg(j.message || j.detail || "ok");
+    } catch (e) { setMsg("erro: " + e); }
+    setBusy(""); refresh();
+  }
+  return (
+    <section className="mb-6">
+      <SectionTitle right={<span className="text-xs text-zinc-500">{total ? total + " item(ns) precisando de você" : "nada pendente 🎉"}</span>}>🔥 Fila quente</SectionTitle>
+      {msg && <p className="text-xs font-mono text-zinc-400 mb-2 whitespace-pre-wrap">{msg}</p>}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {approvals.map((a) => <ApprovalCard key={a.id} item={a} onDecide={decide} busy={busy === a.id} />)}
+        {stale.map((t, i) => (
+          <div key={"st" + i} className="rounded-xl border border-rose-400/20 bg-rose-400/[0.04] p-3">
+            <div className="flex items-center gap-2"><span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-400/10 text-rose-300 border border-rose-400/20 font-mono">{t.id || "task"}</span><span className="text-xs font-semibold text-zinc-200">Task travada</span></div>
+            <p className="text-xs text-zinc-400 mt-1.5 line-clamp-2">{t.title || t.titulo || JSON.stringify(t).slice(0, 80)}</p>
+            <p className="text-[11px] text-zinc-500 mt-1">{t.hours ? "parada há " + Math.round(t.hours) + "h" : "parada há horas"} · ver aba Tasks</p>
+          </div>
+        ))}
+        {waiting.map((l) => (
+          <button key={l.id} onClick={() => openLead(l.id)} className="text-left rounded-xl border border-sky-400/20 bg-sky-400/[0.04] p-3 hover:bg-sky-400/[0.08]">
+            <div className="flex items-center gap-2"><span className="text-xs font-semibold text-zinc-100 truncate">{l.nome || l.id}</span><StatusBadge status={l.status} /></div>
+            <p className="text-[11px] text-zinc-500 mt-1">precisa de follow-up / atenção do Caio</p>
+          </button>
+        ))}
+        {queue.map((q) => (
+          <div key={q.id} className="rounded-xl border border-violet-400/20 bg-violet-400/[0.04] p-3">
+            <div className="flex items-center gap-2"><span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-400/10 text-violet-300 border border-violet-400/20">esteira</span><span className="text-xs font-semibold text-zinc-200">Aprovado · aguardando slot</span></div>
+            <p className="text-xs text-zinc-400 mt-1.5 line-clamp-2">{q.caption || q.roteiro || q.id}</p>
+            <p className="text-[11px] text-zinc-500 mt-1">publica no próximo slot (08:00 · 12:30 · 19:00)</p>
+          </div>
+        ))}
+        {total === 0 && queue.length === 0 && <div className="sm:col-span-2 lg:col-span-3 rounded-xl border border-line bg-panel p-5 text-center text-sm text-zinc-500">Nenhuma decisão pendente. A operação segue sozinha.</div>}
+      </div>
+    </section>
+  );
+}
+
+// ── timeline operacional ─────────────────────────────────────────────────────
+function Timeline({ snap }) {
+  const events = ((snap && snap.logs) || {}).events || [];
+  const alerts = ((snap && snap.logs) || {}).alerts || [];
+  return (
+    <div>
+      <SectionTitle>Linha do tempo</SectionTitle>
+      {alerts.length > 0 && <div className="space-y-1.5 mb-3">{alerts.map((a, i) => <div key={i} className="text-xs rounded-lg border border-amber-400/20 bg-amber-400/[0.05] text-amber-200 px-3 py-2">{typeof a === "string" ? a : a.title || a.message || JSON.stringify(a)}</div>)}</div>}
+      <div className="space-y-1 max-h-[46vh] overflow-y-auto pr-1">
+        {events.length === 0 && <p className="text-xs text-zinc-600 py-4 text-center">sem eventos recentes</p>}
+        {events.slice(0, 30).map((e, i) => (
+          <div key={i} className="flex items-start gap-2.5 py-1.5 border-b border-line last:border-0">
+            <span className="font-mono text-[10px] text-zinc-600 shrink-0 mt-0.5 tabular-nums w-12">{relTime(e.datetime || e.at)}</span>
+            <div className="min-w-0">
+              <span className="text-xs text-zinc-300 font-medium">{e.title}</span>
+              {e.agents && <span className="text-[10px] text-zinc-500 ml-1.5">{e.agents}</span>}
+              {e.detail && <p className="text-[11px] text-zinc-500 line-clamp-1">{e.detail}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ── TAB: operação ao vivo ────────────────────────────────────────────────────
-function OperacaoTab({ snap, feed, conn }) {
-  const ov = (snap && snap.overview) || {}, usage = (snap && snap.usage) || {}, agents = (snap && snap.agents) || [], don = (snap && snap.donizete_busca) || {}, lp = ov.lp_capture || {};
+function OperacaoTab({ snap, feed, conn, leads, refresh, openLead }) {
+  const ov = (snap && snap.overview) || {}, usage = (snap && snap.usage) || {}, agents = (snap && snap.agents) || [], don = (snap && snap.donizete_busca) || {};
   const todayCost = usage.today_cost_usd != null ? usage.today_cost_usd : (ov.estimated_cost_usd || 0);
   const stale = (ov.stale_tasks || []).length;
   const lastErr = ov.last_error && ov.last_error !== "Nenhum erro recente" ? ov.last_error : null;
+  const pend = ((snap && snap.approvals_pending) || []).length;
   return (
     <React.Fragment>
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         <Signal label="Custo hoje" value={"US$ " + todayCost.toFixed(2).replace(".", ",")} sub={"de US$ " + DAILY_BUDGET + " (teto)" + (ov.cost_is_real === false ? " · estim." : "")} tone={todayCost >= DAILY_BUDGET ? "red" : "green"} bar={(todayCost / DAILY_BUDGET) * 100} />
+        <Signal label="Decisões pendentes" value={pend} sub={pend ? "na fila quente ↓" : "nada esperando você"} tone={pend ? "amber" : "green"} />
         <Signal label="Mensagens hoje" value={ov.messages_today != null ? ov.messages_today : "—"} sub="WhatsApp · Caio" tone="blue" />
-        <Signal label="Leads hoje" value={ov.leads_today != null ? ov.leads_today : "—"} sub="captados" tone="slate" />
         <Signal label="Tasks travadas" value={stale} sub={stale ? "paradas há horas" : "nada parado"} tone={stale ? "amber" : "green"} />
-        <Signal label="Último erro" value={lastErr ? "!" : "—"} sub={lastErr ? String(lastErr).slice(0, 40) : "sem erros recentes"} tone={lastErr ? "red" : "slate"} />
+        <Signal label="Último erro" value={lastErr ? "!" : "—"} sub={lastErr ? String(lastErr).slice(0, 40) : "sem erros recentes"} tone={lastErr ? "red" : "zinc"} />
       </div>
+      <FilaQuente snap={snap} leads={leads} refresh={refresh} openLead={openLead} />
       <div className="grid lg:grid-cols-3 gap-6">
-        <section className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-3"><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><LiveDot /> Atividade ao vivo</h2><span className="text-xs text-slate-500">últimas ações · atualiza sozinho</span></div>
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-            {feed.length === 0 && <div className="rounded-2xl border border-white/5 bg-slate-900/40 p-6 text-center text-slate-500 text-sm">{conn === "ok" ? "Nenhuma atividade recente — agentes ociosos." : conn === "auth" ? "Abra com ?token=SEU_TOKEN" : "Aguardando o backend…"}</div>}
-            {feed.map((x, i) => { const a = resolve(x.agent); const fresh = i === 0 && (Date.now() - new Date(String(x.at).replace(" UTC", "Z").replace(" ", "T")).getTime()) < 9000;
-              return <div key={i} className={"flex items-start gap-3 rounded-2xl border p-3 transition " + (fresh ? "border-emerald-500/30 bg-emerald-500/[0.04] animate-slidein" : "border-white/5 bg-slate-900/40")} style={{ opacity: i > 16 ? 0.55 : 1 }}>
-                <Avatar a={a} />
-                <div className="min-w-0 flex-1"><div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-sm" style={{ color: a.color }}>{a.name}</span>{a.role && <span className="text-[10px] text-slate-500">{a.role}</span>}{x.tool && <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">{x.tool}</span>}{!x.tool && x.kind && <span className="text-[10px] text-slate-600">{x.kind}</span>}</div><p className="text-sm text-slate-300 mt-0.5 leading-snug line-clamp-2">{x.detail || x.context || "—"}</p></div>
-                <span className="font-mono text-[11px] text-slate-500 shrink-0 tabular-nums">{relTime(x.at)}</span>
+        <section className="lg:col-span-1">
+          <SectionTitle right={<span className="text-xs text-zinc-500">ao vivo</span>}><span className="inline-flex items-center gap-2"><LiveDot /> Atividade</span></SectionTitle>
+          <div className="space-y-2 max-h-[52vh] overflow-y-auto pr-1">
+            {feed.length === 0 && <div className="rounded-xl border border-line bg-panel p-5 text-center text-zinc-500 text-sm">{conn === "ok" ? "Agentes ociosos." : conn === "auth" ? "Abra com ?token=SEU_TOKEN" : "Aguardando o backend…"}</div>}
+            {feed.slice(0, 18).map((x, i) => { const a = resolve(x.agent);
+              return <div key={i} className="flex items-start gap-2.5 rounded-xl border border-line bg-panel p-2.5">
+                <Avatar a={a} size={28} />
+                <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="font-semibold text-xs" style={{ color: a.color }}>{a.name}</span>{x.tool && <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-white/5 text-zinc-500">{x.tool}</span>}</div><p className="text-xs text-zinc-400 mt-0.5 leading-snug line-clamp-2">{x.detail || x.context || "—"}</p></div>
+                <span className="font-mono text-[10px] text-zinc-600 shrink-0 tabular-nums">{relTime(x.at)}</span>
               </div>; })}
           </div>
         </section>
-        <aside className="space-y-6">
-          <div><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">Agentes agora</h2><div className="space-y-2">
+        <section className="lg:col-span-1">
+          <Timeline snap={snap} />
+        </section>
+        <aside className="lg:col-span-1 space-y-5">
+          <div><SectionTitle>Agentes agora</SectionTitle><div className="space-y-1.5">
             {(agents.length ? agents : ORDER.map((id) => ({ id, name: AGENTS[id].name, status: "aguardando", model: "" }))).map((ag) => { const a = resolve(ag.id || ag.name); const active = WORKING.has(ag.status); const doing = active ? (ag.current_task && ag.current_task !== "—" ? ag.current_task : ag.last_action) : "aguardando";
-              return <div key={ag.id || ag.name} className={"flex items-center gap-3 rounded-2xl border p-3 " + (active ? "border-white/10 bg-slate-900/70" : "border-white/5 bg-slate-900/30")}><div className="relative"><Avatar a={a} size={36} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="font-semibold text-sm text-slate-100">{ag.name}</span><span className={"text-[10px] px-1.5 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : ag.status === "erro" ? "bg-rose-500/15 text-rose-400" : "bg-white/5 text-slate-500")}>{ag.status || "—"}</span></div><p className="text-xs text-slate-500 truncate">{doing || "—"}</p></div>{ag.model && <span className="font-mono text-[10px] text-slate-600 shrink-0">{ag.model}</span>}</div>; })}
+              return <div key={ag.id || ag.name} className={"flex items-center gap-2.5 rounded-xl border p-2.5 " + (active ? "border-white/10 bg-panel" : "border-line bg-panel/50")}><div className="relative"><Avatar a={a} size={30} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="font-semibold text-xs text-zinc-100">{ag.name}</span><span className={"text-[9px] px-1.5 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : ag.status === "erro" ? "bg-rose-500/15 text-rose-400" : "bg-white/5 text-zinc-500")}>{ag.status || "—"}</span></div><p className="text-[11px] text-zinc-500 truncate">{doing || "—"}</p></div></div>; })}
           </div></div>
-          {don.active && <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-4"><div className="flex items-center gap-2 mb-2"><LiveDot color="#f59e0b" /><h3 className="text-sm font-bold text-amber-300">Captação Donizete</h3><span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">ATIVA</span></div><div className="grid grid-cols-3 gap-2 text-center"><div><div className="text-xl font-bold text-amber-300 tabular-nums">{don.cycles != null ? don.cycles : "—"}</div><div className="text-[10px] text-slate-500">ciclos</div></div><div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.pronto != null ? lp.pronto : "—"}</div><div className="text-[10px] text-slate-500">prontos</div></div><div><div className="text-xl font-bold text-amber-300 tabular-nums">{lp.prospectado != null ? lp.prospectado : "—"}</div><div className="text-[10px] text-slate-500">prospect.</div></div></div>{(don.last_group || don.lock_group_url) && <p className="text-xs text-slate-500 mt-2.5 truncate">grupo: <span className="text-slate-300">{don.last_group || String(don.lock_group_url || "").slice(0, 48)}</span></p>}</div>}
+          {don.active && <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.04] p-3.5"><div className="flex items-center gap-2 mb-1.5"><LiveDot color="#fbbf24" /><h3 className="text-xs font-bold text-amber-300">Captação Donizete ATIVA</h3></div><p className="text-[11px] text-zinc-500 truncate">{don.cycles || 0} ciclos · grupo: {don.last_group || "—"}</p></div>}
         </aside>
       </div>
     </React.Fragment>
@@ -135,22 +281,280 @@ function TasksTab() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Kanban de tasks <span className="text-slate-600 normal-case font-normal">· {total} tasks</span></h2>
+        <SectionTitle>Kanban de tasks · {total}</SectionTitle>
         <div className="ml-auto flex items-center gap-2">
-          <input value={novo} onChange={(e) => setNovo(e.target.value)} onKeyDown={(e) => e.key === "Enter" && criar()} placeholder="Nova task (título)…" className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-sm w-56 focus:outline-none focus:border-sky-500/50" />
-          <button onClick={criar} className="text-sm px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 text-white font-semibold">+ criar</button>
+          <input value={novo} onChange={(e) => setNovo(e.target.value)} onKeyDown={(e) => e.key === "Enter" && criar()} placeholder="Nova task (título)…" className={inputCls + " w-56"} />
+          <button onClick={criar} className={btnPrimary}>+ criar</button>
         </div>
       </div>
-      {msg && <p className="text-xs text-slate-400 mb-3 font-mono">{msg}</p>}
-      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))" }}>
+      {msg && <p className="text-xs text-zinc-400 mb-3 font-mono">{msg}</p>}
+      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))" }}>
         {COLS.map((col) => { const cards = cols[col.key] || [];
-          return <div key={col.key} className="rounded-2xl bg-slate-900/40 border border-white/5 p-3 min-h-[120px]">
-            <div className="flex items-center justify-between mb-2"><span className="text-xs font-bold uppercase tracking-wider text-slate-400">{col.label}</span><span className="text-[10px] text-slate-600 tabular-nums">{cards.length}</span></div>
+          return <div key={col.key} className="rounded-xl bg-panel/60 border border-line p-3 min-h-[120px]">
+            <div className="flex items-center justify-between mb-2"><span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">{col.label}</span><span className="text-[10px] text-zinc-600 tabular-nums">{cards.length}</span></div>
             <div className="space-y-2">
-              {cards.length === 0 && <p className="text-xs text-slate-600 italic">vazio</p>}
-              {cards.map((c) => <div key={c.id} className="rounded-xl bg-slate-900/70 border border-white/5 p-2.5"><div className="font-mono text-[11px] text-sky-300">{c.id}</div><div className="text-xs text-slate-200 mt-0.5 leading-snug line-clamp-2">{c.title || "—"}</div><select value={col.key} onChange={(e) => move(c.id, e.target.value)} className="mt-2 w-full bg-slate-800 border border-white/5 rounded text-[10px] text-slate-400 px-1 py-1 focus:outline-none"><option value={col.key} disabled>mover →</option>{COLS.filter((x) => x.key !== col.key).map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}</select></div>)}
+              {cards.length === 0 && <p className="text-xs text-zinc-600 italic">vazio</p>}
+              {cards.map((c) => <div key={c.id} className="rounded-lg bg-ink border border-line p-2.5"><div className="font-mono text-[11px] text-indigo-300">{c.id}</div><div className="text-xs text-zinc-200 mt-0.5 leading-snug line-clamp-2">{c.title || "—"}</div><select value={col.key} onChange={(e) => move(c.id, e.target.value)} className="mt-2 w-full bg-panel border border-line rounded text-[10px] text-zinc-400 px-1 py-1 focus:outline-none"><option value={col.key} disabled>mover →</option>{COLS.filter((x) => x.key !== col.key).map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}</select></div>)}
             </div>
           </div>; })}
+      </div>
+    </div>
+  );
+}
+
+// ── TAB: CRM (lista | kanban do funil) ───────────────────────────────────────
+const SEGMENTS = [
+  { key: "", label: "Todos" },
+  { key: "crm_laboratorio", label: "Laboratório" },
+];
+const FILE_TIPOS = ["material", "foto_trabalho", "playbook", "documento", "logo", "screenshot_perfil", "outro"];
+function StatusSelect({ value, onChange, className }) {
+  return (
+    <select value={value} onChange={onChange} className={className}>
+      {GRUPOS.map((g) => <optgroup key={g.id} label={g.label}>{g.status.map((s) => <option key={s} value={s}>{FUNIL_LABEL[s]}</option>)}</optgroup>)}
+    </select>
+  );
+}
+function FileCard({ f, onApprove, onDelete }) {
+  const isImg = String(f.mime || "").startsWith("image") || /\.(png|jpe?g|webp|gif)$/i.test(f.storage_path || "");
+  return (
+    <div className={"rounded-xl border overflow-hidden group relative " + (f.aprovado === true ? "border-emerald-500/40" : f.aprovado === false ? "border-rose-500/30 opacity-60" : "border-line")}>
+      <button onClick={() => onDelete(f.id)} title="remover arquivo" className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-black/60 text-[10px] text-zinc-300 opacity-0 group-hover:opacity-100 hover:text-rose-300">🗑</button>
+      <a href={f.url} target="_blank" rel="noreferrer" className="block aspect-square bg-black/40 flex items-center justify-center overflow-hidden">
+        {isImg && f.url ? <img src={f.url} loading="lazy" alt={f.tipo} className="w-full h-full object-cover" /> : <span className="text-3xl">📄</span>}
+      </a>
+      <div className="p-1.5">
+        <div className="text-[9px] text-zinc-500 truncate">{f.tipo}</div>
+        <div className="flex gap-1 mt-1">
+          <button onClick={() => onApprove(f.id, true)} className={"flex-1 text-[10px] rounded py-1 " + (f.aprovado === true ? "bg-emerald-500/20 text-emerald-300" : "bg-white/5 text-zinc-400 hover:text-emerald-300")}>✓</button>
+          <button onClick={() => onApprove(f.id, false)} className={"flex-1 text-[10px] rounded py-1 " + (f.aprovado === false ? "bg-rose-500/20 text-rose-300" : "bg-white/5 text-zinc-400 hover:text-rose-300")}>✕</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function CrmKanban({ leads, onPick, onMove, busyId }) {
+  return (
+    <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(215px,1fr))" }}>
+      {GRUPOS.map((g) => {
+        const cards = leads.filter((l) => g.status.includes(l.status));
+        return <div key={g.id} className="rounded-xl bg-panel/60 border border-line p-3 min-h-[140px]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: g.color }}>{g.label}</span>
+            <span className="text-[10px] text-zinc-600 tabular-nums">{cards.length}</span>
+          </div>
+          <div className="space-y-2">
+            {cards.length === 0 && <p className="text-xs text-zinc-600 italic">vazio</p>}
+            {cards.slice(0, 30).map((l) => (
+              <div key={l.id} className="rounded-lg bg-ink border border-line p-2.5">
+                <button onClick={() => onPick(l.id)} className="block w-full text-left">
+                  <div className="flex items-center gap-1.5"><span className="font-semibold text-xs text-zinc-100 truncate">{l.nome || l.id}</span></div>
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap"><StatusBadge status={l.status} />{l.cidade && <span className="text-[10px] text-zinc-500 truncate">{l.cidade}</span>}</div>
+                </button>
+                <StatusSelect value={l.status} onChange={(e) => onMove(l.id, e.target.value)} className={"mt-2 w-full bg-panel border border-line rounded text-[10px] text-zinc-400 px-1 py-1 focus:outline-none " + (busyId === l.id ? "opacity-40" : "")} />
+              </div>
+            ))}
+            {cards.length > 30 && <p className="text-[10px] text-zinc-600 text-center">+{cards.length - 30} na lista</p>}
+          </div>
+        </div>;
+      })}
+    </div>
+  );
+}
+function CrmTab({ leads, reloadLeads, selLead, setSelLead }) {
+  const [seg, setSeg] = useState("");
+  const [view, setView] = useState("kanban");
+  const [detail, setDetail] = useState(null);
+  const [q, setQ] = useState("");
+  const [busy, setBusy] = useState("");
+  const [busyId, setBusyId] = useState("");
+  const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState({});
+  const [upTipo, setUpTipo] = useState("material");
+  const fileRef = useRef(null);
+  const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const loadDetail = useCallback(async (id) => {
+    setSelLead(id); setDetail(null); setEdit(false); setBusy("");
+    try { const r = await authFetch("/api/crm/leads/" + id); if (r.ok) setDetail(await r.json()); } catch (e) {}
+  }, [setSelLead]);
+  useEffect(() => { if (selLead && (!detail || (detail.lead && detail.lead.id !== selLead))) loadDetail(selLead); }, [selLead]);
+  async function moveStatus(id, status) {
+    setBusyId(id);
+    try { await authFetch("/api/crm/leads/" + id, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) }); } catch (e) {}
+    setBusyId(""); reloadLeads(); if (selLead === id) loadDetail(id);
+  }
+  async function approve(fid, ap) { try { await authFetch("/api/crm/leads/" + selLead + "/files/" + fid + "/aprovar?aprovado=" + ap, { method: "POST" }); if (selLead) loadDetail(selLead); } catch (e) {} }
+  async function delFile(fid) { if (!selLead || !confirm("Remover este arquivo?")) return; try { await authFetch("/api/crm/leads/" + selLead + "/files/" + fid, { method: "DELETE" }); loadDetail(selLead); } catch (e) {} }
+  async function analisar() {
+    if (!selLead || busy) return; setBusy("analisando com IA…");
+    try { const r = await authFetch("/api/crm/leads/" + selLead + "/analisar", { method: "POST" }); if (r.ok) { loadDetail(selLead); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro de rede"); setTimeout(() => setBusy(""), 4000); }
+  }
+  function startEdit() {
+    setForm({ nome: d.nome || "", cidade: d.cidade || "", contato: d.contato || "", status: d.status || "novo", perfil: an.perfil || "", resumo_abordagem: an.resumo_abordagem || "" });
+    setEdit(true);
+  }
+  async function saveEdit() {
+    setBusy("salvando…");
+    try { const r = await authFetch("/api/crm/leads/" + selLead, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); if (r.ok) { setEdit(false); setBusy(""); loadDetail(selLead); reloadLeads(); } else { const j = await r.json(); setBusy("falha: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
+  }
+  async function onUpload(e) {
+    const file = e.target.files && e.target.files[0]; if (!file || !selLead) return;
+    setBusy("enviando " + file.name + "…");
+    try { const r = await authFetch("/api/crm/leads/" + selLead + "/arquivos?nome=" + encodeURIComponent(file.name) + "&tipo=" + encodeURIComponent(upTipo), { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file }); if (r.ok) { setBusy(""); loadDetail(selLead); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (er) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
+    e.target.value = "";
+  }
+  const segLeads = leads.filter((l) => !seg || l.segment === seg);
+  const filtered = segLeads.filter((l) => !q || (l.nome || "").toLowerCase().includes(q.toLowerCase()) || (l.id || "").toLowerCase().includes(q.toLowerCase()));
+  const d = detail && detail.lead, an = (detail && detail.analise) || {}, files = (detail && detail.arquivos) || [];
+  const az = an.analise && typeof an.analise === "object" ? an.analise : {};
+  const working = busy && busy.endsWith("…");
+  const detailPane = detail && d && (
+    <div className="space-y-5">
+      <div className="rounded-xl border border-line bg-panel p-4">
+        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-lg font-bold text-white truncate">{d.nome || d.id}</h2><div className="text-xs text-zinc-500 font-mono mt-0.5">{d.id} · {d.segment}</div></div><StatusBadge status={d.status} /></div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <Field label="Cidade" v={d.cidade} /><Field label="Contato" v={d.contato} /><Field label="Status" v={FUNIL_LABEL[d.status] || d.status} /><Field label="Próx. ação" v={d.proxima_acao} />
+        </div>
+        <div className="flex items-center gap-2 mt-4 flex-wrap">
+          <button onClick={analisar} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-violet-500/80 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold">✨ Analisar IA</button>
+          {!edit && <button onClick={startEdit} className={btnGhost + " text-xs"}>✎ Editar</button>}
+          <button onClick={() => setSelLead(null) || setDetail(null)} className="text-xs px-2 py-1.5 text-zinc-500 hover:text-zinc-300">fechar</button>
+          {busy && <span className={"text-xs " + (working ? "text-zinc-400" : "text-rose-400")}>{busy}</span>}
+        </div>
+      </div>
+      <div className="rounded-xl border border-line bg-panel p-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">{edit ? "Editar lead" : "Como abordar"}</h3>
+        {edit
+          ? <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
+                <label className="text-[10px] uppercase tracking-wider text-zinc-500">Nome<input value={form.nome} onChange={(e) => setF("nome", e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+                <label className="text-[10px] uppercase tracking-wider text-zinc-500">Contato<input value={form.contato} onChange={(e) => setF("contato", e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+                <label className="text-[10px] uppercase tracking-wider text-zinc-500">Cidade<input value={form.cidade} onChange={(e) => setF("cidade", e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+                <label className="text-[10px] uppercase tracking-wider text-zinc-500">Status<StatusSelect value={form.status} onChange={(e) => setF("status", e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+              </div>
+              <label className="block text-[10px] uppercase tracking-wider text-zinc-500">Perfil<input value={form.perfil} onChange={(e) => setF("perfil", e.target.value)} placeholder="ex.: clínica odontológica" className={"mt-1 w-full " + inputCls} /></label>
+              <label className="block text-[10px] uppercase tracking-wider text-zinc-500">Como abordar<textarea value={form.resumo_abordagem} onChange={(e) => setF("resumo_abordagem", e.target.value)} rows={3} className={"mt-1 w-full " + inputCls} /></label>
+              <div className="flex gap-2"><button onClick={saveEdit} disabled={working} className={btnPrimary + " text-xs"}>Salvar</button><button onClick={() => setEdit(false)} className={btnGhost + " text-xs"}>Cancelar</button></div>
+            </div>
+          : <React.Fragment>
+              {an.resumo_abordagem ? <p className="text-sm text-zinc-200 leading-snug whitespace-pre-wrap">{an.resumo_abordagem}</p> : <p className="text-xs text-zinc-600">sem análise ainda — use ✨ Analisar IA ou ✎ Editar</p>}
+              {(az.ganchos || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Ganchos pro Caio</div><ul className="text-xs text-zinc-300 space-y-0.5 list-disc list-inside">{az.ganchos.map((g, i) => <li key={i}>{g}</li>)}</ul></div>}
+              {(az.objecoes || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Objeções · contorno</div><ul className="text-xs text-zinc-300 space-y-0.5 list-disc list-inside">{az.objecoes.map((o, i) => <li key={i}>{o}</li>)}</ul></div>}
+              {(az.dor || az.melhor_canal || az.tom) && <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-[11px] text-zinc-500">{az.dor && <span>dor: <span className="text-zinc-400">{az.dor}</span></span>}{az.melhor_canal && <span>canal: <span className="text-zinc-400">{az.melhor_canal}</span></span>}{az.tom && <span>tom: <span className="text-zinc-400">{az.tom}</span></span>}</div>}
+              {az.link_perfil && <a href={az.link_perfil} target="_blank" rel="noreferrer" className="inline-block mt-3 text-xs text-indigo-300 hover:text-indigo-200">🔗 Ver perfil do lead</a>}
+            </React.Fragment>}
+      </div>
+      <div>
+        <div className="flex items-center justify-between mb-2 gap-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Arquivos <span className="text-zinc-600 normal-case font-normal">· {files.length}</span></h3>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <select value={upTipo} onChange={(e) => setUpTipo(e.target.value)} className={inputCls + " text-[11px]"}>{FILE_TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}</select>
+            <button onClick={() => fileRef.current && fileRef.current.click()} disabled={working} className={btnGhost + " text-xs"}>⬆ Enviar</button>
+          </div>
+          <input ref={fileRef} type="file" onChange={onUpload} className="hidden" />
+        </div>
+        {files.length === 0 && <p className="text-xs text-zinc-600">sem arquivos ainda</p>}
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">{files.map((f) => <FileCard key={f.id} f={f} onApprove={approve} onDelete={delFile} />)}</div>
+      </div>
+    </div>
+  );
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {SEGMENTS.map((s) => <button key={s.key} onClick={() => setSeg(s.key)} className={"text-xs px-2.5 py-1 rounded-full " + (seg === s.key ? "bg-indigo-500/90 text-white" : "bg-white/5 text-zinc-400 hover:text-zinc-200")}>{s.label}</button>)}
+        <div className="rounded-lg border border-line bg-panel p-0.5 flex">
+          {[["kanban", "Kanban"], ["lista", "Lista"]].map(([k, lab]) => <button key={k} onClick={() => setView(k)} className={"text-xs px-3 py-1 rounded-md " + (view === k ? "bg-white/10 text-white font-semibold" : "text-zinc-500 hover:text-zinc-300")}>{lab}</button>)}
+        </div>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="buscar nome/id…" className={inputCls + " ml-auto w-48"} />
+        <span className="text-[11px] text-zinc-600 tabular-nums">{filtered.length} leads</span>
+      </div>
+      {selLead && detailPane && <div className="mb-5">{detailPane}</div>}
+      {selLead && !detail && <div className="mb-5 rounded-xl border border-line bg-panel p-6 text-center text-sm text-zinc-500">carregando lead…</div>}
+      {view === "kanban"
+        ? <CrmKanban leads={filtered} onPick={loadDetail} onMove={moveStatus} busyId={busyId} />
+        : <div className="space-y-1.5 max-w-3xl">
+            {filtered.length === 0 && <p className="text-xs text-zinc-600 text-center py-6">nenhum lead</p>}
+            {filtered.map((l) => <button key={l.id} onClick={() => loadDetail(l.id)} className={"w-full text-left rounded-xl border p-2.5 transition " + (selLead === l.id ? "border-indigo-400/40 bg-indigo-400/[0.06]" : "border-line bg-panel hover:bg-white/5")}>
+              <div className="flex items-center gap-2"><span className="font-semibold text-sm text-zinc-100 truncate">{l.nome || l.id}</span><StatusBadge status={l.status} />{l.arquivos > 0 && <span className="text-[10px] px-1.5 rounded bg-white/5 text-zinc-400 shrink-0">📎 {l.arquivos}</span>}<span className="ml-auto text-[11px] text-zinc-500 truncate">{l.cidade || ""}</span></div>
+            </button>)}
+          </div>}
+    </div>
+  );
+}
+
+// ── TAB: atendimento (inbox WhatsApp · leitura) ──────────────────────────────
+function AtendimentoTab({ snap, leads, openLead }) {
+  const threads = (snap && snap.whatsapp_threads) || [];
+  const [sel, setSel] = useState(null);
+  const t = threads.find((x) => x.phone === sel) || null;
+  const lead = t ? (leads || []).find((l) => digits(l.contato).slice(-8) && digits(l.contato).slice(-8) === digits(t.phone).slice(-8)) : null;
+  return (
+    <div className="grid lg:grid-cols-3 gap-5">
+      <section className="lg:col-span-1">
+        <SectionTitle right={<span className="text-xs text-zinc-500">{threads.length} conversas</span>}>Conversas</SectionTitle>
+        <div className="space-y-1.5 max-h-[70vh] overflow-y-auto pr-1">
+          {threads.length === 0 && <p className="text-xs text-zinc-600 text-center py-6">sem conversas recentes</p>}
+          {threads.map((th) => {
+            const ld = (leads || []).find((l) => digits(l.contato).slice(-8) && digits(l.contato).slice(-8) === digits(th.phone).slice(-8));
+            return <button key={th.phone} onClick={() => setSel(th.phone)} className={"w-full text-left rounded-xl border p-2.5 transition " + (sel === th.phone ? "border-indigo-400/40 bg-indigo-400/[0.06]" : "border-line bg-panel hover:bg-white/5")}>
+              <div className="flex items-center gap-2"><span className="font-semibold text-sm text-zinc-100 truncate">{ld ? ld.nome : "+" + th.phone}</span><span className="ml-auto font-mono text-[10px] text-zinc-600">{relTime(th.datetime)}</span></div>
+              <p className="text-[11px] text-zinc-500 truncate mt-0.5">{th.last_inbound || th.last_outbound || "—"}</p>
+              <div className="flex items-center gap-1.5 mt-1">{ld && <StatusBadge status={ld.status} />}<span className="text-[10px] text-zinc-600">{th.message_count} msg</span></div>
+            </button>;
+          })}
+        </div>
+      </section>
+      <section className="lg:col-span-2">
+        {!t && <div className="rounded-xl border border-line bg-panel p-10 text-center text-zinc-500 text-sm">Selecione uma conversa. <span className="block mt-1 text-xs text-zinc-600">Leitura — o envio é dos agentes (Caio responde inbound; abordagem via templates aprovados).</span></div>}
+        {t && <div>
+          <div className="rounded-xl border border-line bg-panel p-3.5 mb-3 flex items-center gap-3 flex-wrap">
+            <div className="min-w-0"><div className="font-bold text-zinc-100">{lead ? lead.nome : "+" + t.phone}</div><div className="text-[11px] text-zinc-500 font-mono">+{t.phone}</div></div>
+            {lead && <StatusBadge status={lead.status} />}
+            {lead && <button onClick={() => openLead(lead.id)} className={btnGhost + " text-xs ml-auto"}>abrir no CRM →</button>}
+          </div>
+          <div className="space-y-2.5 max-h-[58vh] overflow-y-auto pr-1 flex flex-col-reverse">
+            {(t.messages || []).map((m, i) => (
+              <div key={i} className="space-y-1.5">
+                {m.inbound && <div className="flex"><div className="bg-panel border border-line rounded-2xl rounded-bl-sm px-3.5 py-2 text-sm text-zinc-200 max-w-[80%] whitespace-pre-wrap leading-snug">{m.inbound}<div className="text-[9px] text-zinc-600 font-mono mt-1">{m.datetime}</div></div></div>}
+                {m.outbound && <div className="flex justify-end"><div className="bg-emerald-500/10 border border-emerald-400/20 rounded-2xl rounded-br-sm px-3.5 py-2 text-sm text-zinc-100 max-w-[80%] whitespace-pre-wrap leading-snug">{m.outbound}<div className="text-[9px] text-zinc-600 font-mono mt-1 text-right">{m.datetime} · {m.status}</div></div></div>}
+              </div>
+            ))}
+          </div>
+        </div>}
+      </section>
+    </div>
+  );
+}
+
+// ── TAB: marketing (esteira de conteúdo) ─────────────────────────────────────
+function MarketingTab({ snap }) {
+  const queue = (snap && snap.content_queue) || [];
+  const approvals = ((snap && snap.approvals_pending) || []).filter((a) => a.kind === "content_publish");
+  const pending = queue.filter((q) => q.status === "pending");
+  const published = queue.filter((q) => q.status === "published").reverse();
+  function card(q, tag, tagColor) {
+    return <div key={q.id} className="rounded-xl border border-line bg-panel p-3">
+      <div className="flex items-center gap-2"><span style={{ color: tagColor, background: tagColor + "14", borderColor: tagColor + "33" }} className="text-[10px] px-1.5 py-0.5 rounded-full border">{tag}</span><span className="text-[10px] font-mono text-zinc-600">{q.kind}</span><span className="ml-auto font-mono text-[10px] text-zinc-600">{relTime(q.published_at || q.created_at)}</span></div>
+      {q.mp4_url && <video controls preload="none" src={q.mp4_url} className="mt-2 w-full max-h-52 rounded-lg bg-black" />}
+      <p className="text-xs text-zinc-400 mt-2 line-clamp-3 whitespace-pre-wrap">{q.caption || q.roteiro || "—"}</p>
+      {q.post_id && <p className="text-[10px] text-zinc-600 font-mono mt-1">post {q.post_id} · slot {q.slot || "—"}</p>}
+    </div>;
+  }
+  return (
+    <div>
+      <div className="rounded-xl border border-line bg-panel p-4 mb-5 flex items-center gap-4 flex-wrap">
+        <div><div className="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold">Esteira de Conteúdo</div><div className="text-xs text-zinc-400 mt-0.5">gera ~07:00 · sua aprovação → fila · publica nos slots <span className="font-mono text-zinc-300">08:00 · 12:30 · 19:00</span></div></div>
+        <div className="ml-auto flex gap-5 text-center">
+          <div><div className="text-xl font-bold text-amber-300 tabular-nums">{approvals.length}</div><div className="text-[10px] text-zinc-500">aguardando você</div></div>
+          <div><div className="text-xl font-bold text-sky-300 tabular-nums">{pending.length}</div><div className="text-[10px] text-zinc-500">na fila do slot</div></div>
+          <div><div className="text-xl font-bold text-emerald-300 tabular-nums">{published.length}</div><div className="text-[10px] text-zinc-500">publicados</div></div>
+        </div>
+      </div>
+      {approvals.length > 0 && <p className="text-xs text-amber-300/90 mb-4">▲ {approvals.length} peça(s) esperando aprovação — decida na <b>Fila Quente</b> (Operação ao Vivo).</p>}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {pending.map((q) => card(q, "na fila", "#38bdf8"))}
+        {published.map((q) => card(q, "publicado", "#34d399"))}
+        {queue.length === 0 && <div className="sm:col-span-2 lg:col-span-3 rounded-xl border border-line bg-panel p-8 text-center text-sm text-zinc-500">Nenhuma peça na esteira ainda — a próxima geração automática é ~07:00.</div>}
       </div>
     </div>
   );
@@ -172,13 +576,13 @@ function ComunicacaoTab() {
   const ron = resolve("ronaldo_maestro");
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-4"><Avatar a={ron} size={40} /><div><h2 className="text-sm font-bold text-slate-200">Falar com o Ronaldo</h2><p className="text-xs text-slate-500">comando/pergunta sobre a operação · ele consulta a memória, CRM e tasks</p></div></div>
-      <div className="flex gap-2 mb-4"><input value={cmd} onChange={(e) => setCmd(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="ex.: status de hoje · quantos leads quentes · criar task de X" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-500/50" /><button onClick={send} disabled={busy} className="px-4 py-2.5 rounded-xl bg-sky-600/80 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold text-sm">{busy ? "…" : "Enviar"}</button></div>
+      <div className="flex items-center gap-3 mb-4"><Avatar a={ron} size={40} /><div><h2 className="text-sm font-bold text-zinc-200">Falar com o Ronaldo</h2><p className="text-xs text-zinc-500">comando/pergunta sobre a operação · ele consulta memória, CRM e tasks</p></div></div>
+      <div className="flex gap-2 mb-4"><input value={cmd} onChange={(e) => setCmd(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="ex.: status de hoje · leads quentes · criar task de X" className={"flex-1 " + inputCls + " px-4 py-2.5"} /><button onClick={send} disabled={busy} className={btnPrimary + " px-4 py-2.5"}>{busy ? "…" : "Enviar"}</button></div>
       <div className="space-y-3">
-        {log.length === 0 && <p className="text-sm text-slate-600 text-center py-8">Mande um comando — ex.: "resumo da operação agora".</p>}
+        {log.length === 0 && <p className="text-sm text-zinc-600 text-center py-8">Mande um comando — ex.: "resumo da operação agora".</p>}
         {log.map((m, i) => m.who === "you"
-          ? <div key={i} className="flex justify-end"><div className="bg-sky-600/15 border border-sky-500/20 rounded-2xl rounded-br-sm px-4 py-2 text-sm text-slate-100 max-w-[80%]">{m.text}</div></div>
-          : <div key={i} className="flex items-start gap-2"><Avatar a={ron} size={28} /><div className="bg-slate-900/60 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-2 text-sm text-slate-200 max-w-[85%] whitespace-pre-wrap leading-snug">{m.text}<button onClick={() => speak(m.text)} className="ml-2 text-slate-500 hover:text-sky-400" title="Ouvir">🔊</button></div></div>)}
+          ? <div key={i} className="flex justify-end"><div className="bg-indigo-500/15 border border-indigo-400/20 rounded-2xl rounded-br-sm px-4 py-2 text-sm text-zinc-100 max-w-[80%]">{m.text}</div></div>
+          : <div key={i} className="flex items-start gap-2"><Avatar a={ron} size={28} /><div className="bg-panel border border-line rounded-2xl rounded-bl-sm px-4 py-2 text-sm text-zinc-200 max-w-[85%] whitespace-pre-wrap leading-snug">{m.text}<button onClick={() => speak(m.text)} className="ml-2 text-zinc-500 hover:text-indigo-300" title="Ouvir">🔊</button></div></div>)}
       </div>
     </div>
   );
@@ -189,13 +593,12 @@ function MapaTab({ snap }) {
   const agents = (snap && snap.agents) || [];
   const stat = {}; agents.forEach((a) => { stat[resolve(a.id).id] = a.status; });
   const specialists = ORDER.filter((id) => id !== "ronaldo_maestro");
-  const ron = { id: "ronaldo_maestro", ...AGENTS.ronaldo_maestro };
   function card(id) { const a = { id, ...AGENTS[id] }; const active = WORKING.has(stat[id]);
-    return <div className="rounded-2xl border border-white/5 bg-slate-900/50 p-4 flex flex-col items-center gap-2 text-center"><div className="relative"><Avatar a={a} size={48} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div><div className="font-semibold text-slate-100">{a.name}</div><div className="text-[11px] text-slate-500">{a.role}</div></div><span className={"text-[10px] px-2 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : "bg-white/5 text-slate-500")}>{stat[id] || "aguardando"}</span></div>;
+    return <div className="rounded-xl border border-line bg-panel p-4 flex flex-col items-center gap-2 text-center"><div className="relative"><Avatar a={a} size={48} />{active && <span className="absolute -right-0.5 -top-0.5"><LiveDot color={a.color} /></span>}</div><div><div className="font-semibold text-zinc-100">{a.name}</div><div className="text-[11px] text-zinc-500">{a.role}</div></div><span className={"text-[10px] px-2 py-0.5 rounded-full " + (active ? "bg-emerald-500/15 text-emerald-400" : "bg-white/5 text-zinc-500")}>{stat[id] || "aguardando"}</span></div>;
   }
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="text-center mb-6"><h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Mapa de agentes</h2><p className="text-xs text-slate-500 mt-1">Ronaldo orquestra; os especialistas executam.</p></div>
+      <div className="text-center mb-6"><SectionTitle>Mapa de agentes</SectionTitle><p className="text-xs text-zinc-500 -mt-1">Ronaldo orquestra; os especialistas executam. Fluxo comercial: Donizete → Juarez → Ronaldo → Vitor → Caio.</p></div>
       <div className="max-w-xs mx-auto mb-2">{card("ronaldo_maestro")}</div>
       <div className="flex justify-center mb-2"><div className="w-px h-6 bg-white/10" /></div>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">{specialists.map((id) => <div key={id}>{card(id)}</div>)}</div>
@@ -203,195 +606,167 @@ function MapaTab({ snap }) {
   );
 }
 
-// ── TAB: CRM (leads · análise · arquivos) ────────────────────────────────────
-const SEGMENTS = [
-  { key: "", label: "Todos" },
-  { key: "crm_landing_pintor", label: "Pintores" },
-  { key: "crm_laboratorio", label: "Laboratório" },
-];
-const STATUSES = ["prospectado", "abordado", "ativo", "pronto_pra_pagina", "previa_no_ar", "recusou"];
-const FILE_TIPOS = ["material", "foto_trabalho", "playbook", "documento", "logo", "screenshot_perfil", "outro"];
-function Field({ label, v }) {
-  return <div><div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div><div className="text-sm text-slate-200 break-words">{v || "—"}</div></div>;
-}
-function FileCard({ f, onApprove, onDelete }) {
-  const isImg = String(f.mime || "").startsWith("image") || /\.(png|jpe?g|webp|gif)$/i.test(f.storage_path || "");
+// ── modais (nova task · novo lead) ───────────────────────────────────────────
+function Modal({ title, onClose, children }) {
   return (
-    <div className={"rounded-xl border overflow-hidden group relative " + (f.aprovado === true ? "border-emerald-500/40" : f.aprovado === false ? "border-rose-500/30 opacity-60" : "border-white/5")}>
-      <button onClick={() => onDelete(f.id)} title="remover arquivo" className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-black/60 text-[10px] text-slate-300 opacity-0 group-hover:opacity-100 hover:text-rose-300">🗑</button>
-      <a href={f.url} target="_blank" rel="noreferrer" className="block aspect-square bg-slate-950 flex items-center justify-center overflow-hidden">
-        {isImg && f.url ? <img src={f.url} loading="lazy" alt={f.tipo} className="w-full h-full object-cover" /> : <span className="text-3xl">📄</span>}
-      </a>
-      <div className="p-1.5">
-        <div className="text-[9px] text-slate-500 truncate">{f.tipo}</div>
-        <div className="flex gap-1 mt-1">
-          <button onClick={() => onApprove(f.id, true)} className={"flex-1 text-[10px] rounded py-1 " + (f.aprovado === true ? "bg-emerald-500/20 text-emerald-300" : "bg-white/5 text-slate-400 hover:text-emerald-300")}>✓</button>
-          <button onClick={() => onApprove(f.id, false)} className={"flex-1 text-[10px] rounded py-1 " + (f.aprovado === false ? "bg-rose-500/20 text-rose-300" : "bg-white/5 text-slate-400 hover:text-rose-300")}>✕</button>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-line bg-panel p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4"><h3 className="font-bold text-zinc-100">{title}</h3><button onClick={onClose} className="text-zinc-500 hover:text-zinc-200">✕</button></div>
+        {children}
       </div>
     </div>
   );
 }
-function CrmTab() {
-  const [seg, setSeg] = useState("");
-  const [leads, setLeads] = useState([]);
-  const [sel, setSel] = useState(null);
-  const [detail, setDetail] = useState(null);
-  const [q, setQ] = useState("");
-  const [busy, setBusy] = useState("");
-  const [edit, setEdit] = useState(false);
-  const [form, setForm] = useState({});
-  const [upTipo, setUpTipo] = useState("material");
-  const fileRef = useRef(null);
-  const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const loadList = useCallback(async () => {
-    try { const r = await authFetch("/api/crm/leads" + (seg ? "?segment=" + seg : "")); if (r.ok) setLeads((await r.json()).leads || []); } catch (e) {}
-  }, [seg]);
-  useEffect(() => { loadList(); }, [loadList]);
-  const loadDetail = useCallback(async (id) => {
-    setSel(id); setDetail(null); setEdit(false); setBusy("");
-    try { const r = await authFetch("/api/crm/leads/" + id); if (r.ok) setDetail(await r.json()); } catch (e) {}
-  }, []);
-  async function approve(fid, ap) {
-    try { await authFetch("/api/crm/leads/" + sel + "/files/" + fid + "/aprovar?aprovado=" + ap, { method: "POST" }); if (sel) loadDetail(sel); } catch (e) {}
+function NovoLeadModal({ onClose, onDone }) {
+  const [f, setFm] = useState({ nome: "", contato: "", cidade: "", servico: "", observacoes: "" });
+  const [busy, setBusy] = useState(""); const set = (k, v) => setFm((x) => ({ ...x, [k]: v }));
+  async function save() {
+    if (!f.nome.trim()) { setBusy("nome é obrigatório"); return; }
+    setBusy("criando…");
+    try { const r = await authFetch("/api/crm/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) }); const j = await r.json(); if (r.ok) { onDone(j.lead); onClose(); } else setBusy("falha: " + (j.detail || "erro")); } catch (e) { setBusy("erro: " + e); }
   }
-  async function delFile(fid) {
-    if (!sel || !confirm("Remover este arquivo?")) return;
-    try { await authFetch("/api/crm/leads/" + sel + "/files/" + fid, { method: "DELETE" }); loadDetail(sel); } catch (e) {}
-  }
-  async function analisar() {
-    if (!sel || busy) return; setBusy("analisando com IA…");
-    try { const r = await authFetch("/api/crm/leads/" + sel + "/analisar", { method: "POST" }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro de rede"); setTimeout(() => setBusy(""), 4000); }
-  }
-  function startEdit() {
-    setForm({ nome: d.nome || "", cidade: d.cidade || "", contato: d.contato || "", status: d.status || "prospectado", perfil: an.perfil || "", resumo_abordagem: an.resumo_abordagem || "" });
-    setEdit(true);
-  }
-  async function saveEdit() {
-    setBusy("salvando…");
-    try { const r = await authFetch("/api/crm/leads/" + sel, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); if (r.ok) { setEdit(false); loadDetail(sel); loadList(); } else { const j = await r.json(); setBusy("falha: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (e) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
-  }
-  async function onUpload(e) {
-    const file = e.target.files && e.target.files[0]; if (!file || !sel) return;
-    setBusy("enviando " + file.name + "…");
-    try { const r = await authFetch("/api/crm/leads/" + sel + "/arquivos?nome=" + encodeURIComponent(file.name) + "&tipo=" + encodeURIComponent(upTipo), { method: "POST", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file }); if (r.ok) { loadDetail(sel); } else { const j = await r.json(); setBusy("falhou: " + (j.detail || "erro")); setTimeout(() => setBusy(""), 4000); } } catch (er) { setBusy("erro"); setTimeout(() => setBusy(""), 3000); }
-    e.target.value = "";
-  }
-  const filtered = leads.filter((l) => !q || (l.nome || "").toLowerCase().includes(q.toLowerCase()) || (l.id || "").toLowerCase().includes(q.toLowerCase()));
-  const d = detail && detail.lead, an = (detail && detail.analise) || {}, files = (detail && detail.arquivos) || [];
-  const az = an.analise && typeof an.analise === "object" ? an.analise : {};
-  const working = busy && busy.endsWith("…");
   return (
-    <div className="grid lg:grid-cols-3 gap-5">
-      <section className="lg:col-span-1">
-        <div className="flex items-center gap-1 mb-3 flex-wrap">
-          {SEGMENTS.map((s) => <button key={s.key} onClick={() => setSeg(s.key)} className={"text-xs px-2.5 py-1 rounded-full " + (seg === s.key ? "bg-sky-600/80 text-white" : "bg-white/5 text-slate-400 hover:text-slate-200")}>{s.label}</button>)}
-          <span className="ml-auto text-[11px] text-slate-600 tabular-nums">{filtered.length}</span>
+    <Modal title="Novo lead — CRM Laboratório" onClose={onClose}>
+      <div className="space-y-2.5">
+        {[["nome", "Nome do negócio *"], ["contato", "WhatsApp/contato"], ["cidade", "Cidade"], ["servico", "Serviço/segmento"]].map(([k, lab]) => (
+          <label key={k} className="block text-[10px] uppercase tracking-wider text-zinc-500">{lab}<input value={f[k]} onChange={(e) => set(k, e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+        ))}
+        <label className="block text-[10px] uppercase tracking-wider text-zinc-500">Observações<textarea value={f.observacoes} onChange={(e) => set("observacoes", e.target.value)} rows={2} className={"mt-1 w-full " + inputCls} /></label>
+        {busy && <p className="text-xs text-zinc-400">{busy}</p>}
+        <div className="flex gap-2 pt-1"><button onClick={save} className={btnPrimary}>Criar lead</button><button onClick={onClose} className={btnGhost}>Cancelar</button></div>
+      </div>
+    </Modal>
+  );
+}
+function NovaTaskModal({ onClose }) {
+  const [f, setFm] = useState({ titulo: "", objetivo: "", agente: "", prioridade: "media" });
+  const [busy, setBusy] = useState(""); const set = (k, v) => setFm((x) => ({ ...x, [k]: v }));
+  async function save() {
+    if (!f.titulo.trim()) { setBusy("título é obrigatório"); return; }
+    setBusy("criando…");
+    try { const r = await authFetch("/api/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) }); const j = await r.json(); if (r.ok) onClose(); else setBusy("falha: " + (j.detail || "erro")); } catch (e) { setBusy("erro: " + e); }
+  }
+  return (
+    <Modal title="Nova task" onClose={onClose}>
+      <div className="space-y-2.5">
+        <label className="block text-[10px] uppercase tracking-wider text-zinc-500">Título *<input value={f.titulo} onChange={(e) => set("titulo", e.target.value)} className={"mt-1 w-full " + inputCls} /></label>
+        <label className="block text-[10px] uppercase tracking-wider text-zinc-500">Objetivo<textarea value={f.objetivo} onChange={(e) => set("objetivo", e.target.value)} rows={2} className={"mt-1 w-full " + inputCls} /></label>
+        <div className="grid grid-cols-2 gap-2.5">
+          <label className="text-[10px] uppercase tracking-wider text-zinc-500">Agente<select value={f.agente} onChange={(e) => set("agente", e.target.value)} className={"mt-1 w-full " + inputCls}><option value="">—</option>{ORDER.map((id) => <option key={id} value={id}>{AGENTS[id].name}</option>)}</select></label>
+          <label className="text-[10px] uppercase tracking-wider text-zinc-500">Prioridade<select value={f.prioridade} onChange={(e) => set("prioridade", e.target.value)} className={"mt-1 w-full " + inputCls}>{["alta", "media", "baixa"].map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
         </div>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="buscar nome/id…" className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-sm mb-3 focus:outline-none focus:border-sky-500/50" />
-        <div className="space-y-1.5 max-h-[72vh] overflow-y-auto pr-1">
-          {filtered.length === 0 && <p className="text-xs text-slate-600 text-center py-6">nenhum lead</p>}
-          {filtered.map((l) => <button key={l.id} onClick={() => loadDetail(l.id)} className={"w-full text-left rounded-xl border p-2.5 transition " + (sel === l.id ? "border-sky-500/40 bg-sky-500/[0.06]" : "border-white/5 bg-slate-900/40 hover:bg-slate-900/70")}>
-            <div className="flex items-center gap-2"><span className="font-semibold text-sm text-slate-100 truncate">{l.nome || l.id}</span>{l.arquivos > 0 && <span className="text-[10px] px-1.5 rounded bg-white/5 text-slate-400 shrink-0">📎 {l.arquivos}</span>}</div>
-            <div className="flex items-center gap-2 mt-0.5"><span className="text-[11px] text-slate-500 truncate">{l.cidade || "—"}</span>{l.perfil && <span className="text-[10px] px-1.5 rounded-full bg-amber-500/10 text-amber-400 truncate max-w-[45%]">{l.perfil}</span>}<span className="ml-auto text-[10px] text-slate-600 shrink-0">{l.status}</span></div>
-          </button>)}
+        {busy && <p className="text-xs text-zinc-400">{busy}</p>}
+        <div className="flex gap-2 pt-1"><button onClick={save} className={btnPrimary}>Criar task</button><button onClick={onClose} className={btnGhost}>Cancelar</button></div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── busca global ─────────────────────────────────────────────────────────────
+function GlobalSearch({ leads, snap, openLead, openTab }) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const results = useMemo(() => {
+    const term = q.trim().toLowerCase(); if (term.length < 2) return { leads: [], tasks: [] };
+    const ls = (leads || []).filter((l) => (l.nome || "").toLowerCase().includes(term) || (l.id || "").toLowerCase().includes(term)).slice(0, 6);
+    const kan = (snap && snap.kanban) || {};
+    const ts = [];
+    Object.entries(kan).forEach(([state, col]) => ((col && col.tasks) || []).forEach((t) => {
+      if ((t.title || "").toLowerCase().includes(term) || (t.id || "").toLowerCase().includes(term)) ts.push({ ...t, state });
+    }));
+    return { leads: ls, tasks: ts.slice(0, 6) };
+  }, [q, leads, snap]);
+  const has = results.leads.length + results.tasks.length > 0;
+  return (
+    <div className="relative flex-1 max-w-md">
+      <input value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 200)} placeholder="🔎 buscar lead ou task…" className={inputCls + " w-full"} />
+      {open && q.trim().length >= 2 && (
+        <div className="absolute top-full mt-1 left-0 right-0 z-40 rounded-xl border border-line bg-panel shadow-xl p-2 space-y-0.5 max-h-80 overflow-y-auto">
+          {!has && <p className="text-xs text-zinc-600 p-2">nada encontrado</p>}
+          {results.leads.map((l) => <button key={l.id} onMouseDown={() => { openLead(l.id); setQ(""); }} className="w-full text-left rounded-lg px-2.5 py-1.5 hover:bg-white/5 flex items-center gap-2"><span className="text-[10px] text-zinc-600 font-mono">{l.id}</span><span className="text-sm text-zinc-200 truncate">{l.nome}</span><StatusBadge status={l.status} /></button>)}
+          {results.tasks.map((t) => <button key={t.id} onMouseDown={() => { openTab("tasks"); setQ(""); }} className="w-full text-left rounded-lg px-2.5 py-1.5 hover:bg-white/5 flex items-center gap-2"><span className="text-[10px] text-indigo-300 font-mono">{t.id}</span><span className="text-sm text-zinc-200 truncate">{t.title}</span><span className="text-[10px] text-zinc-500 ml-auto">{t.state}</span></button>)}
         </div>
-      </section>
-      <section className="lg:col-span-2">
-        {!detail && <div className="rounded-2xl border border-white/5 bg-slate-900/40 p-10 text-center text-slate-500 text-sm">Selecione um lead para ver análise e arquivos.</div>}
-        {detail && d && <div className="space-y-5">
-          <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-4">
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-lg font-bold text-white truncate">{d.nome || d.id}</h2><div className="text-xs text-slate-500 font-mono mt-0.5">{d.id} · {d.segment}</div></div>{an.perfil && <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 shrink-0">{an.perfil}</span>}</div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-              <Field label="Cidade" v={d.cidade} /><Field label="Contato" v={d.contato} /><Field label="Status" v={d.status} /><Field label="Projeto" v={d.projeto} />
-            </div>
-            <div className="flex items-center gap-2 mt-4 flex-wrap">
-              <button onClick={analisar} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-violet-600/80 hover:bg-violet-600 disabled:opacity-50 text-white font-semibold">✨ Analisar IA</button>
-              {!edit && <button onClick={startEdit} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-semibold">✎ Editar</button>}
-              {busy && <span className={"text-xs " + (working ? "text-slate-400" : "text-rose-400")}>{busy}</span>}
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">{edit ? "Editar lead" : "Como abordar"}</h3>
-            {edit
-              ? <div className="space-y-2.5">
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Nome<input value={form.nome} onChange={(e) => setF("nome", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
-                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Contato<input value={form.contato} onChange={(e) => setF("contato", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
-                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Cidade<input value={form.cidade} onChange={(e) => setF("cidade", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
-                    <label className="text-[10px] uppercase tracking-wider text-slate-500">Status<select value={form.status} onChange={(e) => setF("status", e.target.value)} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50">{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-                  </div>
-                  <label className="block text-[10px] uppercase tracking-wider text-slate-500">Perfil<input value={form.perfil} onChange={(e) => setF("perfil", e.target.value)} placeholder="ex.: pintor residencial" className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
-                  <label className="block text-[10px] uppercase tracking-wider text-slate-500">Como abordar<textarea value={form.resumo_abordagem} onChange={(e) => setF("resumo_abordagem", e.target.value)} rows={3} className="mt-1 w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500/50" /></label>
-                  <div className="flex gap-2"><button onClick={saveEdit} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-sky-600/80 hover:bg-sky-600 disabled:opacity-50 text-white font-semibold">Salvar</button><button onClick={() => setEdit(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 text-slate-400">Cancelar</button></div>
-                </div>
-              : <React.Fragment>
-                  {an.resumo_abordagem ? <p className="text-sm text-slate-200 leading-snug whitespace-pre-wrap">{an.resumo_abordagem}</p> : <p className="text-xs text-slate-600">sem análise ainda — use ✨ Analisar IA ou ✎ Editar</p>}
-                  {(az.servico || az.maturidade) && <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 mt-3 text-xs">
-                    {az.servico && <div><span className="text-slate-500">Serviço: </span><span className="text-slate-300">{az.servico}</span></div>}
-                    {az.maturidade && <div><span className="text-slate-500">Maturidade: </span><span className="text-slate-300">{az.maturidade}</span></div>}
-                  </div>}
-                  {(az.ganchos || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Ganchos pro Caio</div><ul className="text-xs text-slate-300 space-y-0.5 list-disc list-inside">{az.ganchos.map((g, i) => <li key={i}>{g}</li>)}</ul></div>}
-                  {(az.objecoes || []).length > 0 && <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Objeções · contorno</div><ul className="text-xs text-slate-300 space-y-0.5 list-disc list-inside">{az.objecoes.map((o, i) => <li key={i}>{o}</li>)}</ul></div>}
-                  {(az.dor || az.melhor_canal || az.tom) && <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-[11px] text-slate-500">{az.dor && <span>dor: <span className="text-slate-400">{az.dor}</span></span>}{az.melhor_canal && <span>canal: <span className="text-slate-400">{az.melhor_canal}</span></span>}{az.tom && <span>tom: <span className="text-slate-400">{az.tom}</span></span>}</div>}
-                  {az.link_perfil && <a href={az.link_perfil} target="_blank" rel="noreferrer" className="inline-block mt-3 text-xs text-sky-400 hover:text-sky-300">🔗 Ver perfil do lead</a>}
-                </React.Fragment>}
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-2 gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Arquivos <span className="text-slate-600 normal-case font-normal">· {files.length} · produção monta a página com os ✓</span></h3>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <select value={upTipo} onChange={(e) => setUpTipo(e.target.value)} title="tipo do arquivo a enviar" className="bg-slate-900 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-sky-500/50">{FILE_TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}</select>
-                <button onClick={() => fileRef.current && fileRef.current.click()} disabled={working} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-50 text-slate-300 font-semibold">⬆ Enviar</button>
-              </div>
-              <input ref={fileRef} type="file" onChange={onUpload} className="hidden" />
-            </div>
-            {files.length === 0 && <p className="text-xs text-slate-600">sem arquivos ainda — a captura sobe as fotos automaticamente, ou envie manualmente</p>}
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">{files.map((f) => <FileCard key={f.id} f={f} onApprove={approve} onDelete={delFile} />)}</div>
-          </div>
-        </div>}
-      </section>
+      )}
     </div>
   );
 }
 
 // ── shell ────────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: "operacao", label: "Operação ao vivo" }, { id: "tasks", label: "Tasks" },
-  { id: "crm", label: "CRM" }, { id: "comunicacao", label: "Comunicação" }, { id: "mapa", label: "Mapa" },
+  { id: "operacao", label: "Operação ao Vivo", icon: "⚡" },
+  { id: "tasks", label: "Tasks", icon: "▦" },
+  { id: "crm", label: "CRM", icon: "◎" },
+  { id: "atendimento", label: "Atendimento", icon: "💬" },
+  { id: "marketing", label: "Marketing", icon: "📣" },
+  { id: "comunicacao", label: "Ronaldo", icon: "🎙" },
+  { id: "mapa", label: "Mapa", icon: "🧭" },
 ];
 function App() {
   const [tab, setTab] = useState("operacao");
   const [snap, setSnap] = useState(null);
   const [feed, setFeed] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [conn, setConn] = useState("loading");
   const [now, setNow] = useState(Date.now());
+  const [selLead, setSelLead] = useState(null);
+  const [modal, setModal] = useState(null);
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const loadSnap = useCallback(async () => { try { const r = await authFetch("/api/maestro/snapshot"); if (r.status === 401 || r.status === 403) { setConn("auth"); return; } if (!r.ok) { setConn("down"); return; } setSnap(await r.json()); setConn("ok"); } catch (e) { setConn("down"); } }, []);
   const loadFeed = useCallback(async () => { try { const r = await authFetch("/api/maestro/interactions?limit=40"); if (r.ok) { const j = await r.json(); setFeed(j.interactions || []); } } catch (e) {} }, []);
-  useEffect(() => { loadSnap(); loadFeed(); const a = setInterval(loadSnap, SNAP_MS), b = setInterval(loadFeed, FEED_MS); return () => { clearInterval(a); clearInterval(b); }; }, [loadSnap, loadFeed]);
-  const agents = (snap && snap.agents) || [];
+  const loadLeads = useCallback(async () => { try { const r = await authFetch("/api/crm/leads"); if (r.ok) setLeads((await r.json()).leads || []); } catch (e) {} }, []);
+  useEffect(() => { loadSnap(); loadFeed(); loadLeads(); const a = setInterval(loadSnap, SNAP_MS), b = setInterval(loadFeed, FEED_MS), c = setInterval(loadLeads, LEADS_MS); return () => { clearInterval(a); clearInterval(b); clearInterval(c); }; }, [loadSnap, loadFeed, loadLeads]);
+  const refresh = useCallback(() => { loadSnap(); loadLeads(); }, [loadSnap, loadLeads]);
+  const openLead = useCallback((id) => { setSelLead(id); setTab("crm"); }, []);
+  const pend = ((snap && snap.approvals_pending) || []).length;
   return (
-    <div className="min-h-screen max-w-[1400px] mx-auto px-5 sm:px-8 py-6">
-      <header className="mb-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2.5">
-            <LiveDot color={conn === "ok" ? "#34d399" : "#fbbf24"} />
-            <h1 className="text-xl font-extrabold text-white tracking-tight">Laboratório</h1>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{agents.length || 6} agentes</span>
-          </div>
-          <div className="text-right"><div className="font-mono text-sm text-slate-300 tabular-nums">{new Date(now).toLocaleTimeString("pt-BR")}</div><div className="text-[11px] flex items-center gap-1 justify-end">{conn === "ok" && <React.Fragment><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /><span className="text-emerald-400">online</span></React.Fragment>}{conn === "loading" && <span className="text-slate-500">carregando…</span>}{conn === "auth" && <span className="text-amber-400">precisa de token (?token=…)</span>}{conn === "down" && <span className="text-rose-400">backend offline</span>}</div></div>
+    <div className="min-h-screen flex">
+      {/* sidebar */}
+      <aside className="hidden lg:flex flex-col w-52 shrink-0 border-r border-line bg-[#0d0e11] px-3 py-5 sticky top-0 h-screen">
+        <div className="flex items-center gap-2 px-2 mb-6">
+          <LiveDot color={conn === "ok" ? "#34d399" : "#fbbf24"} />
+          <span className="font-extrabold text-white tracking-tight">Laboratório</span>
         </div>
-        <nav className="flex items-center gap-1 mt-4 border-b border-white/5">
-          {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} className={"px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition " + (tab === t.id ? "border-sky-500 text-white" : "border-transparent text-slate-500 hover:text-slate-300")}>{t.label}</button>)}
+        <nav className="space-y-0.5">
+          {TABS.map((t) => (
+            <button key={t.id} onClick={() => setTab(t.id)} className={"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition " + (tab === t.id ? "bg-white/[0.07] text-white font-semibold" : "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.03]")}>
+              <span className="w-5 text-center">{t.icon}</span>{t.label}
+              {t.id === "operacao" && pend > 0 && <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 tabular-nums">{pend}</span>}
+            </button>
+          ))}
         </nav>
-      </header>
-      {tab === "operacao" && <OperacaoTab snap={snap} feed={feed} conn={conn} />}
-      {tab === "tasks" && <TasksTab />}
-      {tab === "crm" && <CrmTab />}
-      {tab === "comunicacao" && <ComunicacaoTab />}
-      {tab === "mapa" && <MapaTab snap={snap} />}
-      <footer className="mt-10 text-center text-xs text-slate-600">Laboratório · painel v2 · lê de <span className="font-mono text-slate-500">/api/maestro</span> + <span className="font-mono text-slate-500">/api/tasks</span></footer>
+        <div className="mt-auto px-2 text-[11px] text-zinc-600">
+          <div className="font-mono text-zinc-400 tabular-nums">{new Date(now).toLocaleTimeString("pt-BR")}</div>
+          <div className="mt-0.5">{conn === "ok" ? <span className="text-emerald-400">● online</span> : conn === "auth" ? <span className="text-amber-400">● precisa de token</span> : conn === "loading" ? "carregando…" : <span className="text-rose-400">● backend offline</span>}</div>
+        </div>
+      </aside>
+      {/* main */}
+      <div className="flex-1 min-w-0">
+        <header className="sticky top-0 z-30 bg-ink/85 backdrop-blur border-b border-line px-4 sm:px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="lg:hidden flex items-center gap-2"><LiveDot color={conn === "ok" ? "#34d399" : "#fbbf24"} /><span className="font-extrabold text-white">Lab</span></div>
+            <GlobalSearch leads={leads} snap={snap} openLead={openLead} openTab={setTab} />
+            <div className="ml-auto flex items-center gap-2">
+              <button onClick={() => setModal("task")} className={btnGhost + " text-xs whitespace-nowrap"}>+ Task</button>
+              <button onClick={() => setModal("lead")} className={btnPrimary + " text-xs whitespace-nowrap"}>+ Lead</button>
+            </div>
+          </div>
+          <nav className="lg:hidden flex items-center gap-1 mt-3 -mb-px overflow-x-auto">
+            {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} className={"px-2.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap " + (tab === t.id ? "bg-white/10 text-white" : "text-zinc-500")}>{t.label}</button>)}
+          </nav>
+        </header>
+        <main className="px-4 sm:px-6 py-6 max-w-[1500px]">
+          {tab === "operacao" && <OperacaoTab snap={snap} feed={feed} conn={conn} leads={leads} refresh={refresh} openLead={openLead} />}
+          {tab === "tasks" && <TasksTab />}
+          {tab === "crm" && <CrmTab leads={leads} reloadLeads={loadLeads} selLead={selLead} setSelLead={setSelLead} />}
+          {tab === "atendimento" && <AtendimentoTab snap={snap} leads={leads} openLead={openLead} />}
+          {tab === "marketing" && <MarketingTab snap={snap} />}
+          {tab === "comunicacao" && <ComunicacaoTab />}
+          {tab === "mapa" && <MapaTab snap={snap} />}
+          <footer className="mt-10 text-center text-xs text-zinc-700">Laboratório · painel v3 · funil oficial + aprovações + atendimento + esteira</footer>
+        </main>
+      </div>
+      {modal === "lead" && <NovoLeadModal onClose={() => setModal(null)} onDone={(l) => { loadLeads(); if (l && l.id) openLead(l.id); }} />}
+      {modal === "task" && <NovaTaskModal onClose={() => setModal(null)} />}
     </div>
   );
 }
