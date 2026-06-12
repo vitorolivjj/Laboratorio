@@ -5,13 +5,17 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from laboratorio.social import capture, cycle, facebook_cdp, groups
-from laboratorio.social.feed_analysis import extract_posts_from_feed, format_posts_report, qualify_profile_url
 from laboratorio.social.facebook_cdp import (
     facebook_available,
     navigate,
-    pick_facebook_page,
     page_snapshot,
+    pick_facebook_page,
     try_fill_composer,
+)
+from laboratorio.social.feed_analysis import (
+    extract_posts_from_feed,
+    format_posts_report,
+    qualify_profile_url,
 )
 from laboratorio.tools.base import BaseTool, safe
 

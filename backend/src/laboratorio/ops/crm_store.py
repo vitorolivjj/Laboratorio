@@ -9,6 +9,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from filelock import FileLock
+
 from laboratorio.config import CRM_LEADS
 from laboratorio.db import dual_write
 from laboratorio.ops.markdown_io import (
@@ -18,6 +20,13 @@ from laboratorio.ops.markdown_io import (
 )
 
 _LEADS_MARKER = "<!-- Donizete: adicionar novos leads abaixo, mais recente no topo -->"
+
+
+def crm_lock(path: Path) -> FileLock:
+    """1 escritor por vez por arquivo de CRM — evita lost-update/ID duplicado
+    quando a thread da varredura (Donizete) e o webhook (Caio/pagamento) escrevem
+    no mesmo markdown. FileLock (entre threads/processos), padrão de tasks_store."""
+    return FileLock(str(path) + ".lock", timeout=30)
 _INDEX_PLACEHOLDER_RE = re.compile(r"^\|\s*_—_\s*\|.*nenhum lead", re.IGNORECASE)
 
 VALID_STATUS = (
@@ -115,30 +124,31 @@ def add_lead(
     if not nome.strip():
         raise ValueError("Lead precisa de um nome/identificação.")
 
-    text = read_text(path)
-    if not text:
-        raise FileNotFoundError(f"CRM não encontrado: {path}")
+    with crm_lock(path):
+        text = read_text(path)
+        if not text:
+            raise FileNotFoundError(f"CRM não encontrado: {path}")
 
-    lead = {
-        "id": next_lead_id(text),
-        "nome": nome.strip(),
-        "contato": contato.strip(),
-        "cidade": cidade.strip(),
-        "servico": servico.strip(),
-        "origem": origem.strip() or "—",
-        "observacoes": observacoes.strip(),
-        "score": score.strip() or "0",
-        "temperatura": temperatura.strip() or "frio",
-        "prioridade": prioridade.strip() or "P2",
-        "status": status,
-        "responsavel": responsavel.strip() or "donizete_social",
-        "task": task.strip() or "—",
-        "captura": _today(),
-    }
+        lead = {
+            "id": next_lead_id(text),
+            "nome": nome.strip(),
+            "contato": contato.strip(),
+            "cidade": cidade.strip(),
+            "servico": servico.strip(),
+            "origem": origem.strip() or "—",
+            "observacoes": observacoes.strip(),
+            "score": score.strip() or "0",
+            "temperatura": temperatura.strip() or "frio",
+            "prioridade": prioridade.strip() or "P2",
+            "status": status,
+            "responsavel": responsavel.strip() or "donizete_social",
+            "task": task.strip() or "—",
+            "captura": _today(),
+        }
 
-    text = insert_after_marker(text, _LEADS_MARKER, _lead_section(lead))
-    text = _update_index(text, _index_row(lead))
-    write_text_atomic(path, text)
+        text = insert_after_marker(text, _LEADS_MARKER, _lead_section(lead))
+        text = _update_index(text, _index_row(lead))
+        write_text_atomic(path, text)
     dual_write.sync_async()
     return f"Lead {lead['id']} criado ({lead['nome']}, status={lead['status']})."
 
@@ -172,50 +182,51 @@ def add_lead_segment(
 
     if not nome.strip():
         raise ValueError("Lead precisa de um nome/identificação.")
-    text = read_text(path)
-    if not text:
-        raise FileNotFoundError(f"CRM não encontrado: {path}")
-    funil = parsers.parse_crm_meta(text).get("funil") or []
-    valid = tuple(funil) or VALID_STATUS
-    if status not in valid:
-        raise ValueError(f"Status inválido: {status}. Use um de {valid}.")
-
-    # IDs são globais no sistema (lab_lead_files/análises são keyed por lead_id):
-    # considera também os CRMs históricos p/ nunca reusar um LEAD-NNN antigo.
     from laboratorio.config import REPO_ROOT
 
-    historic = ""
-    for extra in (REPO_ROOT / "crm" / "leads.md",
-                  REPO_ROOT / "crm" / "arquivo" / "crm_landing_pintor.md"):
-        if extra != path:
-            historic += read_text(extra) or ""
+    with crm_lock(path):
+        text = read_text(path)
+        if not text:
+            raise FileNotFoundError(f"CRM não encontrado: {path}")
+        funil = parsers.parse_crm_meta(text).get("funil") or []
+        valid = tuple(funil) or VALID_STATUS
+        if status not in valid:
+            raise ValueError(f"Status inválido: {status}. Use um de {valid}.")
 
-    lead = {
-        "id": next_lead_id(text + historic),
-        "nome": nome.strip(),
-        "contato": contato.strip(),
-        "cidade": cidade.strip(),
-        "servico": servico.strip(),
-        "origem": origem.strip() or "painel",
-        "observacoes": observacoes.strip(),
-        "score": score.strip() or "0",
-        "temperatura": temperatura.strip() or "frio",
-        "prioridade": prioridade.strip() or "P2",
-        "status": status,
-        "responsavel": responsavel.strip() or "caio_manteiga",
-        "task": task.strip() or "—",
-        "captura": _today(),
-    }
+        # IDs são globais (lab_lead_files/análises keyed por lead_id): considera
+        # também os CRMs históricos p/ nunca reusar um LEAD-NNN antigo.
+        historic = ""
+        for extra in (REPO_ROOT / "crm" / "leads.md",
+                      REPO_ROOT / "crm" / "arquivo" / "crm_landing_pintor.md"):
+            if extra != path:
+                historic += read_text(extra) or ""
 
-    marker = _SEG_MARKER if _SEG_MARKER in text else _LEADS_MARKER
-    if marker not in text:
-        text = text.replace("## Leads\n", f"## Leads\n\n{_SEG_MARKER}\n", 1)
-        marker = _SEG_MARKER
+        lead = {
+            "id": next_lead_id(text + historic),
+            "nome": nome.strip(),
+            "contato": contato.strip(),
+            "cidade": cidade.strip(),
+            "servico": servico.strip(),
+            "origem": origem.strip() or "painel",
+            "observacoes": observacoes.strip(),
+            "score": score.strip() or "0",
+            "temperatura": temperatura.strip() or "frio",
+            "prioridade": prioridade.strip() or "P2",
+            "status": status,
+            "responsavel": responsavel.strip() or "caio_manteiga",
+            "task": task.strip() or "—",
+            "captura": _today(),
+        }
+
+        marker = _SEG_MARKER if _SEG_MARKER in text else _LEADS_MARKER
         if marker not in text:
-            raise ValueError(f"CRM sem seção '## Leads' para inserir: {path.name}")
-    text = insert_after_marker(text, marker, _lead_section(lead))
-    text = _update_index(text, _index_row(lead))
-    write_text_atomic(path, text)
+            text = text.replace("## Leads\n", f"## Leads\n\n{_SEG_MARKER}\n", 1)
+            marker = _SEG_MARKER
+            if marker not in text:
+                raise ValueError(f"CRM sem seção '## Leads' para inserir: {path.name}")
+        text = insert_after_marker(text, marker, _lead_section(lead))
+        text = _update_index(text, _index_row(lead))
+        write_text_atomic(path, text)
     dual_write.sync_async()
     return lead
 

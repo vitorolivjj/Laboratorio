@@ -14,7 +14,7 @@ logger = logging.getLogger("laboratorio.whatsapp.notify")
 
 
 def format_vitor_alert(title: str, detail: str, action: str = "", ref: str = "") -> str:
-    lines = [f"🔔 Ronaldo (via Caio)", "", title.strip()]
+    lines = ["🔔 Ronaldo (via Caio)", "", title.strip()]
     if detail.strip():
         lines.extend(["", detail.strip()])
     if action.strip():

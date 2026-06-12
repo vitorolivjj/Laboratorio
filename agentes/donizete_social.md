@@ -69,6 +69,16 @@ Somente dados **públicos** e úteis para abordagem:
 [memoria/plano_negocio.md](../memoria/plano_negocio.md). Piloto pintor encerrado
 (arquivo em [memoria/arquivo/pintor-legado/](../memoria/arquivo/pintor-legado/)) — **não captar pintores**.
 
+**Método oficial: captação por CÉLULA via Google Maps** (Places API — `ops/captacao.py`):
+
+- Célula = **segmento × área** (Ronaldo sugere → Vitor aprova → varredura roda) ·
+  células e áreas-alvo em [memoria/captacao_celulas.md](../memoria/captacao_celulas.md)
+- Cada negócio é pontuado 0–10 (dor, pagamento, vazamento, canal, potencial);
+  **só 6+ entra no CRM** (`crm_laboratorio.md`, status `vazamento_provavel`),
+  com contato, sinais e reviews salvos pra o Juarez/Ronaldo usarem
+- 100% VPS-autônomo (não depende do Mac/Chrome) · CLI: `captacao-celula`
+- O Facebook/CDP (garimpo, grupos, post-isca) fica **legado/standby**
+
 - **ICP prioritário:** clínicas/consultórios/veterinárias · advocacia/perícia ·
   imobiliárias · oficinas/técnicos · reforma/obra · estética com agenda
 - **Sinais públicos de vazamento:** Google/perfil incompleto, avaliações reclamando de

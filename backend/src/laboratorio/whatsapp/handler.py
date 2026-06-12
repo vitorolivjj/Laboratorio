@@ -6,11 +6,11 @@ import logging
 
 from laboratorio.whatsapp.approvals import try_handle_approval_message
 from laboratorio.whatsapp.caio_handler import generate_caio_reply
-from laboratorio.whatsapp.client import send_text_message
 from laboratorio.whatsapp.caio_session import is_duplicate_outbound, record_outbound
+from laboratorio.whatsapp.client import send_text_message
 from laboratorio.whatsapp.dedup import mark_if_new
-from laboratorio.whatsapp.outbound import send_to_recipient
 from laboratorio.whatsapp.logger import log_exchange
+from laboratorio.whatsapp.outbound import send_to_recipient
 from laboratorio.whatsapp.owner import generate_owner_reply, is_owner
 from laboratorio.whatsapp.parser import InboundMessage
 from laboratorio.whatsapp.vitor_auth import is_vitor_authorized
@@ -27,6 +27,22 @@ def process_inbound_message(msg: InboundMessage) -> None:
             msg.from_wa_id,
             msg.message_id,
         )
+        return
+
+    # Número dedicado do Juarez (sondagem): conversa isolada do canal comercial.
+    from laboratorio.whatsapp import juarez_sondagem
+
+    if msg.to_phone_id and msg.to_phone_id == juarez_sondagem.phone_id():
+        try:
+            sond_reply = juarez_sondagem.responder_inbound(msg.from_wa_id, msg.text)
+            if sond_reply:
+                send_text_message(msg.from_wa_id, sond_reply,
+                                  phone_number_id=juarez_sondagem.phone_id())
+                log_exchange(from_wa_id=msg.from_wa_id, inbound=msg.text,
+                             outbound=sond_reply, message_id=msg.message_id,
+                             status="ok:juarez_sondagem")
+        except Exception:
+            logger.exception("Falha na sondagem Juarez (%s)", msg.message_id)
         return
 
     # Lembretes só via vitor-schedule.timer (evita disparo duplo com inbound)

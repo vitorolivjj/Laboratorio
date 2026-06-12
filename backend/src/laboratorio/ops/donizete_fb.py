@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime, timezone
+
 from laboratorio.config import DATA_DIR, LOGS_DIR, REPO_ROOT, TASKS_DIR, load_env
 from laboratorio.social import cycle, facebook_cdp, groups, session
 from laboratorio.social.capture import run_garimpo, stalk_profile
@@ -166,7 +167,6 @@ def cmd_run(task_id: str = "LP-PINTOR-001") -> int:
 
     from laboratorio.ops import parsers
     from laboratorio.ops.autopilot import _advance_task
-    from laboratorio.config import TASKS_DIR
 
     tasks = parsers.parse_executando_tasks(
         parsers.read_text(TASKS_DIR / "executando.md")

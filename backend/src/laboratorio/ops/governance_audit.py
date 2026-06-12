@@ -163,7 +163,7 @@ def run_governance_audit(*, tasks_dir: Path | None = None) -> GovernanceReport:
                     severity="warn",
                     title=f"{tid} sem arquivo dedicado",
                     detail="Kanban referencia task sem tasks/<ID>.md",
-                    ref=f"tasks/executando.md",
+                    ref="tasks/executando.md",
                     action="Criar tasks/<ID>.md",
                 )
             )

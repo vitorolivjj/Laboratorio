@@ -6,8 +6,8 @@ de memory/semantic.py para não acoplar dados operacionais a pgvector.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
 
 from laboratorio.memory.semantic import supabase_db_url
 
@@ -27,7 +27,7 @@ def db_enabled() -> bool:
 
 
 @contextmanager
-def connection() -> Iterator["object"]:
+def connection() -> Iterator[object]:
     """Conexão psycopg autocommit, com timeout curto e retry.
 
     Supabase resolve para IPv6 e IPv4; em redes onde o IPv6 é instável a 1ª

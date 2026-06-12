@@ -40,3 +40,4 @@ logs/*.jsonl.tmp
 # Node (build do painel v2)
 node_modules/
 frontend/painel-v2/dist/
+frontend/dossies/

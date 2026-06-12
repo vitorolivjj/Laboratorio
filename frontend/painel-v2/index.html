@@ -95,6 +95,7 @@ const KIND_LABEL = {
   content_publish: "Publicar conteúdo · Esteira", client_message: "Mensagem a cliente",
   client_template: "Template Meta (abertura)", high_cost: "Gasto alto",
   agent_action: "Ação de agente", evolution_batch: "Autoevolução",
+  celula_captacao: "Varredura de captação · célula", dossie_aprovacao: "Aprovar Dossiê",
 };
 
 // ── átomos ───────────────────────────────────────────────────────────────────
@@ -135,6 +136,7 @@ function ApprovalCard({ item, onDecide, busy }) {
       </div>
       <p className="text-xs text-zinc-400 mt-1.5 whitespace-pre-wrap break-words leading-snug max-h-20 overflow-hidden">{item.summary || "—"}</p>
       {isVideo && <video controls preload="none" src={p.mp4_url} className="mt-2 w-full max-h-56 rounded-lg bg-black" />}
+      {item.kind === "dossie_aprovacao" && p.url && <a href={p.url} target="_blank" rel="noreferrer" className="inline-block mt-2 text-xs text-indigo-300 hover:text-indigo-200 font-semibold">📄 Abrir Dossiê ↗</a>}
       {p.caption && <p className="text-[11px] text-zinc-500 mt-1.5 line-clamp-2">{p.caption}</p>}
       <div className="flex gap-2 mt-2.5">
         <button disabled={busy} onClick={() => onDecide(item.id, "approve")} className="flex-1 text-xs py-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-400/20 hover:bg-emerald-500/25 font-semibold disabled:opacity-50">✓ Aprovar</button>

@@ -55,6 +55,36 @@ LP_PREVIAS_DIR = REPO_ROOT / "frontend" / "lp-pintor" / "dist"
 if LP_PREVIAS_DIR.is_dir():
     app.mount("/previas", StaticFiles(directory=str(LP_PREVIAS_DIR), html=True), name="lp-previas")
 
+# Dossiês de Vazamentos — páginas públicas geradas pela esteira (ops/dossie.py).
+DOSSIES_DIR = REPO_ROOT / "frontend" / "dossies"
+DOSSIES_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/d", StaticFiles(directory=str(DOSSIES_DIR), html=True), name="dossies")
+
+
+@app.post("/webhook/pagamentos")
+async def webhook_pagamentos(request: Request) -> dict:
+    """Notificações do Mercado Pago (Plano de Ataque). Confirma via API antes de agir."""
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001
+        body = {}
+    params = dict(request.query_params)
+    payment_id = (
+        str((body.get("data") or {}).get("id") or "")
+        or params.get("data.id", "")
+        or (params.get("id", "") if params.get("topic") == "payment" else "")
+    )
+    if not payment_id:
+        return {"status": "ignored"}
+    try:
+        from laboratorio.ops.pagamentos import confirmar_pagamento_mp
+
+        result = confirmar_pagamento_mp(payment_id) or {"status": "ignored"}
+    except Exception as exc:  # noqa: BLE001 — sempre 200 pro MP não re-tentar infinito
+        logger.warning("Webhook pagamento %s falhou: %s", payment_id, exc)
+        result = {"status": "error"}
+    return result
+
 
 @app.on_event("startup")
 def _maybe_start_autopilot() -> None:

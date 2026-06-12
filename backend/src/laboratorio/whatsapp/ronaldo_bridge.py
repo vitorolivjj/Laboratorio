@@ -14,7 +14,12 @@ from laboratorio.ops.donizete_capture_task import (
     find_capture_tasks_in_kanban,
     load_capture_config,
 )
-from laboratorio.ops.donizete_runner import start_busca, status_line, stop_busca, validate_capture_start
+from laboratorio.ops.donizete_runner import (
+    start_busca,
+    status_line,
+    stop_busca,
+    validate_capture_start,
+)
 from laboratorio.ops.donizete_whatsapp import match_donizete_whatsapp
 from laboratorio.ops.tasks_store import list_tasks, move_task
 

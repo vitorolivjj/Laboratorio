@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dossiê de Vazamentos — {{NOME}}</title>
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  :root {
+    --ink: #16181d; --soft: #5b6472; --line: #e6e8ec; --paper: #fafbfc;
+    --accent: #4f46e5; --ok: #16a34a; --warn: #d97706; --crit: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+         background: var(--paper); color: var(--ink); line-height: 1.55; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 99px; background: var(--accent); }
+  .brand span { font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--soft); font-weight: 600; }
+  h1 { font-size: 30px; letter-spacing: -.02em; line-height: 1.15; }
+  .sub { color: var(--soft); margin-top: 6px; font-size: 15px; }
+  .scorebox { margin: 30px 0; padding: 22px; border: 1px solid var(--line);
+              border-radius: 14px; background: #fff; }
+  .scorebox .label { font-size: 12px; text-transform: uppercase; letter-spacing: .12em;
+                     color: var(--soft); font-weight: 700; }
+  .scorerow { display: flex; align-items: baseline; gap: 12px; margin-top: 6px; }
+  .scorerow .num { font-size: 44px; font-weight: 800; letter-spacing: -.03em; }
+  .scorerow .tag { font-size: 14px; font-weight: 700; color: {{SCORE_COLOR}}; }
+  .bar { height: 8px; border-radius: 99px; background: #eef0f3; margin-top: 14px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: {{SCORE}}%; border-radius: 99px;
+           background: linear-gradient(90deg, var(--ok), var(--warn) 55%, var(--crit)); }
+  .scorebox p { margin-top: 14px; font-size: 15px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .14em;
+       color: var(--soft); margin: 36px 0 14px; }
+  .areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .area { border: 1px solid var(--line); border-radius: 12px; background: #fff;
+          padding: 12px 14px; }
+  .area b { font-size: 14px; display: block; }
+  .area .st { font-size: 12px; font-weight: 700; margin-top: 3px; }
+  .st.bom { color: var(--ok); } .st.atencao { color: var(--warn); } .st.critico { color: var(--crit); }
+  .area p { font-size: 12.5px; color: var(--soft); margin-top: 5px; }
+  .vaz { border: 1px solid var(--line); border-left: 4px solid var(--warn);
+         border-radius: 12px; background: #fff; padding: 16px 18px; margin-bottom: 12px; }
+  .vaz.alto { border-left-color: var(--crit); }
+  .vaz.baixo { border-left-color: var(--ok); }
+  .vaz h3 { font-size: 16.5px; letter-spacing: -.01em; }
+  .vaz .risco { float: right; font-size: 11px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: .08em; color: var(--soft); }
+  .vaz p { font-size: 14px; margin-top: 7px; }
+  .vaz p b { font-weight: 700; }
+  .op { margin-top: 8px; padding: 20px; border-radius: 14px;
+        background: #eef2ff; border: 1px solid #e0e7ff; }
+  .op p { font-size: 15px; }
+  .cta { margin-top: 36px; padding: 26px; border-radius: 16px; background: var(--ink);
+         color: #fff; text-align: center; }
+  .cta h2 { color: #c7d2fe; margin: 0 0 8px; }
+  .cta p { font-size: 14.5px; color: #cbd5e1; max-width: 480px; margin: 0 auto; }
+  .cta .price { font-size: 14px; color: #94a3b8; margin-top: 12px; }
+  .cta a { display: inline-block; margin-top: 16px; background: var(--accent); color: #fff;
+           text-decoration: none; font-weight: 700; padding: 13px 26px; border-radius: 12px;
+           font-size: 15.5px; }
+  .foot { margin-top: 34px; font-size: 12px; color: var(--soft); text-align: center; }
+  @media print { .cta a { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span><span>Laboratório de Agentes · Dossiê de Vazamentos</span></div>
+
+  <h1>{{NOME}}</h1>
+  <div class="sub">{{SEGMENTO_CIDADE}} · análise de sinais públicos · {{DATA}}</div>
+
+  <div class="scorebox">
+    <div class="label">Score de vazamento</div>
+    <div class="scorerow"><span class="num">{{SCORE}}<small style="font-size:18px;color:var(--soft)">/100</small></span><span class="tag">{{SCORE_LABEL}}</span></div>
+    <div class="bar"><i></i></div>
+    <p>{{RESUMO}}</p>
+  </div>
+
+  <h2>Áreas avaliadas</h2>
+  <div class="areas">{{AREAS_HTML}}</div>
+
+  <h2>Vazamentos prováveis</h2>
+  {{VAZAMENTOS_HTML}}
+
+  <h2>Oportunidade principal</h2>
+  <div class="op"><p>{{OPORTUNIDADE}}</p></div>
+
+  <div class="cta">
+    <h2>Próximo passo</h2>
+    <p>Este Dossiê mostra sinais externos. Para entender o processo completo, confirmar
+    os vazamentos e definir o que corrigir primeiro, o próximo passo é o
+    <b>Plano de Ataque Comercial/Operacional</b>.</p>
+    <div class="price">Plano de Ataque — R$450 · pagamento antecipado · sem implantação inclusa</div>
+    {{CTA_LINK}}
+  </div>
+
+  <div class="foot">Leitura inicial baseada em sinais públicos — não substitui o Plano de Ataque.<br/>
+  Laboratório de Agentes · processo na frente, IA no bastidor.</div>
+</div>
+</body>
+</html>

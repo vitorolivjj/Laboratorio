@@ -45,19 +45,32 @@ plano_ataque_pago → call_agendada → plano_em_producao → plano_entregue →
 sprint_proposta → sprint_fechada → acompanhamento_proposto → cliente_ativo`
 (saídas: `pausado`/`perdido` com motivo/`arquivado`)
 
-## Papéis
+## Papéis (esteira do Dossiê — implantada 2026-06-11)
 
-- **Donizete** — caça vazamento com potencial de dinheiro (sinais públicos: Google/perfil
-  incompleto, avaliações reclamando de demora, site sem CTA, comentários sem resposta).
-  Não vende. Registra e pontua.
-- **Juarez** — sondagem de atendimento (mystery shopping ético, janela 48–72h, score 6+
-  apenas; nunca prejudicar a operação do lead). ⚠️ Pendente: número WhatsApp dedicado.
-- **Ronaldo** — monta análise/Dossiê; audita.
-- **Caio** — aborda com **template aprovado** (tool `abordar_lead`, limite diário
-  CAIO_DAILY_ABORDAGENS=10, sem aprovação 1-a-1), qualifica, conduz ao Plano de Ataque,
-  follow-up D+1/D+3/D+7/D+15. Fora de template ou negociação de valor → aprovação do Vitor.
-  Nunca promete Sprint sem Plano de Ataque.
-- **Vitor** — calls de coleta/entrega, leitura estratégica, proposta, exceções.
+```
+Ronaldo sugere célula (segmento×área) → VITOR aprova
+  → Donizete varre o Google Maps (Places API) e pontua → 6+ entram no CRM
+    → Juarez audita o atendimento (passiva sempre; ativa por template, se ligada)
+      → Ronaldo monta o DIAGNÓSTICO do Dossiê (cérebro da análise)
+        → página HTML gerada (design Loide, build Dev) em /d/{slug}.html
+          → VITOR aprova o Dossiê → Caio aborda (template) e conduz até o pagamento
+```
+
+- **Donizete** — captação por célula via Places (`ops/captacao.py` · `captacao-celula`).
+  Pontua 0–10; só 6+ entra. Áreas/células: `memoria/captacao_celulas.md`.
+- **Juarez** — auditor de atendimento: passiva (`ops/juarez_auditoria.py`, sempre) +
+  sondagem ativa (`whatsapp/juarez_sondagem.py` · `juarez-sondar`; número dedicado,
+  kill-switch JUAREZ_SONDAGEM, 1× por lead, nunca agenda horário real).
+- **Ronaldo** — sugere células (`sugerir_celula_captacao`) e é o cérebro do diagnóstico
+  do Dossiê (`ops/dossie.py` · `dossie-gerar`). Não desenha página.
+- **Loide + Dev** — página do Dossiê (template `assets/dossie_template.html`, servida
+  em /d/).
+- **Caio** — cérebro em `memoria/caio_manteiga/cerebro_comercial.md`: CRM primeiro
+  (mensagem por estágio do funil), fast-track de lead quente, oferta o Plano de Ataque
+  e manda **link de pagamento por lead** ([LINK_PAGAMENTO] → Mercado Pago ou PIX);
+  pagamento confirmado → Vitor assume (call). Abordagem proativa só por template
+  (`abordar_lead`). Follow-up D+1/3/7/15.
+- **Vitor** — aprova células e Dossiês (Fila Quente), faz as calls, decide exceções.
 
 ## Fase atual: VALIDAÇÃO (sem metas numéricas fixas)
 

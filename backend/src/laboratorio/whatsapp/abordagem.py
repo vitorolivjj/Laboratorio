@@ -64,6 +64,27 @@ def _registrar_envio() -> None:
     _save_state(state)
 
 
+def template_para_segmento(servico: str) -> str:
+    """Mapeia o serviço/segmento do lead pro template de abordagem aprovado."""
+    s = (servico or "").lower()
+    if any(k in s for k in ("veterin", "pet", "animal")):
+        return "abordagem_veterinaria"
+    if any(k in s for k in ("clínica", "clinica", "consult", "odont", "dent",
+                            "estét", "estet", "médic", "medic", "saúde", "saude",
+                            "fisio", "psicol")):
+        return "abordagem_clinica"
+    if any(k in s for k in ("advoc", "advog", "períc", "peric", "contab",
+                            "engenh", "arquitet", "consultor", "imobili", "corretor")):
+        return "abordagem_servicos_profissionais"
+    if any(k in s for k in ("reforma", "obra", "constru", "serralher", "marcen",
+                            "vidra", "pintura", "elétr", "eletr", "hidrá", "hidra")):
+        return "abordagem_reforma_obra"
+    if any(k in s for k in ("oficina", "mecân", "mecan", "auto", "assistência",
+                            "assistencia", "manuten", "técnic", "tecnic", "reparo")):
+        return "abordagem_oficina_tecnico"
+    return "abordagem_servicos_profissionais"
+
+
 def abordar(to_wa_id: str, template_name: str, nome_negocio: str) -> str:
     """Envia uma abordagem aprovada. Retorna mensagem de status p/ o agente."""
     from laboratorio.whatsapp.client import WhatsAppApiError, send_template_message

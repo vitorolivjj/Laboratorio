@@ -372,6 +372,54 @@ def cmd_content_run(args) -> int:
     return 0
 
 
+def cmd_captacao_celula(args) -> int:
+    """Varre uma célula (segmento × área) via Places e registra leads no CRM."""
+    load_env()
+    from laboratorio.ops import captacao
+
+    try:
+        res = captacao.varrer_celula(args.segmento, args.area, dry=args.dry)
+    except Exception as exc:  # noqa: BLE001
+        print(f"Erro: {exc}")
+        return 1
+    print(f"=== CAPTAÇÃO {'(dry)' if args.dry else ''} — "
+          f"{args.segmento} em {args.area} ===")
+    print(f"  encontrados: {res['encontrados']} · avaliados: {res['avaliados']} · "
+          f"registrados (6+): {res['registrados']}")
+    for r in res["leads"]:
+        print(f"  · {r.get('id', '—')} {r['nome']} — score {r['score']}")
+    return 0
+
+
+def cmd_juarez_sondar(args) -> int:
+    """Inicia a sondagem ativa do Juarez para um lead (número dedicado)."""
+    load_env()
+    from laboratorio.whatsapp import juarez_sondagem
+
+    print(juarez_sondagem.iniciar(args.lead_id))
+    return 0
+
+
+def cmd_dossie_gerar(args) -> int:
+    """Gera o Dossiê de Vazamentos de um lead (análise Ronaldo + página)."""
+    load_env()
+    from laboratorio.ops import dossie
+
+    try:
+        res = dossie.gerar(args.lead_id, dry=args.dry)
+    except Exception as exc:  # noqa: BLE001
+        print(f"Erro: {exc}")
+        return 1
+    print(f"=== DOSSIÊ {'(dry)' if args.dry else ''} — {res['lead_id']} ===")
+    print(f"  score: {res['score']}/100")
+    print(f"  página: {res['url']}")
+    print(f"  arquivo: {res['path']}")
+    if res.get("approval_id"):
+        print(f"  aprovação enviada ao Vitor: {res['approval_id']} "
+              "(APROVAR dispara a abordagem do Caio)")
+    return 0
+
+
 def cmd_memory_check(args) -> int:
     load_env()
     import os
@@ -527,6 +575,9 @@ COMMANDS = {
     "donizete-busca-local": cmd_donizete_busca_local,
     "vitor-schedule": cmd_vitor_schedule,
     "content-run": cmd_content_run,
+    "captacao-celula": cmd_captacao_celula,
+    "juarez-sondar": cmd_juarez_sondar,
+    "dossie-gerar": cmd_dossie_gerar,
     "memory-check": cmd_memory_check,
     "memory-sync": cmd_memory_sync,
     "memory-recall": cmd_memory_recall,
@@ -712,6 +763,28 @@ def main() -> None:
     )
     p_content.add_argument("--formato", default=None, help="confessionario (default) | board | …")
     p_content.add_argument("--dry", action="store_true", help="Não enfileira/aprovação/notifica")
+
+    p_cel = sub.add_parser(
+        "captacao-celula",
+        help="Donizete — varre célula (segmento × área) via Google Places",
+    )
+    p_cel.add_argument("--segmento", required=True, help="ex.: 'clínica odontológica'")
+    p_cel.add_argument("--area", required=True, help="ex.: 'Contagem MG'")
+    p_cel.add_argument("--dry", action="store_true", help="Pontua sem registrar no CRM")
+
+    p_sond = sub.add_parser(
+        "juarez-sondar",
+        help="Juarez — inicia sondagem ativa de atendimento (lead → Dossiê)",
+    )
+    p_sond.add_argument("lead_id", help="Ex.: LEAD-072")
+
+    p_dossie = sub.add_parser(
+        "dossie-gerar",
+        help="Gera o Dossiê de Vazamentos (Ronaldo analisa · página em /d/)",
+    )
+    p_dossie.add_argument("lead_id", help="Ex.: LEAD-072")
+    p_dossie.add_argument("--dry", action="store_true",
+                          help="Só gera a página (sem aprovação/abordagem)")
 
     p_evo = sub.add_parser(
         "evolution-digest",

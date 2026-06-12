@@ -8,7 +8,11 @@ from typing import Any
 
 from laboratorio.autonomy.executor import execute
 from laboratorio.autonomy.registry import get_action
-from laboratorio.whatsapp.approvals import request_agent_action, request_client_message, request_client_template
+from laboratorio.whatsapp.approvals import (
+    request_agent_action,
+    request_client_message,
+    request_client_template,
+)
 
 logger = logging.getLogger("laboratorio.autonomy.gateway")
 

@@ -1,9 +1,8 @@
 """Rotas API — Painel Maestro."""
 
-from pydantic import BaseModel, Field
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
+from pydantic import BaseModel, Field
 
 from laboratorio.api.auth import require_panel_token
 from laboratorio.ops import usage

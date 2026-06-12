@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -9,8 +10,6 @@ import subprocess
 import time
 from datetime import datetime, timezone
 from typing import Any
-
-import json
 
 from laboratorio.agents.llm_config import resolve_agent_llm_config
 from laboratorio.config import (
@@ -140,7 +139,6 @@ CRM_SEGMENT_FILES = ["crm_laboratorio.md", "crm_landing_pintor.md", "crm_appvs.m
 
 from laboratorio.ops.snapshot_cache import (
     get_snapshot_cache,
-    invalidate_maestro_snapshot,
     set_snapshot_cache,
 )
 

@@ -319,7 +319,7 @@ def bulk_archive_active(
         "states": list(target_states),
         "message": (
             f"{len(moved)} task(s) arquivada(s)"
-            + (f" · captura parada" if capture_stopped else "")
+            + (" · captura parada" if capture_stopped else "")
             + (f" · {agenda_cleared} lembrete(s) cancelado(s)" if agenda_cleared else "")
         ),
     }

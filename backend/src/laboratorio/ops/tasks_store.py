@@ -12,8 +12,8 @@ from pathlib import Path
 
 from filelock import FileLock
 
-from laboratorio.db import dual_write
 from laboratorio.config import TASKS_DIR
+from laboratorio.db import dual_write
 from laboratorio.ops.markdown_io import (
     insert_after_heading,
     insert_before_marker,

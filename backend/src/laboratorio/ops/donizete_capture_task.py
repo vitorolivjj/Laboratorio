@@ -8,7 +8,6 @@ from pathlib import Path
 
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops.markdown_io import insert_after_heading, read_text, write_text_atomic
-from laboratorio.ops.tasks_store import move_task
 
 FB_GROUP_URL_RE = re.compile(
     r"https?://(?:www\.)?facebook\.com/groups/(\d+)[^\s\)]*",

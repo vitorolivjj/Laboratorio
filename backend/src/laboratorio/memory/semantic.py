@@ -5,11 +5,10 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
-import re
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator
+from typing import Any
 
 import httpx
 

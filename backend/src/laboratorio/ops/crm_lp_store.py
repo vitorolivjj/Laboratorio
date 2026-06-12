@@ -256,50 +256,54 @@ def update_lead_fields(lead_id: str, *, path: Path = CRM_LP, **fields) -> dict:
     informados (None = ignora). Campos aceitos: nome, cidade, contato, servico,
     status. Levanta se o lead não existir ou status inválido (status válidos
     vêm do funil do crm-meta do próprio arquivo)."""
+    from laboratorio.ops.crm_store import crm_lock
+
     lead_id = lead_id.strip().upper()
-    text = read_text(path)
-    if not text or lead_id not in text:
-        raise ValueError(f"Lead não encontrado no CRM LP: {lead_id}")
-    valid = _valid_status(text)
-    if fields.get("status") is not None and fields["status"] not in valid:
-        raise ValueError(f"Status inválido: {fields['status']}. Use um de {valid}.")
+    with crm_lock(path):
+        text = read_text(path)
+        if not text or lead_id not in text:
+            raise ValueError(f"Lead não encontrado no CRM LP: {lead_id}")
+        valid = _valid_status(text)
+        if fields.get("status") is not None and fields["status"] not in valid:
+            raise ValueError(f"Status inválido: {fields['status']}. Use um de {valid}.")
 
-    new = text
-    changed: list[str] = []
-    for key, raw in fields.items():
-        if raw is None or key not in _EDIT_LABELS:
-            continue
-        val = str(raw).strip()
-        label = _EDIT_LABELS[key]
-        # linha do detalhe: dentro da seção deste lead, troca o valor de | **Label** | ... |
-        new, n = re.subn(
-            rf"(## {re.escape(lead_id)} —.*?\| \*\*{label}\*\* \| )([^|\n]*)( \|)",
-            lambda m, v=val: f"{m.group(1)}{v}{m.group(3)}",
-            new, count=1, flags=re.DOTALL,
-        )
-        if n:
-            changed.append(key)
-        if key == "nome":  # atualiza também o cabeçalho da seção
-            new = re.sub(
-                rf"(^## {re.escape(lead_id)} — ).*$",
-                lambda m, v=val: f"{m.group(1)}{v}", new, count=1, flags=re.MULTILINE,
+        new = text
+        changed: list[str] = []
+        for key, raw in fields.items():
+            if raw is None or key not in _EDIT_LABELS:
+                continue
+            val = str(raw).strip()
+            label = _EDIT_LABELS[key]
+            # detalhe: dentro da seção do lead, troca o valor de | **Label** | ... |
+            new, n = re.subn(
+                rf"(## {re.escape(lead_id)} —.*?\| \*\*{label}\*\* \| )([^|\n]*)( \|)",
+                lambda m, v=val: f"{m.group(1)}{v}{m.group(3)}",
+                new, count=1, flags=re.DOTALL,
             )
+            if n:
+                changed.append(key)
+            if key == "nome":  # atualiza também o cabeçalho da seção
+                new = re.sub(
+                    rf"(^## {re.escape(lead_id)} — ).*$",
+                    lambda m, v=val: f"{m.group(1)}{v}", new, count=1, flags=re.MULTILINE,
+                )
 
-    # linha do índice — colunas detectadas pelo header do próprio arquivo
-    index_cols = _index_cols(text)
+        # índice — colunas detectadas pelo header do próprio arquivo
+        index_cols = _index_cols(text)
 
-    def _row_sub(m: re.Match) -> str:
-        cols = m.group(0).split("|")
-        for key, col in index_cols.items():
-            if fields.get(key) is not None and len(cols) > col:
-                cols[col] = f" {str(fields[key]).strip()} "
-        return "|".join(cols)
+        def _row_sub(m: re.Match) -> str:
+            cols = m.group(0).split("|")
+            for key, col in index_cols.items():
+                if fields.get(key) is not None and len(cols) > col:
+                    cols[col] = f" {str(fields[key]).strip()} "
+            return "|".join(cols)
 
-    new = re.sub(rf"^\|\s*{re.escape(lead_id)}\s*\|.*$", _row_sub, new, flags=re.MULTILINE)
+        new = re.sub(rf"^\|\s*{re.escape(lead_id)}\s*\|.*$", _row_sub, new,
+                     flags=re.MULTILINE)
 
-    if new != text:
-        write_text_atomic(path, new)
-        dual_write.sync_async()
+        if new != text:
+            write_text_atomic(path, new)
+            dual_write.sync_async()
     return {"ok": True, "lead_id": lead_id, "updated": changed}
 
 

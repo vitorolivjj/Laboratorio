@@ -50,8 +50,11 @@ def _access_token() -> str:
     return token
 
 
-def _post_message(payload: dict) -> dict:
-    url = f"{GRAPH_API_BASE}/{_api_version()}/{_phone_number_id()}/messages"
+def _post_message(payload: dict, *, phone_number_id: str | None = None) -> dict:
+    # phone_number_id opcional: permite enviar por outro número da mesma WABA
+    # (ex.: número de sondagem do Juarez) sem mexer no canal padrão (Caio).
+    sender = (phone_number_id or "").strip() or _phone_number_id()
+    url = f"{GRAPH_API_BASE}/{_api_version()}/{sender}/messages"
     with httpx.Client(timeout=30.0) as client:
         response = client.post(
             url,
@@ -68,7 +71,7 @@ def _post_message(payload: dict) -> dict:
         return response.json()
 
 
-def send_text_message(to_wa_id: str, body: str) -> dict:
+def send_text_message(to_wa_id: str, body: str, *, phone_number_id: str | None = None) -> dict:
     """Envia mensagem de texto via WhatsApp Cloud API."""
     payload = {
         "messaging_product": "whatsapp",
@@ -78,7 +81,7 @@ def send_text_message(to_wa_id: str, body: str) -> dict:
         "text": {"preview_url": True, "body": body},
     }
     logger.info("WhatsApp send → %s (%d chars)", to_wa_id, len(body))
-    return _post_message(payload)
+    return _post_message(payload, phone_number_id=phone_number_id)
 
 
 def send_template_message(
@@ -87,6 +90,7 @@ def send_template_message(
     *,
     language_code: str = "pt_BR",
     body_params: list[str] | None = None,
+    phone_number_id: str | None = None,
 ) -> dict:
     """Envia template Meta aprovado — obrigatório para iniciar conversa proativa."""
     template: dict = {
@@ -115,7 +119,7 @@ def send_template_message(
         template_name,
         body_params,
     )
-    return _post_message(payload)
+    return _post_message(payload, phone_number_id=phone_number_id)
 
 
 def render_template_body(template_name: str, body_params: list[str]) -> str:

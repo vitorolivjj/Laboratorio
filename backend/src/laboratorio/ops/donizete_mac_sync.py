@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import re
 
 from laboratorio.config import TASKS_DIR
 from laboratorio.ops.donizete_capture_task import load_capture_config

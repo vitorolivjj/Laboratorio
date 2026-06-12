@@ -103,6 +103,18 @@ TEMPLATES: dict[str, WaTemplateSpec] = {
         ),
         sample_params=("Oficina Exemplo",),
     ),
+    "sondagem_servico": WaTemplateSpec(
+        name="sondagem_servico",
+        label="Juarez — abertura de sondagem de atendimento (número dedicado)",
+        language="pt_BR",
+        body_params=("servico",),
+        meta_category="MARKETING",
+        meta_body=(
+            "Olá! Encontrei vocês no Google e fiquei interessado. Vocês atendem "
+            "{{1}}? Queria entender valores e como funciona pra agendar."
+        ),
+        sample_params=("limpeza dental",),
+    ),
 }
 
 # Templates de abordagem proativa aprovados (decisão 2026-06-11): dentro deles o

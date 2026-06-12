@@ -6,7 +6,6 @@ import json
 import re
 import unicodedata
 from datetime import datetime, timezone
-from pathlib import Path
 
 from laboratorio.config import LOGS_DIR
 

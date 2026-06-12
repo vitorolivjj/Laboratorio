@@ -6,7 +6,6 @@ import json
 import logging
 import os
 import re
-import unicodedata
 from datetime import datetime, timezone
 
 import httpx
@@ -21,9 +20,7 @@ from laboratorio.ops.maestro import build_maestro_snapshot, get_cached_snapshot
 from laboratorio.ops.ronaldo_voice import (
     _answer_agents,
     _answer_errors,
-    _answer_pending,
     _answer_status,
-    _answer_whatsapp,
     _fast_answer,
     _fold,
     _normalize_command,

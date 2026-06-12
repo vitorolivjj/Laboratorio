@@ -7,7 +7,6 @@ import logging
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from laboratorio.config import LOGS_DIR, TASKS_DIR

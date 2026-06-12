@@ -85,6 +85,8 @@ def _format_request(kind: str, short_id: str, summary: str) -> str:
         "agent_action": "Ação do agente",
         "evolution_batch": "Autoevolução (resumo diário)",
         "content_publish": "Publicar conteúdo (Esteira)",
+        "celula_captacao": "Varredura de captação (célula)",
+        "dossie_aprovacao": "Aprovar Dossiê de Vazamentos",
     }.get(kind, kind)
     return (
         f"🔔 Preciso da sua aprovação [{short_id}]\n"
@@ -219,6 +221,35 @@ def request_content_publish(
             "kind": kind if kind in ("reel", "story", "carousel") else "reel",
             "roteiro": roteiro[:200],
         },
+        requested_by=requested_by,
+    )
+
+
+def request_celula_captacao(segmento: str, area: str, *, motivo: str = "",
+                            requested_by: str = "ronaldo") -> str:
+    """Ronaldo sugere uma célula (segmento × área); APROVAR dispara a varredura."""
+    summary = f"{segmento} em {area}"
+    if motivo:
+        summary += f"\nMotivo: {motivo[:160]}"
+    return _create_pending(
+        kind="celula_captacao",
+        summary=summary,
+        payload={"segmento": segmento.strip(), "area": area.strip()},
+        requested_by=requested_by,
+    )
+
+
+def request_dossie_aprovacao(lead_id: str, nome: str, url: str, *,
+                             angulo: str = "", requested_by: str = "ronaldo") -> str:
+    """Dossiê pronto p/ revisão do Vitor; APROVAR dispara a abordagem do Caio."""
+    summary = f"{nome} ({lead_id})\nPágina: {url}"
+    if angulo:
+        summary += f"\nÂngulo do Caio: {angulo[:140]}"
+    return _create_pending(
+        kind="dossie_aprovacao",
+        summary=summary,
+        payload={"lead_id": lead_id.strip().upper(), "nome": nome, "url": url,
+                 "angulo": angulo},
         requested_by=requested_by,
     )
 
@@ -379,6 +410,45 @@ def _execute_pending(item: dict[str, Any]) -> str:
             roteiro=payload.get("roteiro", ""),
         )
         return f"✓ Conteúdo na fila ({q['id']}) — publica no próximo slot."
+
+    if kind == "celula_captacao":
+        import threading
+
+        from laboratorio.ops import places
+        from laboratorio.ops.captacao import varrer_celula
+
+        seg, area = payload.get("segmento", ""), payload.get("area", "")
+        if not seg or not area:
+            raise ValueError("Payload da célula incompleto")
+        # falha síncrona se a key estiver ausente → erro volta pelo resolve_decision
+        places.api_key()
+
+        def _run_varredura() -> None:
+            # varredura leva minutos (Places + pontuação); roda destacada e
+            # SEMPRE dá feedback ao Vitor (sucesso via varrer_celula, erro aqui).
+            try:
+                varrer_celula(seg, area)
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("Varredura da célula %s/%s falhou", seg, area)
+                try:
+                    from laboratorio.whatsapp.notify import notify_vitor
+
+                    notify_vitor(f"⚠️ Varredura falhou — {seg} em {area}",
+                                 f"Erro: {exc}"[:280], ref="captacao")
+                except Exception:  # noqa: BLE001
+                    pass
+
+        threading.Thread(target=_run_varredura, daemon=True).start()
+        return (f"✓ Varredura iniciada: {seg} em {area}. "
+                "Aviso no WhatsApp quando os leads entrarem no CRM.")
+
+    if kind == "dossie_aprovacao":
+        from laboratorio.ops.dossie import aprovar_e_abordar
+
+        lead_id, url = payload.get("lead_id", ""), payload.get("url", "")
+        if not lead_id:
+            raise ValueError("Payload do dossiê sem lead_id")
+        return "✓ " + aprovar_e_abordar(lead_id, url)
 
     raise ValueError(f"Tipo de aprovação desconhecido: {kind}")
 

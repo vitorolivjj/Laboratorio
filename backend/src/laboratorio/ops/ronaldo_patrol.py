@@ -5,12 +5,16 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 
-from laboratorio.config import LOGS_DIR, TASKS_DIR, TASK_STALE_CRITICAL_HOURS, TASK_STALE_HOURS, WIP_SOFT_MAX
+from laboratorio.config import (
+    LOGS_DIR,
+    TASK_STALE_CRITICAL_HOURS,
+    TASK_STALE_HOURS,
+    TASKS_DIR,
+    WIP_SOFT_MAX,
+)
 from laboratorio.ops import parsers
 from laboratorio.ops.maestro import build_maestro_snapshot, executando_stale_report
 from laboratorio.whatsapp.notify import notify_vitor_digest

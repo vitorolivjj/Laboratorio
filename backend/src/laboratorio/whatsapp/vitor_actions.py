@@ -6,10 +6,14 @@ import re
 from datetime import datetime, timezone
 
 from laboratorio.config import LOGS_DIR
-from laboratorio.ops.maestro import build_maestro_snapshot
 from laboratorio.ops.ronaldo_patrol import run_patrol
 from laboratorio.whatsapp.notify import notify_vitor
-from laboratorio.whatsapp.vitor_schedule import add_schedule, cancel_item, list_pending, parse_schedule_request
+from laboratorio.whatsapp.vitor_schedule import (
+    add_schedule,
+    cancel_item,
+    list_pending,
+    parse_schedule_request,
+)
 
 
 def run_patrol_now(*, notify_on_issues: bool = True) -> str:

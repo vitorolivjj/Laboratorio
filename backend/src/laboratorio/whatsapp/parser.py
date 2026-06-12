@@ -12,6 +12,9 @@ class InboundMessage:
     from_wa_id: str
     text: str
     timestamp: str
+    # Número que RECEBEU a mensagem (metadata.phone_number_id) — permite rotear
+    # múltiplos números na mesma WABA (ex.: Caio comercial vs Juarez sondagem).
+    to_phone_id: str = ""
 
 
 def extract_text_messages(payload: dict[str, Any]) -> list[InboundMessage]:
@@ -24,6 +27,7 @@ def extract_text_messages(payload: dict[str, Any]) -> list[InboundMessage]:
     for entry in payload.get("entry", []):
         for change in entry.get("changes", []):
             value = change.get("value", {})
+            to_phone_id = str((value.get("metadata") or {}).get("phone_number_id", ""))
             for msg in value.get("messages", []):
                 if msg.get("type") != "text":
                     continue
@@ -36,6 +40,7 @@ def extract_text_messages(payload: dict[str, Any]) -> list[InboundMessage]:
                         from_wa_id=msg["from"],
                         text=text_body,
                         timestamp=str(msg.get("timestamp", "")),
+                        to_phone_id=to_phone_id,
                     )
                 )
 

@@ -19,7 +19,8 @@ EXPECTED = {
     "check", "llm-config", "run-sample", "orchestrate", "whatsapp-check", "autopilot",
     "ronaldo-patrol", "donizete-captura", "donizete-fb", "ronaldo-audit", "governanca-audit",
     "orphan-memoria-audit", "donizete-mac-prepare", "donizete-busca-local", "vitor-schedule",
-    "content-run", "memory-check", "memory-sync", "memory-recall", "graph-pilot", "graph-run",
+    "content-run", "captacao-celula", "juarez-sondar", "dossie-gerar",
+    "memory-check", "memory-sync", "memory-recall", "graph-pilot", "graph-run",
     "agent-action", "evolution-digest",
 }
 

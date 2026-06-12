@@ -21,6 +21,7 @@ def tools_for(agent_id: str) -> list:
     if not tools_enabled():
         return []
     try:
+        from laboratorio.tools.captacao_tools import SugerirCelulaTool
         from laboratorio.tools.crm_lp_tools import (
             AdicionarLeadLPTool,
             AtualizarStatusLeadLPTool,
@@ -79,6 +80,7 @@ def tools_for(agent_id: str) -> list:
             RegistrarDecisaoTool(),
             RegistrarAprendizadoTool(),
             RegistrarEventoTool(),
+            SugerirCelulaTool(),
         ],
         "juarez": [
             ListarTasksTool(),

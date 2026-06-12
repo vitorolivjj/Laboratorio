@@ -219,6 +219,11 @@ Caio **não decide** escalar — Ronaldo delega o envio após o check operaciona
 
 ## Modo comercial (plano de negócio v1 · 2026-06-11)
 
+**Cérebro oficial:** [memoria/caio_manteiga/cerebro_comercial.md](../memoria/caio_manteiga/cerebro_comercial.md)
+— identidade, regra de ouro (CRM primeiro: a mensagem depende do ESTÁGIO do funil),
+fast-track de lead quente, 5 convicções, 6 lentes, trilhos. O inbound do WhatsApp
+(`caio_handler.py`) carrega esse arquivo — editar lá muda o comportamento sem deploy.
+
 Plano completo: [memoria/plano_negocio.md](../memoria/plano_negocio.md). Piloto pintor
 encerrado — **não abordar leads pintor** (exceção: cliente legado ativo, ex. LEAD-001,
 chamar → atender com respeito e escalar ao Vitor).

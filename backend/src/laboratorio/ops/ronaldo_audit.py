@@ -21,11 +21,10 @@ import os
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 
 import httpx
 
-from laboratorio.config import MEMORIA_DIR, TASK_CADENCE_MIN, TASKS_DIR, load_env
+from laboratorio.config import TASKS_DIR, load_env
 from laboratorio.ops import parsers
 from laboratorio.whatsapp.notify import notify_vitor
 
