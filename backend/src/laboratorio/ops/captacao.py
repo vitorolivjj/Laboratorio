@@ -44,9 +44,15 @@ dele como lead, pela matriz oficial (0–2 cada critério):
 Regra do plano: negócio COM demanda aparente e presença mal cuidada é o alvo.
 Negócio sem operação visível ou sem canal de contato pontua baixo.
 
+Em "sinais", liste de 2 a 4 SINAIS REAIS E ESPECÍFICOS que VOCÊ observou NESTE
+negócio (cada um curto e concreto) — ex.: "sem site vinculado", "2 avaliações
+citam demora no retorno", "perfil sem horário", "nota alta mas reviews reclamam
+de atendimento". NUNCA escreva frases genéricas como "X sinais observados" nem
+repita o texto desta instrução.
+
 Devolva APENAS JSON:
 {"dor":0-2,"pagamento":0-2,"vazamento":0-2,"canal":0-2,"potencial":0-2,
-"sinais":["até 4 sinais concretos observados"],"resumo":"1 frase do porquê"}"""
+"sinais":["<sinal real 1>","<sinal real 2>"],"resumo":"1 frase do porquê"}"""
 
 
 def _model() -> str | None:
