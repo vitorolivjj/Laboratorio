@@ -13,6 +13,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from laboratorio.api.routes.approvals import router as approvals_router
+from laboratorio.api.routes.captacao import router as captacao_router
 from laboratorio.api.routes.content import router as content_router
 from laboratorio.api.routes.crm import router as crm_router
 from laboratorio.api.routes.donizete import router as donizete_router
@@ -41,6 +42,7 @@ app.include_router(tasks_router)
 app.include_router(crm_router)
 app.include_router(approvals_router)
 app.include_router(content_router)
+app.include_router(captacao_router)
 
 # Painel v2 (React/Tailwind) — operação ao vivo, tasks, comunicação e mapa em /painel.
 PAINEL_V2_DIR = REPO_ROOT / "frontend" / "painel-v2"
