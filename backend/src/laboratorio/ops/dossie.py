@@ -33,24 +33,30 @@ TEMPLATE = (REPO_ROOT / "backend" / "src" / "laboratorio" / "assets"
             / "dossie_template.html")
 
 _SYSTEM = """Você é RONALDO MAESTRO, estrategista do Laboratório de Agentes.
-Recebe os dados públicos de um negócio local (coleta do Donizete via Google,
-reviews, e — quando houver — sondagem de atendimento do Juarez) e monta o
-DIAGNÓSTICO do Dossiê de Vazamentos: onde esse negócio está perdendo cliente
-por falta de processo em captação, atendimento ou comercial.
+Recebe MÉTRICAS objetivas de um negócio local (Google/Places: nota, nº de
+avaliações, % negativas da amostra, nº de fotos, faixa de preço, horário; sinais
+técnicos do site; textos de avaliações reais) e monta o DIAGNÓSTICO do Dossiê de
+Vazamentos: onde o negócio perde cliente por falta de processo.
 
-Regras do produto (inegociáveis):
-- só afirme o que tem EVIDÊNCIA nos dados; sem evidência → não inventar;
-- linguagem de dono de negócio (zero jargão técnico, zero IA-hype);
-- 3 a 5 vazamentos, cada um com evidência concreta e impacto provável;
-- tom respeitoso: aponta a perda, nunca ridiculariza;
-- o Dossiê abre os olhos mas NÃO entrega a solução (isso é o Plano de Ataque).
+REGRAS INEGOCIÁVEIS:
+- CADA vazamento DEVE ancorar num NÚMERO/MÉTRICA concreto dos dados (ex.:
+  "nota 4,5 mas 40% das avaliações recentes são negativas", "apenas 1 foto para
+  204 avaliações", "site sem HTTPS", "sem horário cadastrado") E, quando houver
+  avaliação relevante, UMA citação LITERAL e curta entre aspas.
+- NUNCA invente. Você NÃO sabe se o negócio responde avaliações, nem nada fora
+  dos dados recebidos. Sem dado → não afirme. Proibido alegar "não responde
+  avaliações" ou suposições sem métrica.
+- 3 a 5 vazamentos, do mais grave ao menos. Foco na PERDA provável, tom
+  respeitoso (nunca ridiculariza). Linguagem de dono (zero jargão de IA).
+- O Dossiê abre os olhos mas NÃO entrega a solução (isso é o Plano de Ataque).
 
 Devolva APENAS JSON válido:
-{"score": 0-100, "resumo": "2-3 frases do cenário",
-"areas": [{"nome": "Presença no Google|Site/Página|Instagram|WhatsApp|Atendimento|Prova social|...",
-"status": "bom|atencao|critico", "obs": "frase curta"}],
-"vazamentos": [{"nome": "...", "evidencia": "o que foi observado",
-"impacto": "como isso perde cliente/dinheiro", "risco": "Baixo|Médio|Alto"}],
+{"score": 0-100 (quão provável que esse negócio perca cliente por falta de
+processo — alto = mais vazamento),
+"resumo": "2-3 frases do cenário, com pelo menos 1 número concreto",
+"vazamentos": [{"nome": "título curto", "evidencia": "o que os DADOS mostram —
+com número e/ou citação entre aspas", "impacto": "como isso perde cliente/dinheiro",
+"risco": "Baixo|Médio|Alto"}],
 "oportunidade": "a oportunidade principal em 1-2 frases",
 "angulo_abordagem": "qual dor o Caio deve puxar na 1ª mensagem"}"""
 
@@ -84,10 +90,14 @@ def _coletar_contexto(lead_id: str) -> tuple[dict, dict]:
 def _diagnostico(lead: dict, analise: dict) -> dict:
     from laboratorio.graph.llm import chat
 
+    cap = analise.get("captacao") or {}
     contexto = {
         "negocio": {k: lead.get(k) for k in
                     ("nome", "servico", "cidade", "contato", "observacoes")},
-        "captacao_donizete": analise.get("captacao") or {},
+        "metricas_google": cap.get("metricas") or {},
+        "site_probe": cap.get("site_probe"),
+        "avaliacoes_amostra": cap.get("reviews") or [],
+        "sinais_donizete": cap.get("sinais") or [],
         "auditoria_atendimento": analise.get("auditoria_atendimento") or {},
         "sondagem_ativa_juarez": {
             k: v for k, v in (analise.get("sondagem_ativa") or {}).items()
@@ -106,7 +116,63 @@ def _diagnostico(lead: dict, analise: dict) -> dict:
     return d
 
 
-def _render(lead: dict, diag: dict) -> str:
+def _norm_status(s: str) -> str:
+    """Normaliza o status p/ casar com as classes CSS (.st.bom/.atencao/.critico)."""
+    s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode().lower()
+    return s if s in ("bom", "atencao", "critico") else "atencao"
+
+
+def _areas_dos_dados(analise: dict) -> list[dict]:
+    """Áreas avaliadas DERIVADAS dos dados (não do LLM) — defensáveis e factuais."""
+    cap = analise.get("captacao") or {}
+    m = cap.get("metricas") or {}
+    site = cap.get("site_probe") or {}
+    areas: list[dict] = []
+
+    nota, nav = m.get("nota"), m.get("n_avaliacoes") or 0
+    fotos, horario = m.get("n_fotos"), m.get("horario_preenchido")
+    if nota is not None:
+        if (fotos == 0) or not horario:
+            st = "critico"
+        elif nota >= 4.5 and (fotos or 0) >= 10:
+            st = "bom"
+        else:
+            st = "atencao"
+        obs = f"Nota {nota} com {nav} avaliações"
+        if fotos is not None:
+            obs += f" · {fotos} foto(s)"
+        if not horario:
+            obs += " · sem horário cadastrado"
+        areas.append({"nome": "Presença no Google", "status": st, "obs": obs})
+
+    if not m.get("tem_site"):
+        areas.append({"nome": "Site / Página", "status": "critico",
+                      "obs": "Sem site vinculado ao perfil do Google"})
+    elif site:
+        if not site.get("no_ar"):
+            st, obs = "critico", "Site fora do ar ou retornando erro"
+        elif not site.get("https"):
+            st, obs = "critico", "Site sem HTTPS (cadeado de segurança)"
+        elif not site.get("tem_whatsapp"):
+            st, obs = "atencao", "Site no ar, mas sem link de WhatsApp"
+        else:
+            st, obs = "bom", "Site no ar, com HTTPS e WhatsApp"
+        areas.append({"nome": "Site / Página", "status": st, "obs": obs})
+
+    tem_wpp = bool(m.get("tem_site") and site.get("tem_whatsapp"))
+    if not tem_wpp:
+        areas.append({"nome": "WhatsApp", "status": "atencao",
+                      "obs": "Sem caminho claro de WhatsApp na presença pública"})
+
+    pct = m.get("pct_negativas_amostra")
+    if pct is not None and m.get("reviews_amostra"):
+        st = "critico" if pct >= 40 else ("atencao" if pct >= 20 else "bom")
+        areas.append({"nome": "Reputação / Atendimento", "status": st,
+                      "obs": f"{pct}% das avaliações recentes (amostra) são negativas"})
+    return areas[:6]
+
+
+def _render(lead: dict, diag: dict, analise: dict) -> str:
     tpl = TEMPLATE.read_text(encoding="utf-8")
     esc = html.escape
 
@@ -120,16 +186,18 @@ def _render(lead: dict, diag: dict) -> str:
     else:
         label, color = "vazamentos críticos", "#dc2626"
 
+    _ROT = {"bom": "Bom", "atencao": "Atenção", "critico": "Crítico"}
+    areas = _areas_dos_dados(analise) or (diag.get("areas") or [])
     areas_html = "".join(
         f'<div class="area"><b>{esc(str(a.get("nome", "")))}</b>'
-        f'<span class="st {esc(str(a.get("status", "atencao")))}">'
-        f'{ {"bom": "Bom", "atencao": "Atenção", "critico": "Crítico"}.get(str(a.get("status")), "Atenção") }</span>'
+        f'<span class="st {_norm_status(a.get("status"))}">'
+        f'{_ROT[_norm_status(a.get("status"))]}</span>'
         f'<p>{esc(str(a.get("obs", "")))}</p></div>'
-        for a in (diag.get("areas") or [])[:8]
+        for a in areas[:8]
     )
-    riscos = {"alto": "alto", "médio": "", "medio": "", "baixo": "baixo"}
+    riscos = {"alto": "alto", "médio": "medio", "medio": "medio", "baixo": "baixo"}
     vaz_html = "".join(
-        f'<div class="vaz {riscos.get(str(v.get("risco", "")).lower(), "")}">'
+        f'<div class="vaz {riscos.get(str(v.get("risco", "")).lower(), "medio")}">'
         f'<span class="risco">risco {esc(str(v.get("risco", "Médio")))}</span>'
         f'<h3>{esc(str(v.get("nome", "")))}</h3>'
         f'<p><b>O que observamos:</b> {esc(str(v.get("evidencia", "")))}</p>'
@@ -142,8 +210,9 @@ def _render(lead: dict, diag: dict) -> str:
         txt = "Recebi o Dossiê de Vazamentos e quero o Plano de Ataque."
         cta = (f'<a href="https://wa.me/{zap}?text={html.escape(txt)}">'
                "Quero meu Plano de Ataque</a>")
-    else:
-        cta = ""
+    else:  # sem número público: o Dossiê vai pelo WhatsApp do Caio → responder ali
+        cta = ('<a href="#" onclick="return false" style="cursor:default">'
+               "Responda esta conversa com <b>ATAQUE</b></a>")
 
     tz = ZoneInfo("America/Sao_Paulo")
     subs = {
@@ -183,7 +252,7 @@ def gerar(lead_id: str, *, dry: bool = False) -> dict:
         logger.warning("Auditoria passiva indisponível p/ %s: %s", lead_id, exc)
 
     diag = _diagnostico(lead, analise)
-    page = _render(lead, diag)
+    page = _render(lead, diag, analise)
 
     slug = f"{lead_id.lower()}-{_slug(lead.get('nome', ''))}"
     DOSSIES_DIR.mkdir(parents=True, exist_ok=True)

@@ -32,17 +32,22 @@ Recebe os sinais públicos de UM negócio local (Google Maps) e pontua o potenci
 dele como lead, pela matriz oficial (0–2 cada critério):
 
 - dor: sinais de que perde cliente por desorganização (reviews citando demora,
-  falta de resposta, dificuldade de contato; canal fraco) — 0 sem sinal · 1 provável · 2 evidente
-- pagamento: capacidade de pagar (volume de avaliações, nota, porte aparente,
-  segmento com ticket) — 0 baixa · 1 média · 2 boa
-- vazamento: vazamento VISÍVEL (sem site, perfil incompleto, sem horário,
-  reviews sem resposta, presença mal cuidada apesar de demanda) — 0 não · 1 provável · 2 claro
+  dificuldade de contato, falta de retorno; canal fraco) — 0 sem sinal · 1 provável · 2 evidente
+- pagamento: capacidade de pagar (volume de avaliações, nota, faixa de preço,
+  porte aparente) — 0 baixa · 1 média · 2 boa
+- vazamento: vazamento VISÍVEL nos dados (sem site OU site sem HTTPS/WhatsApp/
+  formulário; perfil incompleto: sem horário, poucas fotos vs muitas avaliações;
+  presença mal cuidada apesar de demanda) — 0 não · 1 provável · 2 claro
 - canal: canal de atendimento existe e importa (telefone/WhatsApp visível,
   negócio que vive de agendamento/orçamento) — 0 fraco · 1 existe · 2 forte
 - potencial: potencial de virar Sprint depois (processo a organizar) — 0 baixo · 1 médio · 2 alto
 
 Regra do plano: negócio COM demanda aparente e presença mal cuidada é o alvo.
 Negócio sem operação visível ou sem canal de contato pontua baixo.
+IMPORTANTE: você NÃO sabe se o negócio responde às avaliações (o Google não
+expõe isso) — NUNCA pontue ou cite "não responde avaliações". Use só os dados
+recebidos (nota, nº de avaliações, % negativas da amostra, fotos, site/probe,
+faixa de preço, textos das reviews).
 
 Em "sinais", liste de 2 a 4 SINAIS REAIS E ESPECÍFICOS que VOCÊ observou NESTE
 negócio (cada um curto e concreto) — ex.: "sem site vinculado", "2 avaliações
@@ -76,20 +81,41 @@ def _parse_json(raw: str) -> dict:
         return json.loads(m.group(0)) if m else {}
 
 
-def pontuar(place: dict, reviews: list[dict]) -> dict:
-    """Pontua um negócio (LLM lê os sinais + reviews). Devolve score + sinais."""
-    from laboratorio.graph.llm import chat
-
-    sinais_obj = {
-        "nome": place.get("nome"),
-        "tem_site": bool(place.get("site")),
-        "tem_telefone": bool(place.get("telefone")),
+def metricas(place: dict, reviews: list[dict], n_fotos: int | None = None,
+             site: dict | None = None) -> dict:
+    """Sinais NUMÉRICOS derivados — base factual do Dossiê (sem inventar)."""
+    notas = [r.get("nota") for r in reviews if isinstance(r.get("nota"), (int, float))]
+    neg = [r for r in reviews if isinstance(r.get("nota"), (int, float)) and r["nota"] <= 3]
+    n = len(reviews)
+    return {
         "nota": place.get("nota"),
         "n_avaliacoes": place.get("n_avaliacoes"),
+        "reviews_amostra": n,
+        "reviews_negativas_amostra": len(neg),
+        "pct_negativas_amostra": round(100 * len(neg) / n) if n else None,
+        "nota_media_amostra": round(sum(notas) / len(notas), 1) if notas else None,
+        "n_fotos": n_fotos,
+        "tem_site": bool(place.get("site")),
         "horario_preenchido": place.get("horario_preenchido"),
+        "faixa_preco": place.get("faixa_preco"),
+        "tipo_principal": place.get("tipo_principal"),
+        "descricao_google": place.get("descricao_google"),
+        "site_probe": site,
+    }
+
+
+def pontuar(place: dict, reviews: list[dict], *, n_fotos: int | None = None,
+            site: dict | None = None) -> dict:
+    """Pontua um negócio (LLM lê os sinais + reviews). Devolve score + sinais + métricas."""
+    from laboratorio.graph.llm import chat
+
+    mets = metricas(place, reviews, n_fotos=n_fotos, site=site)
+    sinais_obj = {
+        **mets,
         "endereco": place.get("endereco"),
         "reviews": [
-            {"nota": r.get("nota"), "texto": r.get("texto", "")[:300]} for r in reviews[:5]
+            {"nota": r.get("nota"), "quando": r.get("quando", ""),
+             "texto": r.get("texto", "")[:300]} for r in reviews[:5]
         ],
     }
     try:
@@ -123,6 +149,7 @@ def pontuar(place: dict, reviews: list[dict]) -> dict:
         "componentes": comp,
         "sinais": [str(s)[:140] for s in (d.get("sinais") or [])][:4],
         "resumo": str(d.get("resumo", ""))[:200],
+        "metricas": mets,
     }
 
 
@@ -205,7 +232,15 @@ def varrer_celula(segmento: str, area: str, *, dry: bool = False,
                 det = places.detalhes(place["place_id"])
         except Exception as exc:  # noqa: BLE001
             logger.warning("Detalhe falhou p/ %s: %s", place.get("nome"), exc)
-        aval = pontuar(place, det.get("reviews", []))
+        site_sig = None
+        try:
+            from laboratorio.ops import site_probe
+
+            site_sig = site_probe.probe(place.get("site", ""))
+        except Exception as exc:  # noqa: BLE001
+            logger.info("Site probe falhou p/ %s: %s", place.get("nome"), exc)
+        aval = pontuar(place, det.get("reviews", []),
+                       n_fotos=det.get("n_fotos"), site=site_sig)
         avaliados += 1
         if aval["score"] < minimo:
             continue
@@ -237,13 +272,15 @@ def varrer_celula(segmento: str, area: str, *, dry: bool = False,
             "place_id": place.get("place_id"),
             "maps_url": place.get("maps_url"),
             "site": place.get("site"),
-            "nota": place.get("nota"),
-            "n_avaliacoes": place.get("n_avaliacoes"),
-            "n_fotos": det.get("n_fotos"),
             "horario_preenchido": place.get("horario_preenchido"),
+            "tipo_principal": place.get("tipo_principal"),
+            "faixa_preco": place.get("faixa_preco"),
+            "descricao_google": place.get("descricao_google"),
             "componentes": aval["componentes"],
             "sinais": aval["sinais"],
             "resumo": aval["resumo"],
+            "metricas": aval.get("metricas"),
+            "site_probe": site_sig,
             "reviews": det.get("reviews", [])[:5],
         })
         registrados.append({"id": lead["id"], "nome": place["nome"],

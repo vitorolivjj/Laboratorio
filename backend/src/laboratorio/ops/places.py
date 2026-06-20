@@ -33,9 +33,13 @@ _SEARCH_FIELDS = ",".join([
     "places.rating",
     "places.userRatingCount",
     "places.regularOpeningHours.weekdayDescriptions",
+    "places.regularOpeningHours.openNow",
     "places.businessStatus",
     "places.googleMapsUri",
     "places.types",
+    "places.primaryTypeDisplayName",
+    "places.priceLevel",
+    "places.editorialSummary",
     "nextPageToken",
 ])
 _DETAIL_FIELDS = ",".join([
@@ -44,6 +48,8 @@ _DETAIL_FIELDS = ",".join([
     "reviews.rating",
     "reviews.text.text",
     "reviews.relativePublishTimeDescription",
+    "reviews.publishTime",
+    "reviews.authorAttribution.displayName",
     "photos.name",
 ])
 
@@ -81,6 +87,9 @@ def _norm_place(p: dict) -> dict:
         "status_negocio": p.get("businessStatus", ""),
         "maps_url": p.get("googleMapsUri", ""),
         "tipos": p.get("types", []),
+        "tipo_principal": ((p.get("primaryTypeDisplayName") or {}).get("text") or ""),
+        "faixa_preco": (p.get("priceLevel") or "").replace("PRICE_LEVEL_", "").lower(),
+        "descricao_google": ((p.get("editorialSummary") or {}).get("text") or ""),
     }
 
 
@@ -135,6 +144,8 @@ def detalhes(place_id: str) -> dict:
         reviews.append({
             "nota": rev.get("rating"),
             "quando": rev.get("relativePublishTimeDescription", ""),
+            "data": rev.get("publishTime", ""),  # ISO — permite medir recência
+            "autor": ((rev.get("authorAttribution") or {}).get("displayName") or ""),
             "texto": ((rev.get("text") or {}).get("text") or "")[:400],
         })
     return {
