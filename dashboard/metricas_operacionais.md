@@ -8,14 +8,14 @@ Visão centralizada da operação do Laboratório multiagente.
 > Snapshot: `scripts/update_dashboard_snapshot.py` · `.github/workflows/update-dashboard.yml`
 
 **Última atualização manual:** 2026-05-30 (TASK-006 — arquitetura modelos v1)  
-**Última atualização automática:** 2026-06-20 (script local / GitHub Actions)
+**Última atualização automática:** 2026-06-21 (script local / GitHub Actions)
 
 ---
 
 ## 0. Snapshot automático
 
 <!-- AUTO-SNAPSHOT:START -->
-> **Snapshot automático** · gerado em **2026-06-20 14:01 UTC** · script `scripts/update_dashboard_snapshot.py`  
+> **Snapshot automático** · gerado em **2026-06-21 14:08 UTC** · script `scripts/update_dashboard_snapshot.py`  
 > **CRM:** segmentado (`crm/crm_*.md`) — alinhado ao Painel Maestro
 
 ### Resumo
